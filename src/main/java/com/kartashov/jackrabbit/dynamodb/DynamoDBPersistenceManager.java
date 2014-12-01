@@ -103,7 +103,8 @@ public class DynamoDBPersistenceManager implements PersistenceManager, CachingPe
     }
 
     @Override
-    public ConsistencyReport check(String[] uuids, boolean recursive, boolean fix, String lostNFoundId, ConsistencyCheckListener listener) throws RepositoryException {
+    public ConsistencyReport check(String[] uuids, boolean recursive, boolean fix, String lostNFoundId,
+                                   ConsistencyCheckListener listener) throws RepositoryException {
         return null;
     }
 
@@ -113,7 +114,9 @@ public class DynamoDBPersistenceManager implements PersistenceManager, CachingPe
     }
 
     @Override
-    public Map<NodeId, NodeInfo> getAllNodeInfos(NodeId after, int maxCount) throws ItemStateException, RepositoryException {
+    public Map<NodeId, NodeInfo> getAllNodeInfos(NodeId after, int maxCount)
+            throws ItemStateException, RepositoryException {
+
         return null;
     }
 }
