@@ -1,23 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
+    <modelVersion>4.0.0</modelVersion>
     <groupId>com.kartashov.jackrabbit</groupId>
-    <artifactId>jackrabbit-dynamodb</artifactId>
-    <packaging>jar</packaging>
+    <artifactId>jackrabbit-dynamodb-parent</artifactId>
+    <packaging>pom</packaging>
     <version>0.0.1-SNAPSHOT</version>
 
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <version.jackrabbit>2.9.0</version.jackrabbit>
-        <version.jcr>2.0</version.jcr>
-        <version.aws-sdk>[1.9.6, 2.0.0)</version.aws-sdk>
-        <version.junit>4.11</version.junit>
-        <version.slf4j>1.7.7</version.slf4j>
-        <version.commons-io>[2.4, 3.0)</version.commons-io>
-        <version.commons-math>[2.2, 3.0)</version.commons-math>
-    </properties>
+    <modules>
+        <module>jackrabbit-dynamodb</module>
+    </modules>
+
+    <contributors>
+        <contributor>
+            <name>Vasily Kartashov</name>
+            <email>vasily@kartashov.com</email>
+        </contributor>
+    </contributors>
 
     <build>
         <plugins>
@@ -42,28 +43,16 @@
         </plugins>
     </build>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.apache.jackrabbit</groupId>
-            <artifactId>jackrabbit-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>javax.jcr</groupId>
-            <artifactId>jcr</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.amazonaws</groupId>
-            <artifactId>aws-java-sdk</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-        </dependency>
-    </dependencies>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <version.jackrabbit>2.9.0</version.jackrabbit>
+        <version.jcr>2.0</version.jcr>
+        <version.aws-sdk>[1.9.6, 2.0.0)</version.aws-sdk>
+        <version.junit>4.11</version.junit>
+        <version.slf4j>1.7.7</version.slf4j>
+        <version.commons-io>[2.4, 3.0)</version.commons-io>
+        <version.commons-math>[2.2, 3.0)</version.commons-math>
+    </properties>
 
     <dependencyManagement>
         <dependencies>
