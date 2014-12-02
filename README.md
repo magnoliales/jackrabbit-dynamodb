@@ -7,4 +7,5 @@ To Do
 -----
 
 - Move proper test suite from jackrabbit project
-- Check the batch writing, probably a bug
+- Create parent project
+- Create test project with magnolia instance
