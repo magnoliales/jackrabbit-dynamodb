@@ -6,5 +6,5 @@ To run execute `mvn test -Daws.accessKeyId=... -Daws.secretKey=`
 To Do
 -----
 
-- Add caching
+- Move proper test suite from jackrabbit project
 - Check the batch writing, probably a bug

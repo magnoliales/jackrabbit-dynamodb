@@ -15,6 +15,8 @@
         <version.aws-sdk>[1.9.6, 2.0.0)</version.aws-sdk>
         <version.junit>4.11</version.junit>
         <version.slf4j>1.7.7</version.slf4j>
+        <version.commons-io>[2.4, 3.0)</version.commons-io>
+        <version.commons-math>[2.2, 3.0)</version.commons-math>
     </properties>
 
     <build>
@@ -61,6 +63,14 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
         </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-math</artifactId>
+        </dependency>
     </dependencies>
 
     <dependencyManagement>
@@ -90,6 +100,18 @@
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-log4j12</artifactId>
                 <version>${version.slf4j}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>${version.commons-io}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-math</artifactId>
+                <version>${version.commons-math}</version>
                 <scope>test</scope>
             </dependency>
         </dependencies>

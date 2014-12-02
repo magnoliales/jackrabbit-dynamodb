@@ -122,29 +122,29 @@ public class NodeStateData {
 
     public static class Child {
 
-        private Name name;
-        private NodeId nodeId;
+        private String name;
+        private String nodeId;
 
         @JsonCreator
         public Child(@JsonProperty("name") String name,
                      @JsonProperty("nodeId") String nodeId) {
-            this.name = NameFactoryImpl.getInstance().create(name);
-            this.nodeId = NodeId.valueOf(nodeId);
+            this.name = name;
+            this.nodeId = nodeId;
         }
 
         public Child(ChildNodeEntry childNodeEntry) {
-            name = childNodeEntry.getName();
-            nodeId = childNodeEntry.getId();
+            name = childNodeEntry.getName().toString();
+            nodeId = childNodeEntry.getId().toString();
         }
 
         @JsonProperty
         public String getName() {
-            return name.toString();
+            return name;
         }
 
         @JsonProperty
         public String getNodeId() {
-            return nodeId.toString();
+            return nodeId;
         }
     }
 }
