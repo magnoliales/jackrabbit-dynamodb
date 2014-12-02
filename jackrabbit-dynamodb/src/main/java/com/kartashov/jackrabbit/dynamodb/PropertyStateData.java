@@ -7,7 +7,9 @@ import org.apache.jackrabbit.core.persistence.PersistenceManager;
 import org.apache.jackrabbit.core.state.PropertyState;
 import org.apache.jackrabbit.core.value.InternalValue;
 import org.apache.jackrabbit.spi.Name;
+import org.apache.jackrabbit.spi.Path;
 import org.apache.jackrabbit.spi.commons.name.NameFactoryImpl;
+import org.apache.jackrabbit.spi.commons.name.PathFactoryImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,6 +22,7 @@ import java.util.List;
 public class PropertyStateData {
 
     private static final Logger log = LoggerFactory.getLogger(PropertyStateData.class);
+    private static final String EMPTY_TOKEN = "EMPTY-2c9f8d90-7a6f-11e4-82f8-0800200c9a66";
 
     private String type;
     private boolean multiValued;
@@ -60,8 +63,16 @@ public class PropertyStateData {
                 case PropertyType.NAME:
                     values.add(internalValue.getName().toString());
                     break;
+                case PropertyType.PATH:
+                    values.add(internalValue.getPath().toString());
+                    break;
                 case PropertyType.STRING:
-                    values.add(internalValue.getString());
+                    String s = internalValue.getString();
+                    if (s.equals(EMPTY_TOKEN)) {
+                        values.add("");
+                    } else {
+                        values.add(s);
+                    }
                     break;
                 default:
                     log.error("Serializer is not implemented for type " + type);
@@ -89,11 +100,24 @@ public class PropertyStateData {
                 case PropertyType.DOUBLE:
                     internalValues.add(InternalValue.create((Double) value));
                     break;
+                case PropertyType.LONG:
+                    internalValues.add(InternalValue.create(Long.valueOf(value.toString())));
+                    break;
                 case PropertyType.NAME:
                     Name name = NameFactoryImpl.getInstance().create((String) value);
                     internalValues.add(InternalValue.create(name));
+                    break;
+                case PropertyType.PATH:
+                    Path path = PathFactoryImpl.getInstance().create((String) value);
+                    internalValues.add(InternalValue.create(path));
+                    break;
                 case PropertyType.STRING:
-                    internalValues.add(InternalValue.create((String) value));
+                    String s = (String) value;
+                    if (s.length() == 0) {
+                        internalValues.add(InternalValue.create(EMPTY_TOKEN));
+                    } else {
+                        internalValues.add(InternalValue.create(s));
+                    }
                     break;
                 default:
                     log.error("Deserializer is not implemented for type " + type);

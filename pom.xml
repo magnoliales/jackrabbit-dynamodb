@@ -11,6 +11,7 @@
 
     <modules>
         <module>jackrabbit-dynamodb</module>
+        <module>jackrabbit-dynamodb-example</module>
     </modules>
 
     <contributors>
@@ -60,11 +61,13 @@
                 <groupId>org.apache.jackrabbit</groupId>
                 <artifactId>jackrabbit-core</artifactId>
                 <version>${version.jackrabbit}</version>
+                <scope>compile</scope>
             </dependency>
             <dependency>
                 <groupId>javax.jcr</groupId>
                 <artifactId>jcr</artifactId>
                 <version>${version.jcr}</version>
+                <scope>compile</scope>
             </dependency>
             <dependency>
                 <groupId>com.amazonaws</groupId>
