@@ -292,7 +292,7 @@ public class DynamoDBPersistenceManager implements PersistenceManager, CachingPe
     }
 
     @Override
-    public void store(ChangeLog changeLog) throws ItemStateException {
+    public synchronized void store(ChangeLog changeLog) throws ItemStateException {
 
         Map<NodeId, Set<String>> modifiedReferences = new HashMap<>();
         for (NodeReferences nodeReferences : changeLog.modifiedRefs()) {
