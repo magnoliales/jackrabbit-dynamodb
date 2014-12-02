@@ -45,7 +45,7 @@ public abstract class AbstractObservationTest extends AbstractJCRTest {
     protected static final long DEFAULT_WAIT_TIMEOUT = 5000;
 
 
-    protected static final int ALL_TYPES = Event.NODE_ADDED | Event.NODE_REMOVED | Event.PROPERTY_ADDED | Event.PROPERTY_CHANGED | Event.PROPERTY_REMOVED | Event.NODE_MOVED;
+    protected static final int ALL_TYPES = Event.NODE_ADDED | Event.NODE_REMOVED | Event.PROPERTY_ADDED | Event.PROPERTY_CHANGED | Event.PROPERTY_REMOVED | javax.jcr.observation.Event.NODE_MOVED;
 
     /**
      * The <code>ObservationManager</code>
@@ -71,7 +71,7 @@ public abstract class AbstractObservationTest extends AbstractJCRTest {
      * Registers an <code>EventListener</code> for all events.
      *
      * @param listener the <code>EventListener</code>.
-     * @throws javax.jcr.RepositoryException if registration fails.
+     * @throws RepositoryException if registration fails.
      */
     protected void addEventListener(EventListener listener) throws RepositoryException {
         addEventListener(listener,
@@ -84,7 +84,7 @@ public abstract class AbstractObservationTest extends AbstractJCRTest {
      *
      * @param listener  the <code>EventListener</code>.
      * @param eventType the event types
-     * @throws javax.jcr.RepositoryException if registration fails.
+     * @throws RepositoryException if registration fails.
      */
     protected void addEventListener(EventListener listener, int eventType)
             throws RepositoryException {
@@ -105,7 +105,7 @@ public abstract class AbstractObservationTest extends AbstractJCRTest {
      * Removes the <code>EventListener</code> from the ObservationManager.
      *
      * @param listener the <code>EventListener</code> to unregister.
-     * @throws javax.jcr.RepositoryException if unregister fails.
+     * @throws RepositoryException if unregister fails.
      */
     protected void removeEventListener(EventListener listener) throws RepositoryException {
         if (obsMgr != null) {
@@ -122,11 +122,11 @@ public abstract class AbstractObservationTest extends AbstractJCRTest {
      * @return array of <code>EventListeners</code>.
      */
     protected EventListener[] toArray(EventListenerIterator it) {
-        List listeners = new ArrayList();
+        List<EventListener> listeners = new ArrayList<EventListener>();
         while (it.hasNext()) {
             listeners.add(it.nextEventListener());
         }
-        return (EventListener[]) listeners.toArray(new EventListener[listeners.size()]);
+        return listeners.toArray(new EventListener[listeners.size()]);
     }
 
     //--------------------< check methods >-------------------------------------
@@ -140,7 +140,7 @@ public abstract class AbstractObservationTest extends AbstractJCRTest {
      *                 #testRoot} (required events).
      * @param optionalRelPaths paths to child nodes added relative to {@link
      *                 #testRoot} (optional events).
-     * @throws javax.jcr.RepositoryException if an error occurs while retrieving the nodes
+     * @throws RepositoryException if an error occurs while retrieving the nodes
      *                             from event instances.
      */
     protected void checkNodeAdded(Event[] events, String[] requiredRelPaths, String[] optionalRelPaths)
@@ -157,7 +157,7 @@ public abstract class AbstractObservationTest extends AbstractJCRTest {
      *                 #testRoot} (required events).
      * @param optionalRelPaths paths to child nodes added relative to {@link
      *                 #testRoot} (optional events).
-     * @throws javax.jcr.RepositoryException if an error occurs while retrieving the nodes
+     * @throws RepositoryException if an error occurs while retrieving the nodes
      *                             from event instances.
      */
     protected void checkNodeRemoved(Event[] events, String[] requiredRelPaths, String[] optionalRelPaths)
@@ -172,7 +172,7 @@ public abstract class AbstractObservationTest extends AbstractJCRTest {
      * @param events   the <code>Event</code>s.
      * @param relPaths paths to added properties relative to {@link
      *                 #testRoot}.
-     * @throws javax.jcr.RepositoryException if an error occurs while retrieving the nodes
+     * @throws RepositoryException if an error occurs while retrieving the nodes
      *                             from event instances.
      */
     protected void checkPropertyAdded(Event[] events, String[] relPaths)
@@ -187,7 +187,7 @@ public abstract class AbstractObservationTest extends AbstractJCRTest {
      * @param events   the <code>Event</code>s.
      * @param relPaths paths to changed properties relative to {@link
      *                 #testRoot}.
-     * @throws javax.jcr.RepositoryException if an error occurs while retrieving the nodes
+     * @throws RepositoryException if an error occurs while retrieving the nodes
      *                             from event instances.
      */
     protected void checkPropertyChanged(Event[] events, String[] relPaths)
@@ -202,7 +202,7 @@ public abstract class AbstractObservationTest extends AbstractJCRTest {
      * @param events   the <code>Event</code>s.
      * @param relPaths paths to removed properties relative to {@link
      *                 #testRoot}.
-     * @throws javax.jcr.RepositoryException if an error occurs while retrieving the nodes
+     * @throws RepositoryException if an error occurs while retrieving the nodes
      *                             from event instances.
      */
     protected void checkPropertyRemoved(Event[] events, String[] relPaths)
@@ -218,12 +218,12 @@ public abstract class AbstractObservationTest extends AbstractJCRTest {
      * @param requiredRelPaths  paths to required item events relative to {@link #testRoot}.
      * @param optionalRelPaths  paths to optional item events relative to {@link #testRoot}.
      * @param eventType the type of event to check.
-     * @throws javax.jcr.RepositoryException if an error occurs while retrieving the nodes
+     * @throws RepositoryException if an error occurs while retrieving the nodes
      *                             from event instances.
      */
     protected void checkNodes(Event[] events, String[] requiredRelPaths, String[] optionalRelPaths, long eventType)
             throws RepositoryException {
-        Set paths = new HashSet();
+        Set<String> paths = new HashSet<String>();
         for (int i = 0; i < events.length; i++) {
             assertEquals("Wrong event type", eventType, events[i].getType());
             String path = events[i].getPath();
@@ -237,14 +237,14 @@ public abstract class AbstractObservationTest extends AbstractJCRTest {
             paths.remove(expected);
         }
         // check what remains in the set is indeed optional
-        Set optional = new HashSet();
+        Set<String> optional = new HashSet<String>();
         if (optionalRelPaths != null) {
             for (int i = 0; i < optionalRelPaths.length; i++) {
                 optional.add(testRoot + "/" + optionalRelPaths[i]);
             }
         }
-        for (Iterator it = paths.iterator(); it.hasNext(); ) {
-            String path = (String)it.next();
+        for (Iterator<String> it = paths.iterator(); it.hasNext(); ) {
+            String path = it.next();
             assertTrue("Path " + path + " not expected in events.",
                     optional.contains(path));
         }
@@ -258,7 +258,7 @@ public abstract class AbstractObservationTest extends AbstractJCRTest {
      * @param call       the callable.
      * @param eventTypes the types of the events to listen for.
      * @return the events that were generated during execution of the callable.
-     * @throws javax.jcr.RepositoryException if an error occurs.
+     * @throws RepositoryException if an error occurs.
      */
     protected Event[] getEvents(Callable call, int eventTypes)
             throws RepositoryException {
@@ -277,7 +277,7 @@ public abstract class AbstractObservationTest extends AbstractJCRTest {
      * @param path   the path.
      * @return the event with the given <code>path</code> or {@link #fail()}s if
      *         no such event exists.
-     * @throws javax.jcr.RepositoryException if an error occurs while reading from the
+     * @throws RepositoryException if an error occurs while reading from the
      *                             repository.
      */
     protected Event getEventByPath(Event[] events, String path)

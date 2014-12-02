@@ -149,13 +149,13 @@ class AbstractOrderByTest extends AbstractQueryTest {
         Query q;
         QueryResult result;
         if (sql != null) {
-            q = superuser.getWorkspace().getQueryManager().createQuery(sql, Query.SQL);
+            q = superuser.getWorkspace().getQueryManager().createQuery(sql, qsSQL);
             result = q.execute();
             checkResultOrder(result, nodeNames);
         }
 
         if (xpath != null) {
-            q = superuser.getWorkspace().getQueryManager().createQuery(xpath, Query.XPATH);
+            q = superuser.getWorkspace().getQueryManager().createQuery(xpath, qsXPATH);
             result = q.execute();
             checkResultOrder(result, nodeNames);
         }
@@ -168,13 +168,13 @@ class AbstractOrderByTest extends AbstractQueryTest {
         Collections.reverse(Arrays.asList(nodeNames));
 
         if (sql != null) {
-            q = superuser.getWorkspace().getQueryManager().createQuery(sql + " DESC", Query.SQL);
+            q = superuser.getWorkspace().getQueryManager().createQuery(sql + " DESC", qsSQL);
             result = q.execute();
             checkResultOrder(result, nodeNames);
         }
 
         if (xpath != null) {
-            q = superuser.getWorkspace().getQueryManager().createQuery(xpath + " descending", Query.XPATH);
+            q = superuser.getWorkspace().getQueryManager().createQuery(xpath + " descending", qsXPATH);
             result = q.execute();
             checkResultOrder(result, nodeNames);
         }
@@ -192,21 +192,21 @@ class AbstractOrderByTest extends AbstractQueryTest {
      */
     protected void checkResultOrder(QueryResult result, String[] nodeNames)
             throws RepositoryException {
-        List nodes = new ArrayList();
+        List<Node> nodes = new ArrayList<Node>();
         for (NodeIterator it = result.getNodes(); it.hasNext();) {
             nodes.add(it.nextNode());
         }
         assertEquals("Wrong hit count:", nodeNames.length, nodes.size());
 
         for (int i = 0; i < nodeNames.length; i++) {
-            String name = ((Node) nodes.get(i)).getName();
+            String name = nodes.get(i).getName();
             assertEquals("Wrong order of nodes:", nodeNames[i], name);
         }
     }
 
     /**
      * @return a basic QOM to test order by queries.
-     * @throws javax.jcr.RepositoryException if an error occurs.
+     * @throws RepositoryException if an error occurs.
      */
     protected QueryObjectModel createQOM(boolean ascending)
             throws RepositoryException {
@@ -228,7 +228,7 @@ class AbstractOrderByTest extends AbstractQueryTest {
     /**
      * @return a dynamic operand that is used in the QOM created by
      *         {@link #createQOM(boolean)}.
-     * @throws javax.jcr.RepositoryException if an error occurs.
+     * @throws RepositoryException if an error occurs.
      */
     protected DynamicOperand createOrderingOperand()
             throws RepositoryException {
@@ -253,11 +253,11 @@ class AbstractOrderByTest extends AbstractQueryTest {
     /**
      * @return a basic XPath statement to test order by queries. Returns
      *         <code>null</code> is XPath is not supported.
-     * @throws javax.jcr.RepositoryException if an error occurs.
+     * @throws RepositoryException if an error occurs.
      */
     protected String createXPath() throws RepositoryException {
-        List languages = Arrays.asList(superuser.getWorkspace().getQueryManager().getSupportedQueryLanguages());
-        if (languages.contains(Query.XPATH)) {
+        List<String> languages = Arrays.asList(superuser.getWorkspace().getQueryManager().getSupportedQueryLanguages());
+        if (languages.contains(qsXPATH)) {
             return xpathRoot + "/*[@jcr:primaryType='" + testNodeType + "'] order by @" + propertyName1;
         } else {
             return null;

@@ -49,7 +49,7 @@ public class LockingTest extends AbstractObservationTest {
     public void testAddLockToNode() throws RepositoryException,
             NotExecutableException {
         Node lockable = createLockable(nodeName1, testNodeType);
-        testRootNode.save();
+        testRootNode.getSession().save();
         EventResult result = new EventResult(log);
         addEventListener(result, Event.PROPERTY_ADDED);
 
@@ -63,7 +63,7 @@ public class LockingTest extends AbstractObservationTest {
         for (int i = 0; i < events.length; i++) {
             assertEquals("Wrong type of event.", Event.PROPERTY_ADDED, events[i].getType());
         }
-        List paths = new ArrayList();
+        List<String> paths = new ArrayList<String>();
         for (int i = 0; i < events.length; i++) {
             paths.add(events[i].getPath());
         }
@@ -82,7 +82,7 @@ public class LockingTest extends AbstractObservationTest {
     public void testRemoveLockFromNode() throws RepositoryException,
             NotExecutableException {
         Node lockable = createLockable(nodeName1, testNodeType);
-        testRootNode.save();
+        testRootNode.getSession().save();
         // lock the node
         lockable.lock(false, true);
 
@@ -96,7 +96,7 @@ public class LockingTest extends AbstractObservationTest {
         for (int i = 0; i < events.length; i++) {
             assertEquals("Wrong type of event.", Event.PROPERTY_REMOVED, events[i].getType());
         }
-        List paths = new ArrayList();
+        List<String> paths = new ArrayList<String>();
         for (int i = 0; i < events.length; i++) {
             paths.add(events[i].getPath());
         }

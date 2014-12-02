@@ -20,7 +20,6 @@ import org.apache.jackrabbit.test.AbstractJCRTest;
 import org.apache.jackrabbit.test.NotExecutableException;
 import org.apache.jackrabbit.test.api.util.ISO9075;
 
-import javax.jcr.query.InvalidQueryException;
 import javax.jcr.query.QueryResult;
 import javax.jcr.query.RowIterator;
 import javax.jcr.query.Query;
@@ -94,6 +93,18 @@ public abstract class AbstractQueryTest extends AbstractJCRTest {
     protected QueryManager qm;
 
     /**
+     * The identifier for the "XPATH" query syntax
+     */
+    @SuppressWarnings("deprecation")
+	protected String qsXPATH = Query.XPATH;
+
+    /**
+     * The identifier for the "SQL" query syntax
+     */
+    @SuppressWarnings("deprecation")
+	protected String qsSQL = Query.SQL;
+
+    /**
      * Set-up the configuration values used for the test. Per default retrieves
      * a session, configures testRoot, and nodetype and checks if the query
      * language for the current language is available.<br>
@@ -119,12 +130,12 @@ public abstract class AbstractQueryTest extends AbstractJCRTest {
     }
 
     /**
-     * Create a {@link javax.jcr.query.Query} for a given {@link org.apache.jackrabbit.test.api.query.Statement}.
+     * Create a {@link Query} for a given {@link Statement}.
      *
      * @param statement the query should be created for
      * @return
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      * @see #createQuery(String, String)
      */
     protected Query createQuery(Statement statement)
@@ -133,38 +144,36 @@ public abstract class AbstractQueryTest extends AbstractJCRTest {
     }
 
     /**
-     * Creates a {@link javax.jcr.query.Query} for the given statement in the requested
+     * Creates a {@link Query} for the given statement in the requested
      * language, treating optional languages gracefully
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     protected Query createQuery(String statement, String language) throws RepositoryException, NotExecutableException {
         return createQuery(superuser, statement, language);
     }
 
     /**
-     * Creates a {@link javax.jcr.query.Query} for the given statement in the requested
+     * Creates a {@link Query} for the given statement in the requested
      * language, treating optional languages gracefully
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     protected Query createQuery(Session session, String statement, String language) throws RepositoryException, NotExecutableException {
         log.println("Creating query: " + statement);
-        
+
         // check for unsupported query languages early
         if (! isSupportedLanguage(language) && !Query.JCR_SQL2.equals(language)) {
             throw new NotExecutableException("Repository does not support " + language + " query syntax");
         }
-        else {
-            return session.getWorkspace().getQueryManager().createQuery(statement, language);
-        }
+        return session.getWorkspace().getQueryManager().createQuery(statement, language);
     }
 
     /**
-     * Creates and executes a {@link javax.jcr.query.Query} for the given {@link org.apache.jackrabbit.test.api.query.Statement}
+     * Creates and executes a {@link Query} for the given {@link Statement}
      *
      * @param statement to execute
      * @return
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      * @see #execute(String, String)
      */
     protected QueryResult execute(Statement statement)
@@ -173,14 +182,14 @@ public abstract class AbstractQueryTest extends AbstractJCRTest {
     }
 
     /**
-     * Creates and executes a {@link javax.jcr.query.Query} for a given Statement in a given
+     * Creates and executes a {@link Query} for a given Statement in a given
      * query language
      *
      * @param statement the query should be build for
      * @param language  query language the stement is written in
      * @return
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     protected QueryResult execute(String statement, String language)
             throws RepositoryException, NotExecutableException {
@@ -194,7 +203,7 @@ public abstract class AbstractQueryTest extends AbstractJCRTest {
      *
      * @param result the <code>QueryResult</code>.
      * @param hits   the number of expected hits.
-     * @throws javax.jcr.RepositoryException if an error occurs while iterating over the
+     * @throws RepositoryException if an error occurs while iterating over the
      *                             result nodes.
      */
     protected void checkResult(QueryResult result, int hits)
@@ -221,7 +230,7 @@ public abstract class AbstractQueryTest extends AbstractJCRTest {
      * @param result     the <code>QueryResult</code>.
      * @param hits       the number of expected hits.
      * @param properties the number of expected properties.
-     * @throws javax.jcr.RepositoryException if an error occurs while iterating over the
+     * @throws RepositoryException if an error occurs while iterating over the
      *                             result nodes.
      */
     protected void checkResult(QueryResult result, int hits, int properties)
@@ -251,13 +260,13 @@ public abstract class AbstractQueryTest extends AbstractJCRTest {
     }
 
     /**
-     * Checks if the {@link javax.jcr.query.QueryResult} is ordered according order property in
+     * Checks if the {@link QueryResult} is ordered according order property in
      * direction of related argument.
      *
      * @param queryResult to be tested
      * @param propName    Name of the porperty to order by
      * @param descending  if <code>true</code> order has to be descending
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      * @throws NotExecutableException in case of less than two results or all
      *                                results have same size of value in its
      *                                order-property
@@ -297,13 +306,13 @@ public abstract class AbstractQueryTest extends AbstractJCRTest {
      * the specified <code>nodes</code>.
      * @param session the session to use for the query.
      * @param xpath the xpath query.
-     * @param nodes the expected result nodes.
-     * @throws NotExecutableException 
+     * @param expectedNodes the expected nodes.
+     * @throws NotExecutableException
      */
-    protected void executeXPathQuery(Session session, String xpath, Node[] nodes)
+    protected void executeXPathQuery(Session session, String xpath, Node[] expectedNodes)
             throws RepositoryException, NotExecutableException {
-        QueryResult res = createQuery(session, xpath, Query.XPATH).execute();
-        checkResult(res, nodes);
+        QueryResult res = createQuery(session, xpath, qsXPATH).execute();
+        checkResult(res, expectedNodes, null);
     }
 
     /**
@@ -311,41 +320,80 @@ public abstract class AbstractQueryTest extends AbstractJCRTest {
      * the specified <code>nodes</code>.
      * @param session the session to use for the query.
      * @param sql the sql query.
-     * @param nodes the expected result nodes.
-     * @throws NotExecutableException 
+     * @param expectedNodes the expected nodes.
+     * @throws NotExecutableException
      */
-    protected void executeSqlQuery(Session session, String sql, Node[] nodes)
+    protected void executeSqlQuery(Session session, String sql, Node[] expectedNodes)
             throws RepositoryException, NotExecutableException {
-        QueryResult res = createQuery(session, sql, Query.SQL).execute();
-        checkResult(res, nodes);
+    		executeSqlQuery(session, sql, expectedNodes, null);
+    }
+
+    /**
+     * Executes the <code>sql</code> query and checks the results against
+     * the specified <code>nodes</code>.
+     * @param session the session to use for the query.
+     * @param sql the sql query.
+     * @param requiredNodes the nodes that need to be in the result set
+     * 		(null if no node is required).
+     * @param optionalNodes the nodes that may be in the result set
+     * 		(null if no node is optional).
+     * @throws NotExecutableException
+     */
+    protected void executeSqlQuery(Session session, String sql, Node[] requiredNodes, Node[] optionalNodes)
+            throws RepositoryException, NotExecutableException {
+        QueryResult res = createQuery(session, sql, qsSQL).execute();
+        checkResult(res, requiredNodes, optionalNodes);
     }
 
     /**
      * Checks if the result set contains exactly the <code>nodes</code>.
      * @param result the query result.
-     * @param nodes the expected nodes in the result set.
+     * @param expectedNodes the expected nodes.
      */
-    protected void checkResult(QueryResult result, Node[] nodes)
+    protected void checkResult(QueryResult result, Node[] expectedNodes)
+    			throws RepositoryException {
+    		checkResult(result, expectedNodes, null);
+	}
+
+    /**
+     * Checks if the result set contains exactly the <code>nodes</code>.
+     * @param result the query result.
+     * @param requiredNodes the nodes that need to be in the result set
+     * 		(null if no node is required).
+     * @param optionalNodes the nodes that may be in the result set
+     * 		(null if no node is optional).
+     */
+    protected void checkResult(QueryResult result, Node[] requiredNodes, Node[] optionalNodes)
             throws RepositoryException {
         // collect paths
-        Set expectedPaths = new HashSet();
-        for (int i = 0; i < nodes.length; i++) {
-            expectedPaths.add(nodes[i].getPath());
-        }
-        Set resultPaths = new HashSet();
+        Set<String> requiredPaths = getPathSet(requiredNodes);
+        Set<String> optionalPaths = getPathSet(optionalNodes);
+        Set<String> resultPaths = new HashSet<String>();
         for (NodeIterator it = result.getNodes(); it.hasNext();) {
             resultPaths.add(it.nextNode().getPath());
         }
-        // check if all expected are in result
-        for (Iterator it = expectedPaths.iterator(); it.hasNext();) {
-            String path = (String) it.next();
+        // check if all required nodes are in result
+        for (Iterator<String> it = requiredPaths.iterator(); it.hasNext();) {
+            String path = it.next();
             assertTrue(path + " is not part of the result set", resultPaths.contains(path));
         }
         // check result does not contain more than expected
-        for (Iterator it = resultPaths.iterator(); it.hasNext();) {
-            String path = (String) it.next();
-            assertTrue(path + " is not expected to be part of the result set", expectedPaths.contains(path));
+        for (Iterator<String> it = resultPaths.iterator(); it.hasNext();) {
+            String path = it.next();
+            if (!optionalPaths.contains(path)) {
+            		assertTrue(path + " is not expected to be part of the result set", requiredPaths.contains(path));
+            }
         }
+    }
+
+    private static HashSet<String> getPathSet(Node[] nodes) throws RepositoryException {
+    		HashSet<String> paths = new HashSet<String>();
+    		if (nodes != null) {
+    	        for (int i = 0; i < nodes.length; i++) {
+    	        		paths.add(nodes[i].getPath());
+        		}
+    		}
+    		return paths;
     }
 
     /**
@@ -354,11 +402,11 @@ public abstract class AbstractQueryTest extends AbstractJCRTest {
      * @return the elements of the iterator as an array of Nodes.
      */
     protected Node[] toArray(NodeIterator it) {
-        List nodes = new ArrayList();
+        List<Node> nodes = new ArrayList<Node>();
         while (it.hasNext()) {
             nodes.add(it.nextNode());
         }
-        return (Node[]) nodes.toArray(new Node[nodes.size()]);
+        return nodes.toArray(new Node[nodes.size()]);
     }
 
     /**
@@ -372,16 +420,14 @@ public abstract class AbstractQueryTest extends AbstractJCRTest {
         if (!needsEscaping) {
             return identifier;
         }
-        else {
-            return '"' + identifier + '"';
-        }
+        return '"' + identifier + '"';
     }
 
     /**
      * @param language a query language.
      * @return <code>true</code> if <code>language</code> is supported;
      *         <code>false</code> otherwise.
-     * @throws javax.jcr.RepositoryException if an error occurs.
+     * @throws RepositoryException if an error occurs.
      */
     protected boolean isSupportedLanguage(String language)
             throws RepositoryException {

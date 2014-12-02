@@ -37,7 +37,7 @@ import javax.jcr.InvalidItemStateException;
 public class SessionUUIDTest extends AbstractJCRTest {
 
     /**
-     * Tries to remove a node that is a reference target using {@link javax.jcr.Session#save()}.<br>
+     * Tries to remove a node that is a reference target using {@link Session#save()}.<br>
      * <br>Procedure:
      * <ul>
      * <li>Creates two nodes with same session</li>
@@ -92,7 +92,7 @@ public class SessionUUIDTest extends AbstractJCRTest {
 
     /**
      * Moves a referencable node using {@link javax.jcr.Session#move(String, String)} with one session and
-     * saves afterward changes made with a second session to the moved node using {@link javax.jcr.Session#save()}.
+     * saves afterward changes made with a second session to the moved node using {@link Session#save()}.
      * <p>
      * Procedure:
      * <ul>

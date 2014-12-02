@@ -24,7 +24,7 @@ import javax.jcr.version.VersionException;
 import javax.jcr.version.VersionManager;
 
 /**
- * <code>OnParentVersionAbortTest</code> tests the OnParentVersion {@link javax.jcr.version.OnParentVersionAction#ABORT ABORT}
+ * <code>OnParentVersionAbortTest</code> tests the OnParentVersion {@link OnParentVersionAction#ABORT ABORT}
  * behaviour.
  *
  * @test
@@ -74,13 +74,13 @@ public class OnParentVersionAbortTest extends AbstractOnParentVersionTest {
     /**
      * Test the restore of a OnParentVersion-ABORT node
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      * @throws NotExecutableException
      */
     public void testRestoreNode() throws RepositoryException, NotExecutableException {
         // create child node with OPV-ABORT behaviour
         addChildNode(OPVAction);
-        testRootNode.save();
+        testRootNode.getSession().save();
         try {
             versionableNode.checkin();
             fail("On checkin of N which has a child node with OnParentVersion ABORT defined, an UnsupportedRepositoryOperationException must be thrown.");
@@ -92,7 +92,7 @@ public class OnParentVersionAbortTest extends AbstractOnParentVersionTest {
     /**
      * Test the restore of a OnParentVersion-ABORT node
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      * @throws NotExecutableException
      */
     public void testRestoreNodeJcr2() throws RepositoryException, NotExecutableException {

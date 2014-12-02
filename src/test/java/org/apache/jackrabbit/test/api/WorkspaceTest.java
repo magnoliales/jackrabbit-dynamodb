@@ -39,7 +39,7 @@ public class WorkspaceTest extends AbstractJCRTest {
     /**
      * Tests {@link javax.jcr.Workspace#getLockManager()}.
      * 
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testGetLockManager() throws RepositoryException {
         if (isSupported(Repository.OPTION_LOCKING_SUPPORTED)) {

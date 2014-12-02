@@ -142,18 +142,18 @@ public class NamespaceRegistryTest extends AbstractJCRTest {
 
         try {
             created = testRootNode.addNode(namespacePrefix + ":root");
-            testRootNode.save();
+            testRootNode.getSession().save();
         }
         catch (RepositoryException ex) {
             // that didn't work; maybe the repository allows a property here?
             testRootNode.getSession().refresh(false);
             created = testRootNode.setProperty(namespacePrefix + ":root", "test");
-            testRootNode.save();
+            testRootNode.getSession().save();
         }
 
         // Need to remove it here, otherwise teardown can't unregister the NS.
         testRootNode.getSession().getItem(created.getPath()).remove();
-        testRootNode.save();
+        testRootNode.getSession().save();
     }
 
     /**
@@ -190,7 +190,7 @@ public class NamespaceRegistryTest extends AbstractJCRTest {
      * @return an unused namespace prefix.
      */
     private String getUnusedPrefix() throws RepositoryException {
-        Set prefixes = new HashSet(Arrays.asList(nsp.getPrefixes()));
+        Set<String> prefixes = new HashSet<String>(Arrays.asList(nsp.getPrefixes()));
         String prefix = TEST_PREFIX;
         int i = 0;
         while (prefixes.contains(prefix)) {
@@ -205,7 +205,7 @@ public class NamespaceRegistryTest extends AbstractJCRTest {
      * @return an unused namespace URI.
      */
     private String getUnusedURI() throws RepositoryException {
-        Set uris = new HashSet(Arrays.asList(nsp.getURIs()));
+        Set<String> uris = new HashSet<String>(Arrays.asList(nsp.getURIs()));
         String uri = TEST_URI;
         int i = 0;
         while (uris.contains(uri)) {

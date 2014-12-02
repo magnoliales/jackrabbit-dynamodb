@@ -31,7 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * <code>RemoveVersionTest</code> provides test methods covering {@link javax.jcr.version.VersionHistory#removeVersion(String)}.
+ * <code>RemoveVersionTest</code> provides test methods covering {@link VersionHistory#removeVersion(String)}.
  * Please note, that removing versions is defined to be an optional feature in
  * the JSR 170 specification. The setup therefore includes a initial removal,
  * in order to test, whether removing versions is supported.
@@ -109,12 +109,12 @@ public class RemoveVersionTest extends AbstractVersionTest {
      * Test if the predecessors of the removed version are made predecessor of
      * its original successor version.
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testRemoveVersionAdjustPredecessorSet() throws RepositoryException {
 
         // retrieve predecessors to test and remove the version
-        List predecPaths = new ArrayList();
+        List<String> predecPaths = new ArrayList<String>();
         Version[] predec = version.getPredecessors();
         for (int i = 0; i < predec.length; i++) {
             predecPaths.add(predec[i].getPath());
@@ -138,7 +138,7 @@ public class RemoveVersionTest extends AbstractVersionTest {
      * Test if the successors of the removed version are made successors of
      * all predecessors of the the removed version.
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testRemoveVersionAdjustSucessorSet() throws RepositoryException {
 
@@ -162,7 +162,7 @@ public class RemoveVersionTest extends AbstractVersionTest {
      * Test if removing a version from the version history throws a VersionException
      * if the specified version does not exist.
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      * @throws NotExecutableException
      */
     public void testRemoveInvalidVersion() throws RepositoryException, NotExecutableException {
@@ -209,7 +209,7 @@ public class RemoveVersionTest extends AbstractVersionTest {
         Value refValue = superuser.getValueFactory().createValue(version);
         ensureCanSetProperty(n1, propertyName1, refValue);
         n1.setProperty(propertyName1, refValue);
-        testRootNode.save();
+        testRootNode.getSession().save();
 
         try {
             vHistory.removeVersion(version.getName());

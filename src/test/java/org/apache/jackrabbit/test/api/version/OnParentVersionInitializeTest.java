@@ -23,7 +23,7 @@ import javax.jcr.version.Version;
 import javax.jcr.version.VersionManager;
 
 /**
- * <code>OnParentVersionInitializeTest</code> tests the {@link javax.jcr.version.OnParentVersionAction#INITIALIZE INITIALIZE}
+ * <code>OnParentVersionInitializeTest</code> tests the {@link OnParentVersionAction#INITIALIZE INITIALIZE}
  * behaviour.
  *
  * @test

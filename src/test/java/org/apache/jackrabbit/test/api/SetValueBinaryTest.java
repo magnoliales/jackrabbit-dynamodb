@@ -30,7 +30,7 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Value;
 
 /**
- * Tests the various {@link javax.jcr.Property#setValue(javax.jcr.Value)} methods.
+ * Tests the various {@link Property#setValue(Value)} methods.
  * <p>
  * Configuration requirements:
  * <p>
@@ -78,7 +78,7 @@ public class SetValueBinaryTest extends AbstractJCRTest {
 
         // create a new node under the testRootNode
         node = testRootNode.addNode(nodeName1, testNodeType);
-        testRootNode.save();
+        testRootNode.getSession().save();
 
         // special case for repositories that do allow binary property
         // values, but only on jcr:content/jcr:data
@@ -110,7 +110,7 @@ public class SetValueBinaryTest extends AbstractJCRTest {
         try {
             compareStream(data, in);
         } finally {
-            in.close();
+            try { in.close(); } catch (IOException ignore) {}
         }
     }
 
@@ -127,7 +127,7 @@ public class SetValueBinaryTest extends AbstractJCRTest {
             try {
                 compareStream(data, in);
             } finally {
-                in.close();
+                try { in.close(); } catch (IOException ignore) {}
             }
         } finally {
             bin.dispose();
@@ -144,13 +144,13 @@ public class SetValueBinaryTest extends AbstractJCRTest {
             property1.setValue(in);
             node.save();
         } finally {
-            in.close();
+            try { in.close(); } catch (IOException ignore) {}
         }
         in = property1.getValue().getStream();
         try {
             compareStream(data, in);
         } finally {
-            in.close();
+            try { in.close(); } catch (IOException ignore) {}
         }
     }
 
@@ -168,7 +168,7 @@ public class SetValueBinaryTest extends AbstractJCRTest {
             try {
                 compareStream(data, in);
             } finally {
-                in.close();
+                try { in.close(); } catch (IOException ignore) {}
             }
         } finally {
             bin.dispose();

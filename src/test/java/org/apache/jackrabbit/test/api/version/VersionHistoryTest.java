@@ -24,6 +24,7 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.jcr.ItemNotFoundException;
@@ -116,7 +117,7 @@ public class VersionHistoryTest extends AbstractVersionTest {
      * The version history must initially contain two versions (root version +
      * first test version).
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testInitialNumberOfVersions() throws RepositoryException {
         long initialSize = getNumberOfVersions(vHistory);
@@ -127,7 +128,7 @@ public class VersionHistoryTest extends AbstractVersionTest {
      * The version history must initially contain two versions (root version +
      * first test version) - linear variant
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      * @since JCR 2.0
      */
     public void testInitialNumberOfLinearVersions() throws RepositoryException {
@@ -165,7 +166,7 @@ public class VersionHistoryTest extends AbstractVersionTest {
         
         VersionManager vm = versionableNode.getSession().getWorkspace().getVersionManager();
         
-        List lvh = new ArrayList();
+        List<String> lvh = new ArrayList<String>();
         for (VersionIterator it = vHistory.getAllLinearVersions(); it.hasNext(); ) {
             lvh.add(it.nextVersion().getName());
         }
@@ -180,15 +181,16 @@ public class VersionHistoryTest extends AbstractVersionTest {
     }
 
     /**
-     * Test that {@link javax.jcr.version.VersionHistory#getAllVersions()} returns an iterator
+     * Test that {@link VersionHistory#getAllVersions()} returns an iterator
      * containing the root version and all versions that have been created by
      * Node.checkin().
      *
      * @see javax.jcr.version.VersionHistory#getAllVersions()
      */
+    @SuppressWarnings("deprecation")
     public void testGetAllVersions() throws RepositoryException {
         int cnt = 5;
-        HashMap versions = new HashMap();
+        Map<String, Version> versions = new HashMap<String, Version>();
         Version v = vHistory.getRootVersion();
         versions.put(v.getUUID(), v);
         for (int i = 0; i < cnt; i++) {
@@ -209,7 +211,7 @@ public class VersionHistoryTest extends AbstractVersionTest {
     }
 
     /**
-     * Test that {@link javax.jcr.version.VersionHistory#getAllVersions()} returns an iterator
+     * Test that {@link VersionHistory#getAllVersions()} returns an iterator
      * containing the root version and all versions that have been created by
      * Node.checkin().
      *
@@ -217,11 +219,14 @@ public class VersionHistoryTest extends AbstractVersionTest {
      */
     public void testGetAllVersionsJcr2() throws RepositoryException {
         int cnt = 5;
-        HashMap versions = new HashMap();
+        Map<String, Version> versions = new HashMap<String, Version>();
+        List<String> vnames = new ArrayList<String>();
         Version v = vHistory.getRootVersion();
         versions.put(v.getIdentifier(), v);
+        vnames.add(v.getIdentifier());
         for (int i = 0; i < cnt; i++) {
             v = versionManager.checkin(versionableNode.getPath());
+            vnames.add(v.getIdentifier());
             versions.put(v.getIdentifier(), v);
             versionManager.checkout(versionableNode.getPath());
         }
@@ -233,14 +238,16 @@ public class VersionHistoryTest extends AbstractVersionTest {
                 fail("VersionHistory.getAllVersions() must only contain the root version and versions, that have been created by a Node.checkin() call.");
             }
             versions.remove(v.getIdentifier());
+            // check order of linear version history (see JCR 2.0, 15.1.1.2)
+            assertEquals("versions in a linear version history should be sorted by creation time", vnames.remove(0), v.getIdentifier());
         }
-        assertTrue("VersionHistory.getAllVersions() must contain the root version and all versions that have been created with a Node.checkin() call.", versions.isEmpty());
+        assertTrue("VersionHistory.getAllVersions() must only contain the root version and all versions that have been created with a Node.checkin() call.", versions.isEmpty());
     }
 
     /**
-     * Test that {@link javax.jcr.version.VersionHistory#getAllFrozenNodes()} returns an iterator
+     * Test that {@link VersionHistory#getAllFrozenNodes()} returns an iterator
      * containing the frozen nodes of all versions that have been created by
-     * {@link javax.jcr.version.VersionManager#checkpoint(String)}.
+     * {@link VersionManager#checkpoint(String)}.
      *
      * @see javax.jcr.version.VersionHistory#getAllFrozenNodes()
      * @since JCR 2.0
@@ -256,13 +263,13 @@ public class VersionHistoryTest extends AbstractVersionTest {
             vm.checkpoint(path);
         }
 
-        Set frozenIds = new HashSet();
+        Set<String> frozenIds = new HashSet<String>();
         for (VersionIterator it = vm.getVersionHistory(path).getAllVersions(); it.hasNext(); ) {
             Version v = it.nextVersion();
             frozenIds.add(v.getFrozenNode().getIdentifier());
         }
         
-        Set test = new HashSet();
+        Set<String> test = new HashSet<String>();
         for (NodeIterator it = vHistory.getAllFrozenNodes(); it.hasNext(); ) {
             Node n = it.nextNode();
             assertTrue("Node " + n.getPath() + " must be of type frozen node",
@@ -277,6 +284,7 @@ public class VersionHistoryTest extends AbstractVersionTest {
      * Test if UnsupportedRepositoryOperationException is thrown when calling
      * Node.getVersionHistory() on a non-versionable node.
      */
+    @SuppressWarnings("deprecation")
     public void testGetVersionHistoryOnNonVersionableNode() throws RepositoryException {
         try {
             nonVersionableNode.getVersionHistory();
@@ -303,7 +311,7 @@ public class VersionHistoryTest extends AbstractVersionTest {
      * Test VersionHistory.getVersion(String versionName) if 'versionName' is
      * the name of an existing version (created by Node.checkin()).
      *
-     * @see javax.jcr.version.VersionHistory#getVersion(String)
+     * @see VersionHistory#getVersion(String)
      */
     public void testGetVersion() throws RepositoryException {
 
@@ -367,6 +375,7 @@ public class VersionHistoryTest extends AbstractVersionTest {
      * Tests if <code>VersionHistory.cancelMerge(Version)</code> throws an
      * {@link javax.jcr.UnsupportedRepositoryOperationException}
      */
+    @SuppressWarnings("deprecation")
     public void testCancelMerge() throws Exception {
         try {
             vHistory.cancelMerge(version);
@@ -391,6 +400,7 @@ public class VersionHistoryTest extends AbstractVersionTest {
      * Tests if <code>VersionHistory.checkin()</code> throws an {@link
      * javax.jcr.UnsupportedRepositoryOperationException}
      */
+    @SuppressWarnings("deprecation")
     public void testCheckin() throws Exception {
         try {
             vHistory.checkin();
@@ -415,6 +425,7 @@ public class VersionHistoryTest extends AbstractVersionTest {
      * Tests if <code>VersionHistory.checkout()</code> throws an {@link
      * javax.jcr.UnsupportedRepositoryOperationException}
      */
+    @SuppressWarnings("deprecation")
     public void testCheckout() throws Exception {
         try {
             vHistory.checkout();
@@ -439,6 +450,7 @@ public class VersionHistoryTest extends AbstractVersionTest {
      * Tests if <code>VersionHistory.doneMerge(Version)</code> throws an {@link
      * javax.jcr.UnsupportedRepositoryOperationException}
      */
+    @SuppressWarnings("deprecation")
     public void testDoneMerge() throws Exception {
         try {
             vHistory.doneMerge(version);
@@ -471,6 +483,7 @@ public class VersionHistoryTest extends AbstractVersionTest {
      * Tests if <code>VersionHistory.getBaseVersion()</code> throws an {@link
      * javax.jcr.UnsupportedRepositoryOperationException}
      */
+    @SuppressWarnings("deprecation")
     public void testGetBaseVersion() throws Exception {
         try {
             vHistory.getBaseVersion();
@@ -517,6 +530,7 @@ public class VersionHistoryTest extends AbstractVersionTest {
      * Tests if <code>VersionHistory.getLock()</code> throws an {@link
      * javax.jcr.lock.LockException}
      */
+    @SuppressWarnings("deprecation")
     public void testGetLock() throws Exception {
         try {
             vHistory.getLock();
@@ -825,6 +839,7 @@ public class VersionHistoryTest extends AbstractVersionTest {
      * Tests if <code>VersionHistory.lock(boolean, boolean)</code> throws a
      * {@link javax.jcr.lock.LockException}
      */
+    @SuppressWarnings("deprecation")
     public void testLock() throws Exception {
         try {
             vHistory.lock(true, true);
@@ -966,8 +981,8 @@ public class VersionHistoryTest extends AbstractVersionTest {
     /**
      * Tests if <code>VersionHistory.restore(String, boolean)</code> and
      * <code>VersionHistory.restore(Version, boolean)</code> throw an {@link
-     * javax.jcr.UnsupportedRepositoryOperationException} and <code>VersionHistory.restore(Version,
-     * String, boolean)</code> throws a {@link javax.jcr.nodetype.ConstraintViolationException}.
+     * UnsupportedRepositoryOperationException} and <code>VersionHistory.restore(Version,
+     * String, boolean)</code> throws a {@link ConstraintViolationException}.
      */
     public void testRestore() throws Exception {
         try {
@@ -990,8 +1005,8 @@ public class VersionHistoryTest extends AbstractVersionTest {
     /**
      * Tests if <code>VersionHistory.restore(String, boolean)</code> and
      * <code>VersionHistory.restore(Version, boolean)</code> throw an {@link
-     * javax.jcr.UnsupportedRepositoryOperationException} and <code>VersionHistory.restore(Version,
-     * String, boolean)</code> throws a {@link javax.jcr.nodetype.ConstraintViolationException}.
+     * UnsupportedRepositoryOperationException} and <code>VersionHistory.restore(Version,
+     * String, boolean)</code> throws a {@link ConstraintViolationException}.
      */
     public void testRestoreJcr2() throws Exception {
         try {
@@ -1005,6 +1020,7 @@ public class VersionHistoryTest extends AbstractVersionTest {
      * Tests if <code>VersionHistory.restoreByLabel(String, boolean)</code>
      * throws an {@link javax.jcr.UnsupportedRepositoryOperationException}
      */
+    @SuppressWarnings("deprecation")
     public void testRestoreByLabel() throws Exception {
         try {
             vHistory.restoreByLabel("abc", true);
@@ -1109,7 +1125,7 @@ public class VersionHistoryTest extends AbstractVersionTest {
         } catch (ConstraintViolationException success) {
         }
         try {
-            vHistory.setProperty(propertyName1, testRootNode);
+            vHistory.setProperty(propertyName1, vHistory);
             vHistory.getSession().save();
             fail("VersionHistory should be read-only: VersionHistory.setProperty(String,Node) did not throw a ConstraintViolationException");
         } catch (ConstraintViolationException success) {

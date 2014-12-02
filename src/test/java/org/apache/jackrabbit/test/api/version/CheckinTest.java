@@ -47,6 +47,7 @@ public class CheckinTest extends AbstractVersionTest {
      *
      * @throws javax.jcr.RepositoryException
      */
+    @SuppressWarnings("deprecation")
     public void testIsCheckedOut() throws RepositoryException {
         versionableNode.checkin();
         assertTrue("After calling Node.checkin() on a versionable node N, N.isCheckedOut() must return false", versionableNode.isCheckedOut() == false);
@@ -69,8 +70,9 @@ public class CheckinTest extends AbstractVersionTest {
      * Test if the node's jcr:predecessors property contains an empty value array
      * after checkin.
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
+    @SuppressWarnings("deprecation")
     public void testCheckinRemovesPredecessorProperty() throws RepositoryException {
 
         versionableNode.checkin();
@@ -83,7 +85,7 @@ public class CheckinTest extends AbstractVersionTest {
      * Test if the node's jcr:predecessors property contains an empty value array
      * after checkin.
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testCheckinRemovesPredecessorPropertyJcr2() throws RepositoryException {
 
@@ -99,8 +101,9 @@ public class CheckinTest extends AbstractVersionTest {
      * Test if the nodes jcr:predecessors property is copied to the new version
      * on Node.checkin().
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
+    @SuppressWarnings("deprecation")
     public void testPredecessorIsCopiedToNewVersion() throws RepositoryException {
 
         Value[] nPredecessorsValue = versionableNode.getProperty(jcrPredecessors).getValues();
@@ -115,7 +118,7 @@ public class CheckinTest extends AbstractVersionTest {
      * Test if the nodes jcr:predecessors property is copied to the new version
      * on checkin.
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testPredecessorIsCopiedToNewVersionJcr2() throws RepositoryException {
 
@@ -132,8 +135,9 @@ public class CheckinTest extends AbstractVersionTest {
     /**
      * Test if Node.checkin() on a checked-in node has no effect.
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
+    @SuppressWarnings("deprecation")
     public void testMultipleCheckinHasNoEffect() throws RepositoryException {
 
         Version v = versionableNode.checkin();
@@ -150,7 +154,7 @@ public class CheckinTest extends AbstractVersionTest {
      * Test if VersionManager.checkin(P) has no effect if the path P resolves
      * to a checked-in node.
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testMultipleCheckinHasNoEffectJcr2() throws RepositoryException {
 
@@ -170,8 +174,9 @@ public class CheckinTest extends AbstractVersionTest {
      * Test if versionable node N's jcr:baseVersion property is set to refer to
      * the new version after checkin.
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
+    @SuppressWarnings("deprecation")
     public void testBaseVersionAfterCheckin() throws RepositoryException {
         Version v = versionableNode.checkin();
         Value baseVersionRef = versionableNode.getProperty(jcrBaseVersion).getValue();
@@ -183,7 +188,7 @@ public class CheckinTest extends AbstractVersionTest {
      * Test if versionable node N's jcr:baseVersion property is set to refer to
      * the new version after checkin.
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testBaseVersionAfterCheckinJcr2() throws RepositoryException {
         VersionManager versionManager = versionableNode.getSession().getWorkspace().getVersionManager();
@@ -198,8 +203,9 @@ public class CheckinTest extends AbstractVersionTest {
      * Test if Node.checkin() throws InvalidItemStateException if the node
      * has unsaved changes pending.
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
+    @SuppressWarnings("deprecation")
     public void testCheckinWithPendingChanges() throws RepositoryException {
         try {
             // modify node without calling save()
@@ -216,7 +222,7 @@ public class CheckinTest extends AbstractVersionTest {
      * Test if VersionManager.checkin(P) throws InvalidItemStateException if
      * the path P resolves to a node that has unsaved changes pending.
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testCheckinWithPendingChangesJcr2() throws RepositoryException {
         try {
@@ -235,8 +241,9 @@ public class CheckinTest extends AbstractVersionTest {
     /**
      * Test if Node.isCheckedOut() returns false after Node.checkin().
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
+    @SuppressWarnings("deprecation")
     public void testIsNotCheckedOut() throws RepositoryException {
         versionableNode.checkin();
         boolean isCheckedOut = versionableNode.isCheckedOut();
@@ -247,7 +254,7 @@ public class CheckinTest extends AbstractVersionTest {
     /**
      * Test if VersionManager.isCheckedOut(P) returns false after calling VersionManager.checkin(P).
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testIsNotCheckedOutJcr2() throws RepositoryException {
         VersionManager versionManager = versionableNode.getSession().getWorkspace().getVersionManager();
@@ -261,8 +268,9 @@ public class CheckinTest extends AbstractVersionTest {
     /**
      * Test if Node.checkin() adds another version to the VersionHistory
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
+    @SuppressWarnings("deprecation")
     public void testCheckinCreatesNewVersion() throws RepositoryException {
 
         long initialNumberOfVersions = getNumberOfVersions(versionableNode.getVersionHistory());
@@ -275,7 +283,7 @@ public class CheckinTest extends AbstractVersionTest {
     /**
      * Test if VersionManager.checkin(String) adds another version to the VersionHistory
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testCheckinCreatesNewVersionJcr2() throws RepositoryException {
 
@@ -291,8 +299,9 @@ public class CheckinTest extends AbstractVersionTest {
     /**
      * Test calling Node.checkin() on a non-versionable node.
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
+    @SuppressWarnings("deprecation")
     public void testCheckinNonVersionableNode() throws RepositoryException {
         try {
             nonVersionableNode.checkin();
@@ -306,7 +315,7 @@ public class CheckinTest extends AbstractVersionTest {
      * Test calling VersionManager.checkin(P) with the path P resolving to
      * a non-versionable node.
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testCheckinNonVersionableNodeJcr2() throws RepositoryException {
         try {

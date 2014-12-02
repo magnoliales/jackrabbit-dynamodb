@@ -24,6 +24,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -141,7 +142,7 @@ public class Text {
             return new String[0];
         }
 
-        ArrayList strings = new ArrayList();
+        List<String> strings = new ArrayList<String>();
         int pos;
         int lastpos = 0;
 
@@ -160,7 +161,7 @@ public class Text {
         }
 
         // return stringarray
-        return (String[]) strings.toArray(new String[strings.size()]);
+        return strings.toArray(new String[strings.size()]);
     }
 
     /**
@@ -270,7 +271,7 @@ public class Text {
      * The list of characters that are not encoded by the <code>escape()</code>
      * and <code>unescape()</code> METHODS. They contains the characters as
      * defined 'unreserved' in section 2.3 of the RFC 2396 'URI generic syntax':
-     * <p/>
+     * <p>
      * <pre>
      * unreserved  = alphanum | mark
      * mark        = "-" | "_" | "." | "!" | "~" | "*" | "'" | "(" | ")"
@@ -451,7 +452,7 @@ public class Text {
      * the characters it absolutely needs to in order to make the resulting
      * string a valid JCR name.
      * Use {@link #unescapeIllegalJcrChars(String)} for decoding.
-     * <p/>
+     * <p>
      * QName EBNF:<br>
      * <xmp>
      * simplename ::= onecharsimplename | twocharsimplename | threeormorecharname
@@ -509,7 +510,7 @@ public class Text {
 
     /**
      * Unescapes previously escaped jcr chars.
-     * <p/>
+     * <p>
      * Please note, that this does not exactly the same as the url related
      * {@link #unescape(String)}, since it handles the byte-encoding
      * differently.

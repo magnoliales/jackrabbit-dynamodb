@@ -22,7 +22,7 @@ import javax.jcr.Session;
 import javax.jcr.ItemNotFoundException;
 
 /**
- * Test the method {@link javax.jcr.query.Query#getStoredQueryPath()}.
+ * Test the method {@link Query#getStoredQueryPath()}.
  *
  * @test
  * @sources GetPersistentQueryPathLevel1Test.java
@@ -56,12 +56,12 @@ public class GetPersistentQueryPathLevel1Test extends AbstractQueryTest {
     }
 
     /**
-     * Tests if a non-persistent query throws an {@link javax.jcr.ItemNotFoundException}
-     * when {@link javax.jcr.query.Query#getStoredQueryPath()} is called.
+     * Tests if a non-persistent query throws an {@link ItemNotFoundException}
+     * when {@link Query#getStoredQueryPath()} is called.
      */
     public void testGetStoredQueryPath() throws RepositoryException {
         String statement = "/" + jcrRoot;
-        Query q = session.getWorkspace().getQueryManager().createQuery(statement, Query.XPATH);
+        Query q = session.getWorkspace().getQueryManager().createQuery(statement, qsXPATH);
         try {
             q.getStoredQueryPath();
             fail("Query.getStoredQueryPath() on a transient query must throw an ItemNotFoundException.");

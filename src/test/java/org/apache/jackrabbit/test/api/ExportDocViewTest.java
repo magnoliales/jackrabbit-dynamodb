@@ -45,10 +45,13 @@ import javax.jcr.Property;
 import javax.jcr.PropertyType;
 import javax.jcr.PropertyIterator;
 import javax.jcr.Value;
+
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 import java.util.ArrayList;
-import java.util.Properties;
-import java.util.Enumeration;
 import java.io.File;
 import java.io.IOException;
 import java.io.BufferedOutputStream;
@@ -61,8 +64,8 @@ import java.io.StringWriter;
 
 /**
  * <code>ExportDocViewTest</code> tests the two Session methods :
- * {@link javax.jcr.Session#exportDocumentView(String, org.xml.sax.ContentHandler, boolean, boolean)}
- * and {@link javax.jcr.Session#exportDocumentView(String, java.io.OutputStream, boolean, boolean)}
+ * {@link Session#exportDocumentView(String, ContentHandler, boolean, boolean)}
+ * and {@link Session#exportDocumentView(String, java.io.OutputStream, boolean, boolean)}
  * against the required behaviours according the document view xml mapping
  * defined in the JSR 170 specification in chapter 6.4.2, 6.4.3 and 6.4.4 .
  *
@@ -88,11 +91,11 @@ public class ExportDocViewTest extends AbstractJCRTest {
     /**
      * the stack of the text node values to check
      */
-    private Stack textValuesStack;
+    private Stack<StackEntry> textValuesStack;
 
     private class StackEntry {
         // the list of text node values of the text nodes of an xml element
-        ArrayList textValues;
+        List<String> textValues;
         // the current position in the ArrayList
         int position = 0;
     }
@@ -232,11 +235,11 @@ public class ExportDocViewTest extends AbstractJCRTest {
      * child nodes are exported (noRecurse = false) the child nodes of the test
      * node are compared with the child elements of the root element too.
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     private void compareTree() throws RepositoryException, IOException {
         Element root = doc.getDocumentElement();
-        textValuesStack = new Stack();
+        textValuesStack = new Stack<StackEntry>();
         // we assume the path is valid
         Item item = session.getItem(testPath);
 
@@ -272,7 +275,7 @@ public class ExportDocViewTest extends AbstractJCRTest {
      *
      * @param node
      * @param root
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     private void checkRootElement(Node node, Element root) throws RepositoryException {
 
@@ -298,7 +301,7 @@ public class ExportDocViewTest extends AbstractJCRTest {
      *
      * @param node
      * @param elem
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     private void checkChildNodes(Node node, Element elem)
             throws RepositoryException, IOException {
@@ -315,7 +318,7 @@ public class ExportDocViewTest extends AbstractJCRTest {
             textValuesStack.push(entry);
             // xmltext nodes directly following each other
             // are serialized together as xml text
-            ArrayList jcrTextNodes = new ArrayList();
+            List<Node> jcrTextNodes = new ArrayList<Node>();
 
             while (nodeIter.hasNext()) {
                 Node childNode = nodeIter.nextNode();
@@ -348,7 +351,7 @@ public class ExportDocViewTest extends AbstractJCRTest {
      *
      * @param node
      * @param parentElem
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     private void compareChildTree(Node node, Element parentElem)
             throws RepositoryException, IOException {
@@ -373,7 +376,7 @@ public class ExportDocViewTest extends AbstractJCRTest {
      * @param parentElem
      * @return Child Element of parentElem. Null if no corresponidng element is
      *         found.
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     private Element findElem(Node node, Element parentElem) throws RepositoryException {
         String name = node.getName();
@@ -383,7 +386,7 @@ public class ExportDocViewTest extends AbstractJCRTest {
 
         name = !isValidName ? escapeNames(name) : name;
         // same name sibs
-        ArrayList children = getChildElems(parentElem, name);
+        List<Element> children = getChildElems(parentElem, name);
 
         if (children.size() > 0) {
             // xmltext nodes are not exported as elements
@@ -394,7 +397,7 @@ public class ExportDocViewTest extends AbstractJCRTest {
                 // order of same name siblings is preserved during export
                 int index = node.getIndex();
                 try {
-                    nodeElem = (Element) children.get(index - 1);
+                    nodeElem = children.get(index - 1);
                 } catch (IndexOutOfBoundsException iobe) {
                     fail("Node " + node.getPath() + " is not exported."
                             + iobe.toString());
@@ -419,7 +422,7 @@ public class ExportDocViewTest extends AbstractJCRTest {
      * @param prop
      * @param elem
      * @return
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     private Attr findAttribute(Property prop, Element elem)
             throws RepositoryException {
@@ -439,7 +442,7 @@ public class ExportDocViewTest extends AbstractJCRTest {
      *
      * @param prop
      * @param attribute
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     private void checkAttribute(Property prop, Attr attribute) throws RepositoryException {
 
@@ -473,7 +476,7 @@ public class ExportDocViewTest extends AbstractJCRTest {
      *
      * @param prop
      * @param attribute
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     private void checkExportFlags(Property prop, Attr attribute)
             throws RepositoryException {
@@ -512,7 +515,7 @@ public class ExportDocViewTest extends AbstractJCRTest {
      *
      * @param node
      * @param elem
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     private void compareNode(Node node, Element elem)
             throws RepositoryException, IOException {
@@ -539,7 +542,7 @@ public class ExportDocViewTest extends AbstractJCRTest {
      *
      * @param prop
      * @param attr
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     private void compareProperty(Property prop, Attr attr)
             throws RepositoryException, IOException {
@@ -582,15 +585,15 @@ public class ExportDocViewTest extends AbstractJCRTest {
      * (chapter 6.4.2.1 point 1 of the JCR specification).
      *
      * @param root
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     private void compareNamespaces(Element root) throws RepositoryException {
 
-        Properties nameSpaces = new AttributeSeparator(root).getNsAttrs();
+        Map<String, String> nameSpaces = new AttributeSeparator(root).getNsAttrs();
         // check if all namespaces exist that were exported
-        for (Enumeration e = nameSpaces.keys(); e.hasMoreElements();) {
-            String prefix = (String) e.nextElement();
-            String URI = nameSpaces.getProperty(prefix);
+        for (Iterator<String> e = nameSpaces.keySet().iterator(); e.hasNext(); ) {
+            String prefix = e.next();
+            String URI = nameSpaces.get(prefix);
 
             assertEquals("Prefix of uri" + URI + "is not exported correctly.",
                     nsr.getPrefix(URI), prefix);
@@ -617,7 +620,7 @@ public class ExportDocViewTest extends AbstractJCRTest {
      *
      * @param node
      * @param elem
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     private void compareChildNumber(Node node, Element elem) throws RepositoryException {
         NodeIterator iter = node.getNodes();
@@ -651,7 +654,7 @@ public class ExportDocViewTest extends AbstractJCRTest {
      *
      * @param node
      * @param elem
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     private void comparePropNumber(Node node, Element elem)
             throws RepositoryException {
@@ -683,9 +686,9 @@ public class ExportDocViewTest extends AbstractJCRTest {
      *
      * @param nodes
      * @param parentElem
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
-    private void compareXmltextNodes(ArrayList nodes, Element parentElem)
+    private void compareXmltextNodes(List<Node> nodes, Element parentElem)
             throws RepositoryException {
         // only this case
         if (withHandler) {
@@ -703,7 +706,7 @@ public class ExportDocViewTest extends AbstractJCRTest {
 
             int size = nodes.size();
             if (size == 1) {
-                Node node = (Node) nodes.get(0);
+                Node node = nodes.get(0);
                 Property prop = node.getProperty(JCR_XMLDATA);
                 value = prop.getString();
                 assertEquals("The " + JCR_XMLTEXT + " node " + node.getPath() +
@@ -712,7 +715,7 @@ public class ExportDocViewTest extends AbstractJCRTest {
             } else {
                 // check the concatenated values sequenceally
                 for (int i = 0; i < nodes.size(); i++) {
-                    Node node = (Node) nodes.get(i);
+                    Node node = nodes.get(i);
                     Property prop = node.getProperty(JCR_XMLDATA);
                     value = prop.getString();
                     // the first one
@@ -769,7 +772,7 @@ public class ExportDocViewTest extends AbstractJCRTest {
      * @param node the root node of the tree to search
      * @param elem the parent element of the element to which the parent node of
      *             the given node is exported.
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
 
     private boolean setExportInvalidXmlNames(Node node, Element elem, boolean isSet)
@@ -821,7 +824,7 @@ public class ExportDocViewTest extends AbstractJCRTest {
      *
      * @param node
      * @param elem
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     private boolean setExportMultivalProps(Node node, Element elem, boolean isSet)
             throws RepositoryException {
@@ -868,7 +871,7 @@ public class ExportDocViewTest extends AbstractJCRTest {
      *
      * @param node the node to start the search.
      * @return A pair of multivalued properties.
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     private Property[] searchMultivalProps(Node node) throws RepositoryException {
         Property[] properties = {null, null};
@@ -892,7 +895,7 @@ public class ExportDocViewTest extends AbstractJCRTest {
      * @param prop
      * @param elem
      * @return
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     private boolean isExportedProp(Property prop, Element elem) throws RepositoryException {
         String name = prop.getName();
@@ -908,7 +911,7 @@ public class ExportDocViewTest extends AbstractJCRTest {
      * @param node The node to check.
      * @return boolean indicating if the given node fulfills the required
      *         conditions.
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     private boolean isXMLTextNode(Node node) throws RepositoryException {
         boolean isTrue = node.getName().equals(JCR_XMLTEXT);
@@ -933,7 +936,7 @@ public class ExportDocViewTest extends AbstractJCRTest {
      *
      * @param str
      * @return
-     * @throws java.io.IOException
+     * @throws IOException
      */
     private static String decodeBase64(String str) throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -947,7 +950,7 @@ public class ExportDocViewTest extends AbstractJCRTest {
      *
      * @param in the stream to encode.
      * @return the encoded string in base64.
-     * @throws java.io.IOException if an error occurs.
+     * @throws IOException if an error occurs.
      */
     private static String encodeBase64(InputStream in) throws IOException {
         StringWriter writer = new StringWriter();
@@ -962,7 +965,7 @@ public class ExportDocViewTest extends AbstractJCRTest {
      * @param prop
      * @param isBinary
      * @return
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     private static String exportValues(Property prop, boolean isBinary)
             throws RepositoryException, IOException {
@@ -1027,13 +1030,13 @@ public class ExportDocViewTest extends AbstractJCRTest {
      * @param name
      * @return
      */
-    private ArrayList getChildElems(Element elem, String name) {
-        ArrayList children = new ArrayList();
+    private List<Element> getChildElems(Element elem, String name) {
+        List<Element> children = new ArrayList<Element>();
         org.w3c.dom.Node child = elem.getFirstChild();
         while (child != null) {
             if (child.getNodeType() == org.w3c.dom.Node.ELEMENT_NODE) {
                 if (name.equals("*") || name.equals(child.getNodeName())) {
-                    children.add(child);
+                    children.add((Element)child);
                 }
             }
             child = child.getNextSibling();
@@ -1066,8 +1069,8 @@ public class ExportDocViewTest extends AbstractJCRTest {
      * @param elem
      * @return
      */
-    private ArrayList getChildTextNodeValues(Element elem) {
-        ArrayList textValues = new ArrayList();
+    private List<String> getChildTextNodeValues(Element elem) {
+        List<String> textValues = new ArrayList<String>();
         StringBuffer buf = new StringBuffer();
         org.w3c.dom.Node child = elem.getFirstChild();
         // collect the characters of successive text nodes
@@ -1092,7 +1095,7 @@ public class ExportDocViewTest extends AbstractJCRTest {
      *
      * @param xml XML stream
      * @return DOM document
-     * @throws javax.jcr.RepositoryException if the document could not be read
+     * @throws RepositoryException if the document could not be read
      */
     private Document readDocument(InputStream xml) throws RepositoryException {
         try {
@@ -1116,24 +1119,22 @@ public class ExportDocViewTest extends AbstractJCRTest {
         private static final String xmlnsURI = "http://www.w3.org/2000/xmlns/";
         private static final String xmlnsPrefix = "xmlns";
 
-        Element elem;
         NamedNodeMap attrs;
-        Properties nsAttrs;
-        Properties nonNsAttrs;
+        Map<String, String> nsAttrs;
+        Map<String, String> nonNsAttrs;
 
         AttributeSeparator(Element elem) {
-            this.elem = elem;
-            nsAttrs = new Properties();
-            nonNsAttrs = new Properties();
+            nsAttrs = new HashMap<String, String>();
+            nonNsAttrs = new HashMap<String, String>();
             attrs = elem.getAttributes();
             separateAttrs();
         }
 
-        public Properties getNsAttrs() {
+        public Map<String, String> getNsAttrs() {
             return nsAttrs;
         }
 
-        public Properties getNonNsAttrs() {
+        public Map<String, String> getNonNsAttrs() {
             return nonNsAttrs;
         }
 

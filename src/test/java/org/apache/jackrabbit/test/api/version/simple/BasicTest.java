@@ -35,7 +35,7 @@ public class BasicTest extends AbstractVersionTest {
     /**
      * Test node is simple versionable
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testNodeTypes() throws RepositoryException {
         assertTrue("Node.isNodeType(mix:simpleVersionable) must return true.",
@@ -47,7 +47,7 @@ public class BasicTest extends AbstractVersionTest {
     /**
      * Test if node has a jcr:isCheckedOut property
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testICOProperty() throws RepositoryException {
         assertTrue("Versionable node must have a jcr:isCheckedOut property.",

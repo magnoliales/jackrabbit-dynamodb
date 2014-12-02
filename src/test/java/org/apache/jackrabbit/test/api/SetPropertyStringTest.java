@@ -120,7 +120,7 @@ public class SetPropertyStringTest extends AbstractJCRTest {
      */
     public void testNewStringPropertyParent() throws Exception {
         testNode.setProperty(propertyName1, s1);
-        testRootNode.save();
+        testRootNode.getSession().save();
         assertEquals("Setting property with Node.setProperty(String, String) and parentNode.save() not working",
                 s1,
                 testNode.getProperty(propertyName1).getString());
@@ -132,9 +132,9 @@ public class SetPropertyStringTest extends AbstractJCRTest {
      */
     public void testModifyStringPropertyParent() throws Exception {
         testNode.setProperty(propertyName1, s1);
-        testRootNode.save();
+        testRootNode.getSession().save();
         testNode.setProperty(propertyName1, s2);
-        testRootNode.save();
+        testRootNode.getSession().save();
         assertEquals("Modifying property with Node.setProperty(String, String) and parentNode.save() not working",
                 s2,
                 testNode.getProperty(propertyName1).getString());
@@ -161,9 +161,9 @@ public class SetPropertyStringTest extends AbstractJCRTest {
      */
     public void testRemoveStringPropertyParent() throws Exception {
         testNode.setProperty(propertyName1, s1);
-        testRootNode.save();
+        testRootNode.getSession().save();
         testNode.setProperty(propertyName1, (String) null);
-        testRootNode.save();
+        testRootNode.getSession().save();
         assertFalse("Removing property with Node.setProperty(String, (String)null) and parentNode.save() not working",
                 testNode.hasProperty(propertyName1));
     }
@@ -203,7 +203,7 @@ public class SetPropertyStringTest extends AbstractJCRTest {
      */
     public void testNewStringPropertyParentWithPropertyType() throws Exception {
         testNode.setProperty(propertyName1, s1, PropertyType.STRING);
-        testRootNode.save();
+        testRootNode.getSession().save();
         assertEquals("Setting property with Node.setProperty(String, String, int) and parentNode.save() not working",
                 s1,
                 testNode.getProperty(propertyName1).getString());
@@ -215,9 +215,9 @@ public class SetPropertyStringTest extends AbstractJCRTest {
      */
     public void testModifyStringPropertyParentWithPropertyType() throws Exception {
         testNode.setProperty(propertyName1, s1, PropertyType.STRING);
-        testRootNode.save();
+        testRootNode.getSession().save();
         testNode.setProperty(propertyName1, s2, PropertyType.STRING);
-        testRootNode.save();
+        testRootNode.getSession().save();
         assertEquals("Modifying property with Node.setProperty(String, String, int) and parentNode.save() not working",
                 s2,
                 testNode.getProperty(propertyName1).getString());
@@ -244,9 +244,9 @@ public class SetPropertyStringTest extends AbstractJCRTest {
      */
     public void testRemoveStringPropertyParentWithPropertyType() throws Exception {
         testNode.setProperty(propertyName1, s1, PropertyType.STRING);
-        testRootNode.save();
+        testRootNode.getSession().save();
         testNode.setProperty(propertyName1, (String) null, PropertyType.STRING);
-        testRootNode.save();
+        testRootNode.getSession().save();
         assertFalse("Removing property with Node.setProperty(String, (String)null, int) and parentNode.save() not working",
                 testNode.hasProperty(propertyName1));
     }
@@ -286,7 +286,7 @@ public class SetPropertyStringTest extends AbstractJCRTest {
      */
     public void testNewStringArrayPropertyParent() throws Exception {
         testNode.setProperty(propertyName2, sArray1);
-        testRootNode.save();
+        testRootNode.getSession().save();
         assertEquals("Setting properties with Node.setProperty(String, String[]) and parentNode.save() not working",
                 Arrays.asList(vArray1),
                 Arrays.asList(testNode.getProperty(propertyName2).getValues()));
@@ -298,31 +298,12 @@ public class SetPropertyStringTest extends AbstractJCRTest {
      */
     public void testModifyStringArrayPropertyParent() throws Exception {
         testNode.setProperty(propertyName2, sArray1);
-        testRootNode.save();
+        testRootNode.getSession().save();
         testNode.setProperty(propertyName2, sArray2);
-        testRootNode.save();
+        testRootNode.getSession().save();
         assertEquals("Modifying properties with Node.setProperty(String, String[]) and parentNode.save() not working",
                 Arrays.asList(vArray2),
                 Arrays.asList(testNode.getProperty(propertyName2).getValues()));
-    }
-
-    /**
-     * Tests if <code>Node.setProperty(String, String[])</code> throws a {@link
-     * javax.jcr.ValueFormatException} when trying to set an existing
-     * single-valued property to a multi-value
-     */
-    public void testSetSingleStringArrayValueFormatException() throws Exception {
-        // prerequisite: existing single-valued STRING property
-        if (!testNode.hasProperty(propertyName1)) {
-            testNode.setProperty(propertyName1, s1);
-            testNode.getParent().save();
-        }
-
-        try {
-            testNode.setProperty(propertyName1, sArray1);
-            fail("setProperty(singleValueProperty, String[]) not throwing a ValueFormatException");
-        } catch (ValueFormatException success) {
-        }
     }
 
     /**
@@ -346,9 +327,9 @@ public class SetPropertyStringTest extends AbstractJCRTest {
      */
     public void testRemoveStringArrayPropertyParent() throws Exception {
         testNode.setProperty(propertyName2, sArray1);
-        testRootNode.save();
+        testRootNode.getSession().save();
         testNode.setProperty(propertyName2, (String[]) null);
-        testRootNode.save();
+        testRootNode.getSession().save();
         assertFalse("Removing property with Node.setProperty(String, (String[])null) and parentNode.save() not working",
                 testNode.hasProperty(propertyName2));
     }
@@ -400,7 +381,7 @@ public class SetPropertyStringTest extends AbstractJCRTest {
      */
     public void testNewStringArrayPropertyParentWithPropertyType() throws Exception {
         testNode.setProperty(propertyName2, sArray1, PropertyType.STRING);
-        testRootNode.save();
+        testRootNode.getSession().save();
         assertEquals("Setting properties with Node.setProperty(String, String[], int) and parentNode.save() not working",
                 Arrays.asList(vArray1),
                 Arrays.asList(testNode.getProperty(propertyName2).getValues()));
@@ -412,31 +393,12 @@ public class SetPropertyStringTest extends AbstractJCRTest {
      */
     public void testModifyStringArrayPropertyParentWithPropertyType() throws Exception {
         testNode.setProperty(propertyName2, sArray1, PropertyType.STRING);
-        testRootNode.save();
+        testRootNode.getSession().save();
         testNode.setProperty(propertyName2, sArray2, PropertyType.STRING);
-        testRootNode.save();
+        testRootNode.getSession().save();
         assertEquals("Modifying properties with Node.setProperty(String, String[], int) and parentNode.save() not working",
                 Arrays.asList(vArray2),
                 Arrays.asList(testNode.getProperty(propertyName2).getValues()));
-    }
-
-    /**
-     * Tests if <code>Node.setProperty(String, String[], int)</code> throws a
-     * {@link javax.jcr.ValueFormatException} when trying to set an existing
-     * single-value property to a multi-value
-     */
-    public void testSetSingleStringArrayValueFormatExceptionWithPropertyType() throws Exception {
-        // prerequisite: existing single-valued STRING property
-        if (!testNode.hasProperty(propertyName1)) {
-            testNode.setProperty(propertyName1, s1);
-            testNode.getParent().save();
-        }
-
-        try {
-            testNode.setProperty(propertyName1, sArray1, PropertyType.STRING);
-            fail("setProperty(singleValueProperty, String[], int) not throwing a ValueFormatException");
-        } catch (ValueFormatException success) {
-        }
     }
 
     /**
@@ -460,9 +422,9 @@ public class SetPropertyStringTest extends AbstractJCRTest {
      */
     public void testRemoveStringArrayPropertyParentWithPropertyType() throws Exception {
         testNode.setProperty(propertyName2, sArray1, PropertyType.STRING);
-        testRootNode.save();
+        testRootNode.getSession().save();
         testNode.setProperty(propertyName2, (String[]) null, PropertyType.STRING);
-        testRootNode.save();
+        testRootNode.getSession().save();
         assertFalse("Removing property with Node.setProperty(String, (String[])null, int) and parentNode.save() not working",
                 testNode.hasProperty(propertyName2));
     }

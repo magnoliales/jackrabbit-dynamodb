@@ -24,13 +24,13 @@ import javax.jcr.query.QueryManager;
 import javax.jcr.query.InvalidQueryException;
 
 /**
- * <code>CreateQueryTest</code> checks if {@link javax.jcr.query.QueryManager#createQuery(String, String)}
- * throws an {@link javax.jcr.query.InvalidQueryException} for an unknown query language.
+ * <code>CreateQueryTest</code> checks if {@link QueryManager#createQuery(String, String)}
+ * throws an {@link InvalidQueryException} for an unknown query language.
  */
 public class CreateQueryTest extends AbstractQueryTest {
 
     public void testUnknownQueryLanguage() throws RepositoryException {
-        List supported = Arrays.asList(qm.getSupportedQueryLanguages());
+        List<String> supported = Arrays.asList(qm.getSupportedQueryLanguages());
         String language;
         do {
             language = createRandomString(5);

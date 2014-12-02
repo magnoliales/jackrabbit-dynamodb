@@ -24,7 +24,7 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Node;
 
 /**
- * Test cases for {@link javax.jcr.Item#isNew()} on a property.
+ * Test cases for {@link Item#isNew()} on a property.
  * <p>
  * Configuration requirements:
  * <p>
@@ -46,7 +46,7 @@ public class PropertyItemIsNewTest extends AbstractJCRTest {
         // build persistent node
         try {
             testNode = testRootNode.addNode(nodeName1, testNodeType);
-            testRootNode.save();
+            testRootNode.getSession().save();
         } catch (RepositoryException e) {
             fail("Failed to create test node." + e.getMessage());
         }

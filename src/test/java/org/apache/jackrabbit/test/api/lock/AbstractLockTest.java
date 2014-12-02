@@ -25,14 +25,10 @@ import javax.jcr.lock.Lock;
 import javax.jcr.lock.LockException;
 import javax.jcr.lock.LockManager;
 import javax.jcr.nodetype.ConstraintViolationException;
-import javax.jcr.observation.Event;
-import javax.jcr.observation.ObservationManager;
 
 import org.apache.jackrabbit.test.AbstractJCRTest;
-import org.apache.jackrabbit.test.JUnitTest;
 import org.apache.jackrabbit.test.NotExecutableException;
 import org.apache.jackrabbit.test.RepositoryStub;
-import org.apache.jackrabbit.test.api.observation.EventResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,7 +51,7 @@ public abstract class AbstractLockTest extends AbstractJCRTest {
         lockedNode = testRootNode.addNode(nodeName1, testNodeType);
         ensureMixinType(lockedNode, mixLockable);
         childNode = lockedNode.addNode(nodeName2, testNodeType);
-        testRootNode.save();
+        testRootNode.getSession().save();
 
         lockMgr = getLockManager(testRootNode.getSession());
         lock = lockMgr.lock(lockedNode.getPath(), isDeep(), isSessionScoped(), getTimeoutHint(), getLockOwner());
@@ -153,16 +149,16 @@ public abstract class AbstractLockTest extends AbstractJCRTest {
     /**
      * Test {@link javax.jcr.lock.Lock#getNode()}.
      *
-     * @throws javax.jcr.RepositoryException If an execption occurs.
+     * @throws RepositoryException If an exception occurs.
      */
     public void testLockHoldingNode() throws RepositoryException {
         assertTrue("Lock.getNode() must be lockholding node.", lock.getNode().isSame(lockedNode));
     }
 
     /**
-     * Test {@link javax.jcr.lock.LockManager#isLocked(String)} and {@link javax.jcr.Node#isLocked()}.
+     * Test {@link LockManager#isLocked(String)} and {@link javax.jcr.Node#isLocked()}.
      *
-     * @throws javax.jcr.RepositoryException If an execption occurs.
+     * @throws RepositoryException If an exception occurs.
      */
     public void testNodeIsLocked() throws RepositoryException {
         assertTrue("Node must be locked after lock creation.", lockedNode.isLocked());
@@ -170,9 +166,9 @@ public abstract class AbstractLockTest extends AbstractJCRTest {
     }
 
     /**
-     * Test {@link javax.jcr.lock.LockManager#holdsLock(String)} and {@link javax.jcr.Node#holdsLock()}.
+     * Test {@link LockManager#holdsLock(String)} and {@link javax.jcr.Node#holdsLock()}. 
      *
-     * @throws javax.jcr.RepositoryException If an execption occurs.
+     * @throws RepositoryException If an exception occurs.
      */
     public void testNodeHoldsLocked() throws RepositoryException {
         assertTrue("Node must hold lock after lock creation.", lockedNode.holdsLock());
@@ -205,7 +201,7 @@ public abstract class AbstractLockTest extends AbstractJCRTest {
     /**
      * Test {@link javax.jcr.lock.Lock#isLockOwningSession()}
      *
-     * @throws javax.jcr.RepositoryException If an execption occurs.
+     * @throws RepositoryException If an exception occurs.
      */
     public void testIsLockOwningSession() throws RepositoryException {
         assertTrue("Session must be lock owner", lock.isLockOwningSession());
@@ -269,13 +265,16 @@ public abstract class AbstractLockTest extends AbstractJCRTest {
         // only test if timeout hint was respected.
         long remaining = lock.getSecondsRemaining();
         if (remaining <= hint) {
-            try {
-                wait(remaining * 2000); // wait twice as long to be safe
-            } catch (InterruptedException ignore) {
+            if (remaining > 0) {
+                try {
+                    wait(remaining * 4000); // wait four time as long to be safe
+                } catch (InterruptedException ignore) {
+                }
             }
+            long secs = lock.getSecondsRemaining();
             assertTrue(
-                    "A released lock must return a negative number of seconds",
-                    lock.getSecondsRemaining() < 0);
+                    "A released lock must return a negative number of seconds, was: " + secs,
+                    secs < 0);
             String message = "If the timeout hint is respected the lock"
                 + " must be automatically released.";
             assertFalse(message, lock.isLive());
@@ -289,9 +288,27 @@ public abstract class AbstractLockTest extends AbstractJCRTest {
     }
 
     /**
+     * Test expiration of the lock
+     */
+    public synchronized void testOwnerHint()
+            throws RepositoryException, NotExecutableException {
+        lockedNode.unlock();
+
+        lock = lockMgr.lock(lockedNode.getPath(), isDeep(), isSessionScoped(), Long.MAX_VALUE, "test");
+
+        String owner = lock.getLockOwner();
+        if (!"test".equals(lock.getLockOwner())) {
+            throw new NotExecutableException();
+        } else {
+            assertTrue(lockedNode.hasProperty(Property.JCR_LOCK_OWNER));
+            assertEquals("test", lockedNode.getProperty(Property.JCR_LOCK_OWNER).getString());
+        }
+    }
+
+    /**
      * Test if Lock is properly released.
      * 
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testUnlock() throws RepositoryException {
         // release the lock
@@ -302,10 +319,10 @@ public abstract class AbstractLockTest extends AbstractJCRTest {
     }
 
     /**
-     * Test {@link javax.jcr.lock.LockManager#unlock(String)} for a session that is not
+     * Test {@link LockManager#unlock(String)} for a session that is not
      * lock owner.
      * 
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      * @throws NotExecutableException
      */
     public void testUnlockByOtherSession() throws RepositoryException, NotExecutableException {
@@ -412,7 +429,7 @@ public abstract class AbstractLockTest extends AbstractJCRTest {
             lockedNode.removeMixin(mixLockable);
             lockedNode.save();
 
-            // the mixin got removed -> the lock should implicitely be released
+            // the mixin got removed -> the lock should implicitly be released
             // as well in order not to have inconsistencies
             String msg = "Lock should have been released.";
             assertFalse(msg, lock.isLive());

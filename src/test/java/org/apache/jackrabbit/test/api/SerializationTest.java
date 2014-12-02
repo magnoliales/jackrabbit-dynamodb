@@ -18,6 +18,7 @@ package org.apache.jackrabbit.test.api;
 
 import org.apache.jackrabbit.test.AbstractJCRTest;
 import org.apache.jackrabbit.test.NotExecutableException;
+import org.apache.jackrabbit.test.api.util.InputStreamWrapper;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -78,12 +79,13 @@ public class SerializationTest extends AbstractJCRTest {
         try {
             session = superuser;
             workspace = session.getWorkspace();
-            file = File.createTempFile("serializationTest", ".xml");
-            log.print("Tempfile: " + file.getAbsolutePath());
 
             SerializationContext sc = new SerializationContext(this, session);
             treeComparator = new TreeComparator(sc, session);
             treeComparator.createComplexTree(treeComparator.WORKSPACE);
+
+            file = File.createTempFile("serializationTest", ".xml");
+            log.print("Tempfile: " + file.getAbsolutePath());
         }
         catch (Exception ex) {
             if (file != null) {
@@ -145,7 +147,7 @@ public class SerializationTest extends AbstractJCRTest {
         } catch (VersionException e) {
             // success
         } finally {
-            in.close();
+            try { in.close(); } catch (IOException ignore) {}
         }
     }
 
@@ -160,7 +162,7 @@ public class SerializationTest extends AbstractJCRTest {
         } catch (VersionException e) {
             // success
         } finally {
-            in.close();
+            try { in.close(); } catch (IOException ignore) {}
         }
     }
 
@@ -207,7 +209,7 @@ public class SerializationTest extends AbstractJCRTest {
             //A LockException is thrown if a lock prevents the addition of the subtree.
             Node lNode = testRootNode.addNode(nodeName1);
             ensureMixinType(lNode, mixLockable);
-            testRootNode.save();
+            testRootNode.getSession().save();
             Lock lock = lNode.lock(true, true);
             session.removeLockToken(lock.getLockToken());   //remove the token, so the lock is for me, too
             FileInputStream in = new FileInputStream(file);
@@ -216,7 +218,7 @@ public class SerializationTest extends AbstractJCRTest {
             } catch (LockException e) {
                 // success
             } finally {
-                in.close();
+                try { in.close(); } catch (IOException ignore) {}
             }
         } else {
             log.println("Locking not supported.");
@@ -353,7 +355,7 @@ public class SerializationTest extends AbstractJCRTest {
         } catch (PathNotFoundException e) {
             // success
         } finally {
-            in.close();
+            try { in.close(); } catch (IOException ignore) {}
         }
     }
 
@@ -372,7 +374,7 @@ public class SerializationTest extends AbstractJCRTest {
         } catch (PathNotFoundException e) {
             // success
         } finally {
-            in.close();
+            try { in.close(); } catch (IOException ignore) {}
         }
     }
 
@@ -416,7 +418,7 @@ public class SerializationTest extends AbstractJCRTest {
                 }
             }
         } finally {
-            in.close();
+            try { in.close(); } catch (IOException ignore) {}
         }
     }
 
@@ -444,9 +446,9 @@ public class SerializationTest extends AbstractJCRTest {
      *
      * @param useWorkspace
      * @param useHandler
-     * @throws javax.jcr.RepositoryException
-     * @throws java.io.FileNotFoundException
-     * @throws java.io.IOException
+     * @throws RepositoryException
+     * @throws FileNotFoundException
+     * @throws IOException
      */
     public void doTestNodeTypeConstraintViolation(boolean useWorkspace, boolean useHandler)
             throws Exception {
@@ -477,7 +479,7 @@ public class SerializationTest extends AbstractJCRTest {
                 }
             }
         } finally {
-            in.close();
+            try { in.close(); } catch (IOException ignore) {}
         }
     }
 
@@ -510,7 +512,7 @@ public class SerializationTest extends AbstractJCRTest {
             session.importXML(treeComparator.targetFolder, in,
                     ImportUUIDBehavior.IMPORT_UUID_CREATE_NEW);
         } finally {
-            in.close();
+            try { in.close(); } catch (IOException ignore) {}
         }
 
         // after logout/login, no nodes are in the session
@@ -533,7 +535,7 @@ public class SerializationTest extends AbstractJCRTest {
             exportRepository(SAVEBINARY, RECURSE);
             doImportNoSave(treeComparator.targetFolder, in, CONTENTHANDLER);
         } finally {
-            in.close();
+            try { in.close(); } catch (IOException ignore) {}
         }
 
         // after logout/login, no nodes are in the session
@@ -545,18 +547,40 @@ public class SerializationTest extends AbstractJCRTest {
         treeComparator.compare(treeComparator.CHECK_EMPTY);
     }
 
+//----------------< tests input stream handling contract >----------------------
+
+    /**
+     * Tests whether <code>Session.importXML</code> and <code>Workspace.importXML</code>
+     * obey the stream handling contract.
+     */
+    public void testStreamHandling() throws RepositoryException, IOException {
+        exportRepository(SAVEBINARY, RECURSE);
+
+        InputStreamWrapper in = new InputStreamWrapper(new FileInputStream(file));
+        session.importXML(treeComparator.targetFolder, in,
+                ImportUUIDBehavior.IMPORT_UUID_CREATE_NEW);
+        assertTrue("Session.importXML(..., InputStream, ...) is expected to close the passed input stream", in.isClosed());
+        session.refresh(false);
+
+        in = new InputStreamWrapper(new FileInputStream(file));
+        workspace.importXML(treeComparator.targetFolder, in,
+                ImportUUIDBehavior.IMPORT_UUID_CREATE_NEW);
+        assertTrue("Workspace.importXML(..., InputStream, ...) is expected to close the passed input stream", in.isClosed());
+    }
+
+
 //----------------< import test helper >--------------------------------------------------------
     /**
      * Helper method which imports the given FileInputStream using Workspace or Session
-     * and via the methods importXML respective getImportContentHandler. Teh target node of the
-     * import is specified with its absolut path.
+     * and via the methods importXML respective getImportContentHandler. The target node of the
+     * import is specified with its absolute path.
      *
      * @param absPath
      * @param in
      * @param useWorkspace
      * @param useHandler
-     * @throws javax.jcr.RepositoryException
-     * @throws java.io.IOException
+     * @throws RepositoryException
+     * @throws IOException
      */
     public void doImport(String absPath, FileInputStream in, boolean useWorkspace, boolean useHandler)
             throws Exception {
@@ -682,7 +706,7 @@ public class SerializationTest extends AbstractJCRTest {
      * @param skipBinary true = omit any binary properties (without any
      *                   replacement)
      * @param noRecurse  true = save only top node, false = save entire subtree
-     * @throws java.io.IOException
+     * @throws IOException
      */
     private void exportRepository(boolean skipBinary, boolean noRecurse) throws IOException {
         FileOutputStream out = new FileOutputStream(file);
@@ -729,7 +753,7 @@ public class SerializationTest extends AbstractJCRTest {
         } catch (SAXException e) {
             fail("Error while parsing the imported repository: " + e);
         } finally {
-            in.close();
+            try { in.close(); } catch (IOException ignore) {}
         }
     }
 
@@ -738,7 +762,7 @@ public class SerializationTest extends AbstractJCRTest {
      *
      * @param handler the content handler.
      * @return an XMLReader for the given content handler.
-     * @throws org.xml.sax.SAXException if the reader cannot be created.
+     * @throws SAXException if the reader cannot be created.
      */
     private XMLReader createXMLReader(ContentHandler handler) throws SAXException {
         XMLReader reader = XMLReaderFactory.createXMLReader();

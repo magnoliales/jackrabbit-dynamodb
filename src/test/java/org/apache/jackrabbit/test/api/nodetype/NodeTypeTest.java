@@ -21,9 +21,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.apache.jackrabbit.test.AbstractJCRTest;
-import org.apache.jackrabbit.test.NotExecutableException;
-
 import javax.jcr.ItemNotFoundException;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
@@ -35,9 +32,14 @@ import javax.jcr.nodetype.NodeTypeIterator;
 import javax.jcr.nodetype.NodeTypeManager;
 import javax.jcr.nodetype.PropertyDefinition;
 
+import org.apache.jackrabbit.test.AbstractJCRTest;
+import org.apache.jackrabbit.test.NotExecutableException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Tests if the node type hierarchy is correctly mapped to the methods
- * defined in {@link javax.jcr.nodetype.NodeType}.
+ * defined in {@link NodeType}.
  *
  * @test
  * @sources NodeTypeTest.java
@@ -45,6 +47,8 @@ import javax.jcr.nodetype.PropertyDefinition;
  * @keywords level1
  */
 public class NodeTypeTest extends AbstractJCRTest {
+
+    private static Logger log = LoggerFactory.getLogger(NodeTypeTest.class);
 
     /**
      * The session we use for the tests
@@ -208,15 +212,15 @@ public class NodeTypeTest extends AbstractJCRTest {
         for (NodeTypeIterator types = manager.getAllNodeTypes(); types.hasNext(); ) {
             NodeType type = types.nextNodeType();
 
-            Set declaredSupertypeNames = asSetOfNames(type.getDeclaredSupertypes());
-            Set supertypeNames = asSetOfNames(type.getSupertypes());
+            Set<String> declaredSupertypeNames = asSetOfNames(type.getDeclaredSupertypes());
+            Set<String> supertypeNames = asSetOfNames(type.getSupertypes());
             
             assertTrue("all declared supertypes must be supertypes: "
-                    + (new HashSet(declaredSupertypeNames).removeAll(supertypeNames)),
+                    + (new HashSet<String>(declaredSupertypeNames).removeAll(supertypeNames)),
                     supertypeNames.containsAll(declaredSupertypeNames));
             
             assertEquals("getDeclaredSuperTypes and getDeclaredSuperTypeNames must be consistent",
-                    declaredSupertypeNames, new HashSet(Arrays.asList(type.getDeclaredSupertypeNames())));
+                    declaredSupertypeNames, new HashSet<String>(Arrays.asList(type.getDeclaredSupertypeNames())));
         }
     }
 
@@ -234,26 +238,26 @@ public class NodeTypeTest extends AbstractJCRTest {
             NodeType type = types.nextNodeType();
             String name = type.getName();
 
-            Set declaredSubtypeNames = asSetOfNames(type.getDeclaredSubtypes());
-            Set subtypeNames = asSetOfNames(type.getSubtypes());
+            Set<String> declaredSubtypeNames = asSetOfNames(type.getDeclaredSubtypes());
+            Set<String> subtypeNames = asSetOfNames(type.getSubtypes());
             
             assertTrue("all declared subtypes must be subtypes: "
-                    + (new HashSet(declaredSubtypeNames).removeAll(subtypeNames)),
+                    + (new HashSet<String>(declaredSubtypeNames).removeAll(subtypeNames)),
                     subtypeNames.containsAll(declaredSubtypeNames));
             
             // check the reverse relation
-            for (Iterator it = subtypeNames.iterator(); it.hasNext(); ) {
-                String subtypename = (String) it.next();
+            for (Iterator<String> it = subtypeNames.iterator(); it.hasNext(); ) {
+                String subtypename = it.next();
                 boolean isDeclared = declaredSubtypeNames.contains(subtypename);
                 
                 NodeType subtype = manager.getNodeType(subtypename);
-                Set supertypeNames = asSetOfNames(subtype.getSupertypes());
+                Set<String> supertypeNames = asSetOfNames(subtype.getSupertypes());
                 
                 assertTrue(name + " should occur in set of super types: " + supertypeNames,
                         supertypeNames.contains(name));
                 
                 if (isDeclared) {
-                    Set declaredSupertypeNames = asSetOfNames(subtype.getDeclaredSupertypes());
+                    Set<String> declaredSupertypeNames = asSetOfNames(subtype.getDeclaredSupertypes());
                     assertTrue(name + " should occur in set of declared super types: " + declaredSupertypeNames,
                             declaredSupertypeNames.contains(name));
                 }
@@ -286,6 +290,35 @@ public class NodeTypeTest extends AbstractJCRTest {
                 assertTrue("isNodeType(String nodeTypeName) must return true if " +
                         "NodeType is a subtype of nodeTypeName",
                         type.isNodeType(ntBase));
+            }
+        }
+    }
+
+    /**
+     * Like {@link #testIsNodeType()}, but using qualified names
+     */
+    public void testIsNodeTypeQName() throws RepositoryException {
+
+        // find a primary node type but not "nt:base"
+        NodeTypeIterator types = manager.getPrimaryNodeTypes();
+        while (types.hasNext()) {
+            NodeType type = types.nextNodeType();
+            String typename = type.getName();
+            String ns = session.getNamespaceURI(AbstractJCRTest.getPrefix(typename));
+            if (ns.length() != 0 && !ns.contains(":")) {
+                log.warn("Node type '" + typename + "' has invalid namespace '" + ns
+                        + "', thus skipping testIsNodeTypeQName() for this type");
+            } else {
+                String qn = AbstractJCRTest.getQualifiedName(session, typename);
+                assertTrue("isNodeType(String nodeTypeName) must return true if " + "NodeType is nodeTypeName",
+                        type.isNodeType(qn));
+            }
+            if (type.isMixin()) {
+                assertFalse("isNodeType(String nodeTypeName) must return " + "false if NodeType is not a subtype of "
+                        + "nodeTypeName", type.isNodeType(NodeType.NT_BASE));
+            } else {
+                assertTrue("isNodeType(String nodeTypeName) must return true if " + "NodeType is a subtype of nodeTypeName",
+                        type.isNodeType(NodeType.NT_BASE));
             }
         }
     }
@@ -406,9 +439,22 @@ public class NodeTypeTest extends AbstractJCRTest {
 
         }
 
+        Node skippedFolder = null;
         NodeIterator nodes = node.getNodes();
         while (nodes.hasNext()) {
-            Node returnedNode = locateNodeWithPrimaryItem(nodes.nextNode());
+            Node testNode = nodes.nextNode();
+            if (testNode.getPath().equals("/jcr:system")) {
+                skippedFolder = testNode;
+            } else {
+                Node returnedNode = locateNodeWithPrimaryItem(testNode);
+                if (returnedNode != null) {
+                    return returnedNode;
+                }
+            }
+        }
+        // check jcr:system if we skipped it before
+        if (skippedFolder != null) {
+            Node returnedNode = locateNodeWithPrimaryItem(skippedFolder);
             if (returnedNode != null) {
                 return returnedNode;
             }
@@ -444,8 +490,8 @@ public class NodeTypeTest extends AbstractJCRTest {
     /**
      * Return the set of node type names for the specified node types.
      */
-    private Set asSetOfNames(NodeType[] types) {
-        Set result = new HashSet();
+    private Set<String> asSetOfNames(NodeType[] types) {
+        Set<String> result = new HashSet<String>();
         for (int i = 0; i < types.length; i++) {
             result.add(types[i].getName());
         }
@@ -455,8 +501,8 @@ public class NodeTypeTest extends AbstractJCRTest {
     /**
      * Return the set of node type names for the specified node types.
      */
-    private Set asSetOfNames(NodeTypeIterator it) {
-        Set result = new HashSet();
+    private Set<String> asSetOfNames(NodeTypeIterator it) {
+        Set<String> result = new HashSet<String>();
         while (it.hasNext()) {
             result.add(it.nextNodeType().getName());
         }

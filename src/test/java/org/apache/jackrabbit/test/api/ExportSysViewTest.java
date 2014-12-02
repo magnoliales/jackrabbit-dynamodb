@@ -115,9 +115,9 @@ public class ExportSysViewTest extends AbstractJCRTest {
     }
 
     /**
-     * @throws javax.jcr.RepositoryException
-     * @throws org.xml.sax.SAXException
-     * @throws java.io.IOException
+     * @throws RepositoryException
+     * @throws SAXException
+     * @throws IOException
      */
     public void doTestWithHandler(boolean skipBinary, boolean noRecurse)
             throws RepositoryException, SAXException, IOException {
@@ -127,9 +127,9 @@ public class ExportSysViewTest extends AbstractJCRTest {
     }
 
     /**
-     * @throws javax.jcr.RepositoryException
-     * @throws org.xml.sax.SAXException
-     * @throws java.io.IOException
+     * @throws RepositoryException
+     * @throws SAXException
+     * @throws IOException
      */
     public void doTestWithStream(boolean skipBinary, boolean noRecurse)
             throws RepositoryException, SAXException, IOException {

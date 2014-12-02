@@ -23,7 +23,7 @@ import javax.jcr.version.VersionManager;
 
 /**
  * <code>GetVersionableUUIDTest</code> provides test methods covering {@link
- * javax.jcr.version.VersionHistory#getVersionableUUID()} and {@link javax.jcr.version.VersionHistory#getVersionableIdentifier()}.
+ * VersionHistory#getVersionableUUID()} and {@link VersionHistory#getVersionableIdentifier()}.
  *
  * @test
  * @sources GetVersionableUUIDTest.java

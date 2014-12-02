@@ -16,8 +16,9 @@
  */
 package org.apache.jackrabbit.test;
 
-import junit.framework.Test;
 import junit.framework.TestCase;
+import junit.framework.Test;
+import org.apache.jackrabbit.test.JCRTestSuite;
 
 public class TestAll extends TestCase {
 

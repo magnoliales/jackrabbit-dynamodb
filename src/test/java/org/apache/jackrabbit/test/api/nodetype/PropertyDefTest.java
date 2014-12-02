@@ -164,7 +164,7 @@ public class PropertyDefTest extends AbstractJCRTest {
     /**
      * This test checks if item definitions with mandatory constraints are
      * respected.
-     * <p/>
+     * <p>
      * If the default workspace does not contain a node with a node type
      * definition that specifies a mandatory property a {@link
      * org.apache.jackrabbit.test.NotExecutableException} is thrown.
@@ -420,7 +420,7 @@ public class PropertyDefTest extends AbstractJCRTest {
      * Checks for NAME, PATH and REFERENCE constraint values if the constraint
      * is reflecting the namespace mapping in the current <code>Session</code>
      *
-     * @throws javax.jcr.NamespaceException if the prefix of name is not a registered
+     * @throws NamespaceException if the prefix of name is not a registered
      *                            namespace prefix
      */
     private void checkPrefix(String name)

@@ -23,7 +23,7 @@ import javax.jcr.version.Version;
 import javax.jcr.version.VersionManager;
 
 /**
- * <code>OnParentVersionIgnoreTest</code> tests the OnParentVersion {@link javax.jcr.version.OnParentVersionAction#IGNORE IGNORE}
+ * <code>OnParentVersionIgnoreTest</code> tests the OnParentVersion {@link OnParentVersionAction#IGNORE IGNORE}
  * behaviour.
  *
  * @test

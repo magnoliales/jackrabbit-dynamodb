@@ -25,7 +25,7 @@ import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
 
 /**
- * Tests the various {@link javax.jcr.Property#setValue(javax.jcr.Value)} methods.
+ * Tests the various {@link Property#setValue(Value)} methods.
  * <p>
  * Configuration requirements:
  * <p>

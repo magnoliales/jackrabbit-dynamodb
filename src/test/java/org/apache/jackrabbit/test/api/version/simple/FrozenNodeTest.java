@@ -48,7 +48,7 @@ public class FrozenNodeTest extends AbstractVersionTest {
     }
 
     /**
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testFrozenNodeUUUID() throws RepositoryException {
         VersionManager versionManager = versionableNode.getSession().getWorkspace().getVersionManager();
@@ -61,7 +61,7 @@ public class FrozenNodeTest extends AbstractVersionTest {
     }
 
     /**
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testFrozenChildNodeUUUID() throws RepositoryException {
         versionableNode.addNode("child");
@@ -76,7 +76,7 @@ public class FrozenNodeTest extends AbstractVersionTest {
     }
 
     /**
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testFrozenUUUID() throws RepositoryException,
             NotExecutableException {
@@ -93,7 +93,7 @@ public class FrozenNodeTest extends AbstractVersionTest {
     }
 
     /**
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testFrozenChildUUUID() throws RepositoryException,
             NotExecutableException {
@@ -111,7 +111,7 @@ public class FrozenNodeTest extends AbstractVersionTest {
 
 
     /**
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testFrozenNodeNodeType() throws RepositoryException {
         VersionManager versionManager = versionableNode.getSession().getWorkspace().getVersionManager();
@@ -124,7 +124,7 @@ public class FrozenNodeTest extends AbstractVersionTest {
     }
 
     /**
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testFrozenChildNodeNodeType() throws RepositoryException {
         versionableNode.addNode("child");
@@ -139,7 +139,7 @@ public class FrozenNodeTest extends AbstractVersionTest {
     }
 
     /**
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testFrozenNodeType() throws RepositoryException {
         VersionManager versionManager = versionableNode.getSession().getWorkspace().getVersionManager();
@@ -152,7 +152,7 @@ public class FrozenNodeTest extends AbstractVersionTest {
     }
 
     /**
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testFrozenChildNodeType() throws RepositoryException {
         Node n1 = versionableNode.addNode("child");

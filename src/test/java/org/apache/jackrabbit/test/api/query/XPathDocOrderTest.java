@@ -21,7 +21,6 @@ import org.apache.jackrabbit.test.NotExecutableException;
 import javax.jcr.RepositoryException;
 import javax.jcr.NodeIterator;
 import javax.jcr.Repository;
-import javax.jcr.query.Query;
 import javax.jcr.query.QueryResult;
 
 /**
@@ -50,7 +49,7 @@ public class XPathDocOrderTest extends AbstractQueryTest {
     /**
      * Tests the <code>position()</code> function.
      * <p>
-     * For configuration description see {@link org.apache.jackrabbit.test.api.query.XPathDocOrderTest}.
+     * For configuration description see {@link XPathDocOrderTest}.
      */
     public void testDocOrderPositionFunction() throws Exception {
         String xpath = xpathRoot + "/*[position()=2]";
@@ -58,14 +57,14 @@ public class XPathDocOrderTest extends AbstractQueryTest {
         for (NodeIterator nodes = testRootNode.getNodes(); nodes.hasNext() && nodes.getPosition() < 2;) {
             resultPath = nodes.nextNode().getPath();
         }
-        docOrderTest(new Statement(xpath, Query.XPATH), resultPath);
+        docOrderTest(new Statement(xpath, qsXPATH), resultPath);
     }
 
     /**
      * Tests if position index and document order on child axis returns the
      * correct node.
      * <p>
-     * For configuration description see {@link org.apache.jackrabbit.test.api.query.XPathDocOrderTest}.
+     * For configuration description see {@link XPathDocOrderTest}.
      */
     public void testDocOrderPositionIndex() throws Exception {
         String xpath = xpathRoot + "/*[2]";
@@ -73,13 +72,13 @@ public class XPathDocOrderTest extends AbstractQueryTest {
         for (NodeIterator nodes = testRootNode.getNodes(); nodes.hasNext() && nodes.getPosition() < 2;) {
             resultPath = nodes.nextNode().getPath();
         }
-        docOrderTest(new Statement(xpath, Query.XPATH), resultPath);
+        docOrderTest(new Statement(xpath, qsXPATH), resultPath);
     }
 
     /**
      * Tests the <code>last()</code> function.
      * <p>
-     * For configuration description see {@link org.apache.jackrabbit.test.api.query.XPathDocOrderTest}.
+     * For configuration description see {@link XPathDocOrderTest}.
      */
     public void testDocOrderLastFunction() throws Exception {
         String xpath = xpathRoot + "/*[position()=last()]";
@@ -87,18 +86,18 @@ public class XPathDocOrderTest extends AbstractQueryTest {
         for (NodeIterator nodes = testRootNode.getNodes(); nodes.hasNext();) {
             resultPath = nodes.nextNode().getPath();
         }
-        docOrderTest(new Statement(xpath, Query.XPATH), resultPath);
+        docOrderTest(new Statement(xpath, qsXPATH), resultPath);
     }
 
     /**
      * Tests the <code>first()</code> function.
      * <p>
-     * For configuration description see {@link org.apache.jackrabbit.test.api.query.XPathDocOrderTest}.
+     * For configuration description see {@link XPathDocOrderTest}.
      */
     public void testDocOrderFirstFunction() throws Exception {
         String xpath = xpathRoot + "/*[first()]";
         String resultPath = testRootNode.getNodes().nextNode().getPath();
-        docOrderTest(new Statement(xpath, Query.XPATH), resultPath);
+        docOrderTest(new Statement(xpath, qsXPATH), resultPath);
     }
 
     //-----------------------------< internal >---------------------------------

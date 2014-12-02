@@ -83,7 +83,7 @@ public class SetPropertyDoubleTest extends AbstractJCRTest {
      */
     public void testNewDoublePropertyParent() throws Exception {
         testNode.setProperty(propertyName1, d1);
-        testRootNode.save();
+        testRootNode.getSession().save();
         assertEquals("Setting property with Node.setProperty(String, double) and parentNode.save() not working",
                 new Double(d1),
                 new Double(testNode.getProperty(propertyName1).getDouble()));
@@ -95,9 +95,9 @@ public class SetPropertyDoubleTest extends AbstractJCRTest {
      */
     public void testModifyDoublePropertyParent() throws Exception {
         testNode.setProperty(propertyName1, d1);
-        testRootNode.save();
+        testRootNode.getSession().save();
         testNode.setProperty(propertyName1, d2);
-        testRootNode.save();
+        testRootNode.getSession().save();
         assertEquals("Modifying property with Node.setProperty(String, double) and parentNode.save() not working",
                 new Double(d2),
                 new Double(testNode.getProperty(propertyName1).getDouble()));
@@ -124,11 +124,24 @@ public class SetPropertyDoubleTest extends AbstractJCRTest {
      */
     public void testRemoveDoublePropertyParent() throws Exception {
         testNode.setProperty(propertyName1, d1);
-        testRootNode.save();
+        testRootNode.getSession().save();
         testNode.setProperty(propertyName1, (Value) null);
-        testRootNode.save();
+        testRootNode.getSession().save();
         assertFalse("Removing double property with Node.setProperty(String, null) and parentNode.save() not working",
                 testNode.hasProperty(propertyName1));
     }
 
+    /**
+     * Tests that in infinity and NaN values can be persisted and round-tripped.
+     */
+    public void testEdgeCases() throws Exception {
+        double tests[] = { Double.NaN, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY };
+        String path = testNode.getPath();
+
+        for (double v : tests) {
+            testNode.setProperty(propertyName1, v);
+            testRootNode.getSession().save();
+            assertEquals("Round-trip of " + v, v, superuser.getNode(path).getProperty(propertyName1).getDouble());
+        }
+    }
 }

@@ -18,10 +18,12 @@ package org.apache.jackrabbit.test.api;
 
 import org.apache.jackrabbit.test.AbstractJCRTest;
 import org.apache.jackrabbit.test.NotExecutableException;
+import org.apache.jackrabbit.test.api.util.InputStreamWrapper;
 
 import javax.jcr.Node;
 import javax.jcr.Property;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.ByteArrayInputStream;
 
@@ -46,7 +48,7 @@ public class SetPropertyInputStreamTest extends AbstractJCRTest {
     protected void setUp() throws Exception {
         super.setUp();
         testNode = testRootNode.addNode(nodeName1, testNodeType);
-        testRootNode.save();
+        testRootNode.getSession().save();
 
         // special case for repositories that do allow binary property
         // values, but only on jcr:content/jcr:data
@@ -74,8 +76,8 @@ public class SetPropertyInputStreamTest extends AbstractJCRTest {
             assertTrue("Setting property with Node.setProperty(String, InputStream) and Session.save() not working",
                     compareInputStreams(is1, in));
         } finally {
-            in.close();
-        }
+            try { in.close(); } catch (IOException ignore) {}
+         }
     }
 
     /**
@@ -93,8 +95,8 @@ public class SetPropertyInputStreamTest extends AbstractJCRTest {
             assertTrue("Modifying property with Node.setProperty(String, InputStream) and Session.save() not working",
                     compareInputStreams(is2, in));
         } finally {
-            in.close();
-        }
+            try { in.close(); } catch (IOException ignore) {}
+         }
     }
 
     /**
@@ -103,14 +105,14 @@ public class SetPropertyInputStreamTest extends AbstractJCRTest {
      */
     public void testNewInputStreamPropertyParent() throws Exception {
         testNode.setProperty(propertyName1, is1);
-        testRootNode.save();
+        testRootNode.getSession().save();
         is1 = new ByteArrayInputStream(bytes1);
         InputStream in = testNode.getProperty(propertyName1).getStream();
         try {
             assertTrue("Setting property with Node.setProperty(String, InputStream) and parentNode.save() not working",
                     compareInputStreams(is1, in));
         } finally {
-            in.close();
+            try { in.close(); } catch (IOException ignore) {}
         }
     }
 
@@ -120,17 +122,17 @@ public class SetPropertyInputStreamTest extends AbstractJCRTest {
      */
     public void testModifyInputStreamPropertyParent() throws Exception {
         testNode.setProperty(propertyName1, is1);
-        testRootNode.save();
+        testRootNode.getSession().save();
         testNode.setProperty(propertyName1, is2);
-        testRootNode.save();
+        testRootNode.getSession().save();
         is2 = new ByteArrayInputStream(bytes2);
         InputStream in = testNode.getProperty(propertyName1).getStream();
         try {
             assertTrue("Modifying property with Node.setProperty(String, InputStream) and parentNode.save() not working",
                     compareInputStreams(is2, in));
         } finally {
-            in.close();
-        }
+            try { in.close(); } catch (IOException ignore) {}
+         }
     }
 
     /**
@@ -160,7 +162,7 @@ public class SetPropertyInputStreamTest extends AbstractJCRTest {
      */
     public void testRemoveInputStreamPropertyParent() throws Exception {
         testNode.setProperty(propertyName1, is1);
-        testRootNode.save();
+        testRootNode.getSession().save();
 
         Property property = testNode.getProperty(propertyName1);
         if (property.getDefinition().isMandatory() || property.getDefinition().isProtected()) {
@@ -168,9 +170,19 @@ public class SetPropertyInputStreamTest extends AbstractJCRTest {
         }
 
         testNode.setProperty(propertyName1, (InputStream) null);
-        testRootNode.save();
+        testRootNode.getSession().save();
         assertFalse("Removing property with Node.setProperty(String, (InputStream)null) and parentNode.save() not working",
                 testNode.hasProperty(propertyName1));
+    }
+
+    /**
+     * Tests whether the passed input stream is closed.
+     * @throws Exception
+     */
+    public void testInputStreamClosed() throws Exception {
+        InputStreamWrapper in = new InputStreamWrapper(new ByteArrayInputStream(bytes1));
+        testNode.setProperty(propertyName1, in);
+        assertTrue("Node.setProperty(..., InputStream) is expected to close the passed input stream", in.isClosed());
     }
 
     /**

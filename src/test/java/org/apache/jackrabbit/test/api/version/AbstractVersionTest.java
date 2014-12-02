@@ -23,6 +23,7 @@ import javax.jcr.nodetype.NodeTypeManager;
 import javax.jcr.nodetype.NoSuchNodeTypeException;
 import javax.jcr.nodetype.NodeType;
 import javax.jcr.Node;
+import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.version.VersionHistory;
 
@@ -42,6 +43,8 @@ public class AbstractVersionTest extends AbstractJCRTest {
 
     protected void setUp() throws Exception {
         super.setUp();
+
+        super.checkSupportedOption(Repository.OPTION_VERSIONING_SUPPORTED);
 
         NodeTypeManager ntMgr = superuser.getWorkspace().getNodeTypeManager();
 
@@ -118,7 +121,7 @@ public class AbstractVersionTest extends AbstractJCRTest {
      *
      * @param vHistory
      * @return number of versions
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     protected long getNumberOfVersions(VersionHistory vHistory) throws RepositoryException {
         return getSize(vHistory.getAllVersions());
@@ -133,7 +136,7 @@ public class AbstractVersionTest extends AbstractJCRTest {
      * @param name
      * @param nodetype
      * @return versionable node.
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     protected Node createVersionableNode(Node parent, String name, NodeType nodetype)
             throws RepositoryException, NotExecutableException {

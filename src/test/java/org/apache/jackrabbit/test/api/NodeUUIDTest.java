@@ -41,7 +41,7 @@ public class NodeUUIDTest extends AbstractJCRTest {
 
     /**
      * Tries to remove a node that is a reference target using {@link
-     * javax.jcr.Node#save()}.<br> <br>Procedure: <ul> <li>Creates two nodes with same
+     * Node#save()}.<br> <br>Procedure: <ul> <li>Creates two nodes with same
      * session</li> <li>One has a referencing property pointing to the other
      * node</li> <li>Target node gets removed.</code></li> </ul> This should
      * generate a {@link javax.jcr.ReferentialIntegrityException} upon save.
@@ -92,7 +92,7 @@ public class NodeUUIDTest extends AbstractJCRTest {
     /**
      * Moves a referencable node using {@link javax.jcr.Session#move(String,
      * String)} with one session and saves afterward changes made with a second
-     * session to the moved node using {@link javax.jcr.Node#save()}.
+     * session to the moved node using {@link Node#save()}.
      * <p>
      * Procedure: <ul> <li>Creates node 1 and node 2 with session 1</li>
      * <li>Gets reference to node 1 using session 2</li> <li>Session 1 moves

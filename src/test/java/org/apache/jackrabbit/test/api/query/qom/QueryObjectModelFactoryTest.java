@@ -59,7 +59,7 @@ import javax.jcr.query.qom.Literal;
 
 /**
  * <code>QueryObjectModelFactoryTest</code> tests all methods on the
- * {@link javax.jcr.query.qom.QueryObjectModelFactory}.
+ * {@link QueryObjectModelFactory}.
  */
 public class QueryObjectModelFactoryTest extends AbstractQOMTest {
 
@@ -91,12 +91,12 @@ public class QueryObjectModelFactoryTest extends AbstractQOMTest {
     /**
      * Set of all possible operators.
      */
-    private static final Set OPERATORS = new HashSet();
+    private static final Set<String> OPERATORS = new HashSet<String>();
 
     /**
      * Set of all possible join types.
      */
-    private static final Set JOIN_TYPES = new HashSet();
+    private static final Set<String> JOIN_TYPES = new HashSet<String>();
 
     static {
         OPERATORS.add(QueryObjectModelConstants.JCR_OPERATOR_EQUAL_TO);
@@ -113,7 +113,7 @@ public class QueryObjectModelFactoryTest extends AbstractQOMTest {
     }
 
     /**
-     * Test case for {@link javax.jcr.query.qom.QueryObjectModelFactory#and(javax.jcr.query.qom.Constraint, javax.jcr.query.qom.Constraint)}
+     * Test case for {@link QueryObjectModelFactory#and(Constraint, Constraint)}
      */
     public void testAnd() throws RepositoryException {
         PropertyExistence c1 = qf.propertyExistence(SELECTOR_NAME1, propertyName1);
@@ -126,7 +126,7 @@ public class QueryObjectModelFactoryTest extends AbstractQOMTest {
     }
 
     /**
-     * Test case for {@link javax.jcr.query.qom.QueryObjectModelFactory#ascending(javax.jcr.query.qom.DynamicOperand)}
+     * Test case for {@link QueryObjectModelFactory#ascending(DynamicOperand)}
      */
     public void testOrderingAscending() throws RepositoryException {
         PropertyValue op = qf.propertyValue(SELECTOR_NAME1, propertyName1);
@@ -137,7 +137,7 @@ public class QueryObjectModelFactoryTest extends AbstractQOMTest {
     }
 
     /**
-     * Test case for {@link javax.jcr.query.qom.QueryObjectModelFactory#bindVariable(String)}
+     * Test case for {@link QueryObjectModelFactory#bindVariable(String)}
      */
     public void testBindVariableValue() throws RepositoryException {
         BindVariableValue bindVar = qf.bindVariable(propertyName1);
@@ -145,7 +145,7 @@ public class QueryObjectModelFactoryTest extends AbstractQOMTest {
     }
 
     /**
-     * Test case for {@link javax.jcr.query.qom.QueryObjectModelFactory#childNode(String, String)}
+     * Test case for {@link QueryObjectModelFactory#childNode(String, String)}
      */
     public void testChildNode() throws RepositoryException {
         ChildNode childNode = qf.childNode(SELECTOR_NAME1, testRootNode.getPath());
@@ -154,7 +154,7 @@ public class QueryObjectModelFactoryTest extends AbstractQOMTest {
     }
 
     /**
-     * Test case for {@link javax.jcr.query.qom.QueryObjectModelFactory#childNode(String, String)}
+     * Test case for {@link QueryObjectModelFactory#childNode(String, String)}
      */
     public void testChildNodeWithSelector() throws RepositoryException {
         ChildNode childNode = qf.childNode(SELECTOR_NAME1, testRootNode.getPath());
@@ -163,7 +163,7 @@ public class QueryObjectModelFactoryTest extends AbstractQOMTest {
     }
 
     /**
-     * Test case for {@link javax.jcr.query.qom.QueryObjectModelFactory#childNodeJoinCondition(String, String)}
+     * Test case for {@link QueryObjectModelFactory#childNodeJoinCondition(String, String)}
      */
     public void testChildNodeJoinCondition() throws RepositoryException {
         ChildNodeJoinCondition cond = qf.childNodeJoinCondition(SELECTOR_NAME1, SELECTOR_NAME2);
@@ -172,7 +172,7 @@ public class QueryObjectModelFactoryTest extends AbstractQOMTest {
     }
 
     /**
-     * Test case for {@link javax.jcr.query.qom.QueryObjectModelFactory#column(String, String, String)}
+     * Test case for {@link QueryObjectModelFactory#column(String, String, String)}
      */
     public void testColumn() throws RepositoryException {
         Column col = qf.column(SELECTOR_NAME1, propertyName1, propertyName1);
@@ -182,7 +182,7 @@ public class QueryObjectModelFactoryTest extends AbstractQOMTest {
     }
 
     /**
-     * Test case for {@link javax.jcr.query.qom.QueryObjectModelFactory#column(String, String, String)}
+     * Test case for {@link QueryObjectModelFactory#column(String, String, String)}
      */
     public void testColumnAllProperties() throws RepositoryException {
         Column col = qf.column(SELECTOR_NAME1, null, null);
@@ -192,7 +192,7 @@ public class QueryObjectModelFactoryTest extends AbstractQOMTest {
     }
 
     /**
-     * Test case for {@link javax.jcr.query.qom.QueryObjectModelFactory#column(String, String, String)}
+     * Test case for {@link QueryObjectModelFactory#column(String, String, String)}
      */
     public void testColumnWithColumnName() throws RepositoryException {
         Column col = qf.column(SELECTOR_NAME1, propertyName1, COLUMN_NAME);
@@ -202,7 +202,7 @@ public class QueryObjectModelFactoryTest extends AbstractQOMTest {
     }
 
     /**
-     * Test case for {@link javax.jcr.query.qom.QueryObjectModelFactory#column(String, String, String)}
+     * Test case for {@link QueryObjectModelFactory#column(String, String, String)}
      */
     public void testColumnWithSelector() throws RepositoryException {
         Column col = qf.column(SELECTOR_NAME1, propertyName1, COLUMN_NAME);
@@ -212,17 +212,17 @@ public class QueryObjectModelFactoryTest extends AbstractQOMTest {
     }
 
     /**
-     * Test case for {@link javax.jcr.query.qom.QueryObjectModelFactory#comparison(javax.jcr.query.qom.DynamicOperand, String, javax.jcr.query.qom.StaticOperand)}
+     * Test case for {@link QueryObjectModelFactory#comparison(DynamicOperand, String, StaticOperand)}
      */
     public void testComparison() throws RepositoryException {
         PropertyValue op1 = qf.propertyValue(SELECTOR_NAME1, propertyName1);
         BindVariableValue op2 = qf.bindVariable(VARIABLE_NAME);
-        for (Iterator it = OPERATORS.iterator(); it.hasNext(); ) {
-            String operator = (String) it.next();
+        for (Iterator<String> it = OPERATORS.iterator(); it.hasNext(); ) {
+            String operator = it.next();
             Comparison comp = qf.comparison(op1, operator, op2);
             assertTrue("Not a PropertyValue operand", comp.getOperand1() instanceof PropertyValue);
             assertTrue("Not a BindVariableValue operand", comp.getOperand2() instanceof BindVariableValue);
-            assertEquals("Wrong operator", operator.toString(), comp.getOperator());
+            assertEquals("Wrong operator", operator, comp.getOperator());
         }
     }
 
@@ -321,7 +321,7 @@ public class QueryObjectModelFactoryTest extends AbstractQOMTest {
     }
 
     /**
-     * Test case for {@link javax.jcr.query.qom.QueryObjectModelFactory#descendantNode(String, String)}
+     * Test case for {@link QueryObjectModelFactory#descendantNode(String, String)}
      */
     public void testDescendantNode() throws RepositoryException {
         DescendantNode descNode = qf.descendantNode(SELECTOR_NAME1, testRootNode.getPath());
@@ -330,7 +330,7 @@ public class QueryObjectModelFactoryTest extends AbstractQOMTest {
     }
 
     /**
-     * Test case for {@link javax.jcr.query.qom.QueryObjectModelFactory#descendantNode(String, String)}
+     * Test case for {@link QueryObjectModelFactory#descendantNode(String, String)}
      */
     public void testDescendantNodeWithSelector() throws RepositoryException {
         DescendantNode descNode = qf.descendantNode(SELECTOR_NAME1, testRootNode.getPath());
@@ -339,7 +339,7 @@ public class QueryObjectModelFactoryTest extends AbstractQOMTest {
     }
 
     /**
-     * Test case for {@link javax.jcr.query.qom.QueryObjectModelFactory#descendantNodeJoinCondition(String, String)}
+     * Test case for {@link QueryObjectModelFactory#descendantNodeJoinCondition(String, String)}
      */
     public void testDescendantNodeJoinCondition() throws RepositoryException {
         DescendantNodeJoinCondition cond = qf.descendantNodeJoinCondition(SELECTOR_NAME1, SELECTOR_NAME2);
@@ -348,7 +348,7 @@ public class QueryObjectModelFactoryTest extends AbstractQOMTest {
     }
 
     /**
-     * Test case for {@link javax.jcr.query.qom.QueryObjectModelFactory#descending(javax.jcr.query.qom.DynamicOperand)}
+     * Test case for {@link QueryObjectModelFactory#descending(DynamicOperand)}
      */
     public void testOrderingDescending() throws RepositoryException {
         PropertyValue op = qf.propertyValue(SELECTOR_NAME1, propertyName1);
@@ -359,7 +359,7 @@ public class QueryObjectModelFactoryTest extends AbstractQOMTest {
     }
 
     /**
-     * Test case for {@link javax.jcr.query.qom.QueryObjectModelFactory#equiJoinCondition(String, String, String, String)}
+     * Test case for {@link QueryObjectModelFactory#equiJoinCondition(String, String, String, String)}
      */
     public void testEquiJoinCondition() throws RepositoryException {
         EquiJoinCondition cond = qf.equiJoinCondition(SELECTOR_NAME1, propertyName1, SELECTOR_NAME2, propertyName2);
@@ -370,7 +370,7 @@ public class QueryObjectModelFactoryTest extends AbstractQOMTest {
     }
 
     /**
-     * Test case for {@link javax.jcr.query.qom.QueryObjectModelFactory#fullTextSearch(String, String, javax.jcr.query.qom.StaticOperand)}
+     * Test case for {@link QueryObjectModelFactory#fullTextSearch(String, String, StaticOperand)}
      */
     public void testFullTextSearch() throws RepositoryException {
         FullTextSearch ftSearch = qf.fullTextSearch(
@@ -387,7 +387,7 @@ public class QueryObjectModelFactoryTest extends AbstractQOMTest {
     }
 
     /**
-     * Test case for {@link javax.jcr.query.qom.QueryObjectModelFactory#fullTextSearch(String, String, javax.jcr.query.qom.StaticOperand)}
+     * Test case for {@link QueryObjectModelFactory#fullTextSearch(String, String, StaticOperand)}
      */
     public void testFullTextSearchAllProperties() throws RepositoryException {
         FullTextSearch ftSearch = qf.fullTextSearch(
@@ -398,7 +398,7 @@ public class QueryObjectModelFactoryTest extends AbstractQOMTest {
     }
 
     /**
-     * Test case for {@link javax.jcr.query.qom.QueryObjectModelFactory#fullTextSearch(String, String, javax.jcr.query.qom.StaticOperand)}
+     * Test case for {@link QueryObjectModelFactory#fullTextSearch(String, String, StaticOperand)}
      */
     public void testFullTextSearchWithBindVariableValue() throws RepositoryException {
         FullTextSearch ftSearch = qf.fullTextSearch(
@@ -415,7 +415,7 @@ public class QueryObjectModelFactoryTest extends AbstractQOMTest {
     }
 
     /**
-     * Test case for {@link javax.jcr.query.qom.QueryObjectModelFactory#fullTextSearchScore(String)}
+     * Test case for {@link QueryObjectModelFactory#fullTextSearchScore(String)}
      */
     public void testFullTextSearchScore() throws RepositoryException {
         FullTextSearchScore score = qf.fullTextSearchScore(SELECTOR_NAME1);
@@ -423,7 +423,7 @@ public class QueryObjectModelFactoryTest extends AbstractQOMTest {
     }
 
     /**
-     * Test case for {@link javax.jcr.query.qom.QueryObjectModelFactory#fullTextSearchScore(String)}
+     * Test case for {@link QueryObjectModelFactory#fullTextSearchScore(String)}
      */
     public void testFullTextSearchScoreWithSelector() throws RepositoryException {
         FullTextSearchScore score = qf.fullTextSearchScore(SELECTOR_NAME1);
@@ -431,14 +431,14 @@ public class QueryObjectModelFactoryTest extends AbstractQOMTest {
     }
 
     /**
-     * Test case for {@link javax.jcr.query.qom.QueryObjectModelFactory#join(javax.jcr.query.qom.Source, javax.jcr.query.qom.Source, String, javax.jcr.query.qom.JoinCondition)}
+     * Test case for {@link QueryObjectModelFactory#join(Source, Source, String, JoinCondition)}
      */
     public void testJoin() throws RepositoryException {
         Selector s1 = qf.selector(ntBase, SELECTOR_NAME1);
         Selector s2 = qf.selector(testNodeType, SELECTOR_NAME1);
         JoinCondition cond = qf.equiJoinCondition(ntBase, jcrPrimaryType, testNodeType, jcrPrimaryType);
-        for (Iterator it = JOIN_TYPES.iterator(); it.hasNext(); ) {
-            String joinType = (String) it.next();
+        for (Iterator<String> it = JOIN_TYPES.iterator(); it.hasNext(); ) {
+            String joinType = it.next();
             Join join = qf.join(s1, s2, joinType, cond);
             assertTrue("Not a selector source", join.getLeft() instanceof Selector);
             assertTrue("Not a selector source", join.getRight() instanceof Selector);
@@ -448,7 +448,7 @@ public class QueryObjectModelFactoryTest extends AbstractQOMTest {
     }
 
     /**
-     * Test case for {@link javax.jcr.query.qom.QueryObjectModelFactory#length(javax.jcr.query.qom.PropertyValue)}
+     * Test case for {@link QueryObjectModelFactory#length(PropertyValue)}
      */
     public void testLength() throws RepositoryException {
         PropertyValue propValue = qf.propertyValue(SELECTOR_NAME1, propertyName1);
@@ -457,7 +457,7 @@ public class QueryObjectModelFactoryTest extends AbstractQOMTest {
     }
 
     /**
-     * Test case for {@link javax.jcr.query.qom.QueryObjectModelFactory#literal(javax.jcr.Value)}
+     * Test case for {@link QueryObjectModelFactory#literal(Value)}
      */
     public void testLiteral() throws RepositoryException {
         Value v = superuser.getValueFactory().createValue("test");
@@ -467,7 +467,7 @@ public class QueryObjectModelFactoryTest extends AbstractQOMTest {
     }
 
     /**
-     * Test case for {@link javax.jcr.query.qom.QueryObjectModelFactory#lowerCase(javax.jcr.query.qom.DynamicOperand)}
+     * Test case for {@link QueryObjectModelFactory#lowerCase(DynamicOperand)}
      */
     public void testLowerCase() throws RepositoryException {
         PropertyValue propValue = qf.propertyValue(SELECTOR_NAME1, propertyName1);
@@ -476,7 +476,7 @@ public class QueryObjectModelFactoryTest extends AbstractQOMTest {
     }
 
     /**
-     * Test case for {@link javax.jcr.query.qom.QueryObjectModelFactory#nodeLocalName(String)}
+     * Test case for {@link QueryObjectModelFactory#nodeLocalName(String)}
      */
     public void testNodeLocalName() throws RepositoryException {
         NodeLocalName localName = qf.nodeLocalName(SELECTOR_NAME1);
@@ -484,7 +484,7 @@ public class QueryObjectModelFactoryTest extends AbstractQOMTest {
     }
 
     /**
-     * Test case for {@link javax.jcr.query.qom.QueryObjectModelFactory#nodeLocalName(String)}
+     * Test case for {@link QueryObjectModelFactory#nodeLocalName(String)}
      */
     public void testNodeLocalNameWithSelector() throws RepositoryException {
         NodeLocalName localName = qf.nodeLocalName(SELECTOR_NAME1);
@@ -492,7 +492,7 @@ public class QueryObjectModelFactoryTest extends AbstractQOMTest {
     }
 
     /**
-     * Test case for {@link javax.jcr.query.qom.QueryObjectModelFactory#nodeName(String)}
+     * Test case for {@link QueryObjectModelFactory#nodeName(String)}
      */
     public void testNodeName() throws RepositoryException {
         NodeName nodeName = qf.nodeName(SELECTOR_NAME1);
@@ -500,7 +500,7 @@ public class QueryObjectModelFactoryTest extends AbstractQOMTest {
     }
 
     /**
-     * Test case for {@link javax.jcr.query.qom.QueryObjectModelFactory#nodeName(String)}
+     * Test case for {@link QueryObjectModelFactory#nodeName(String)}
      */
     public void testNodeNameWithSelector() throws RepositoryException {
         NodeName nodeName = qf.nodeName(SELECTOR_NAME1);
@@ -508,7 +508,7 @@ public class QueryObjectModelFactoryTest extends AbstractQOMTest {
     }
 
     /**
-     * Test case for {@link javax.jcr.query.qom.QueryObjectModelFactory#not(javax.jcr.query.qom.Constraint)}
+     * Test case for {@link QueryObjectModelFactory#not(Constraint)}
      */
     public void testNot() throws RepositoryException {
         PropertyExistence propExist = qf.propertyExistence(SELECTOR_NAME1, propertyName1);
@@ -517,7 +517,7 @@ public class QueryObjectModelFactoryTest extends AbstractQOMTest {
     }
 
     /**
-     * Test case for {@link javax.jcr.query.qom.QueryObjectModelFactory#or(javax.jcr.query.qom.Constraint, javax.jcr.query.qom.Constraint)}
+     * Test case for {@link QueryObjectModelFactory#or(Constraint, Constraint)}
      */
     public void testOr() throws RepositoryException {
         PropertyExistence c1 = qf.propertyExistence(SELECTOR_NAME1, propertyName1);
@@ -530,7 +530,7 @@ public class QueryObjectModelFactoryTest extends AbstractQOMTest {
     }
 
     /**
-     * Test case for {@link javax.jcr.query.qom.QueryObjectModelFactory#propertyExistence(String, String)}
+     * Test case for {@link QueryObjectModelFactory#propertyExistence(String, String)}
      */
     public void testPropertyExistence() throws RepositoryException {
         PropertyExistence propExist = qf.propertyExistence(SELECTOR_NAME1, propertyName1);
@@ -539,7 +539,7 @@ public class QueryObjectModelFactoryTest extends AbstractQOMTest {
     }
 
     /**
-     * Test case for {@link javax.jcr.query.qom.QueryObjectModelFactory#propertyExistence(String, String)}
+     * Test case for {@link QueryObjectModelFactory#propertyExistence(String, String)}
      */
     public void testPropertyExistenceWithSelector() throws RepositoryException {
         PropertyExistence propExist = qf.propertyExistence(SELECTOR_NAME1, propertyName1);
@@ -548,7 +548,7 @@ public class QueryObjectModelFactoryTest extends AbstractQOMTest {
     }
 
     /**
-     * Test case for {@link javax.jcr.query.qom.QueryObjectModelFactory#propertyValue(String, String)}
+     * Test case for {@link QueryObjectModelFactory#propertyValue(String, String)}
      */
     public void testPropertyValue() throws RepositoryException {
         PropertyValue propVal = qf.propertyValue(SELECTOR_NAME1, propertyName1);
@@ -557,7 +557,7 @@ public class QueryObjectModelFactoryTest extends AbstractQOMTest {
     }
 
     /**
-     * Test case for {@link javax.jcr.query.qom.QueryObjectModelFactory#propertyValue(String, String)}
+     * Test case for {@link QueryObjectModelFactory#propertyValue(String, String)}
      */
     public void testPropertyValueWithSelector() throws RepositoryException {
         PropertyValue propVal = qf.propertyValue(SELECTOR_NAME1, propertyName1);
@@ -566,7 +566,7 @@ public class QueryObjectModelFactoryTest extends AbstractQOMTest {
     }
 
     /**
-     * Test case for {@link javax.jcr.query.qom.QueryObjectModelFactory#sameNode(String, String)}
+     * Test case for {@link QueryObjectModelFactory#sameNode(String, String)}
      */
     public void testSameNode() throws RepositoryException {
         SameNode sameNode = qf.sameNode(SELECTOR_NAME1, testRootNode.getPath());
@@ -575,7 +575,7 @@ public class QueryObjectModelFactoryTest extends AbstractQOMTest {
     }
 
     /**
-     * Test case for {@link javax.jcr.query.qom.QueryObjectModelFactory#sameNode(String, String)}
+     * Test case for {@link QueryObjectModelFactory#sameNode(String, String)}
      */
     public void testSameNodeWithSelector() throws RepositoryException {
         SameNode sameNode = qf.sameNode(SELECTOR_NAME1, testRootNode.getPath());
@@ -584,7 +584,7 @@ public class QueryObjectModelFactoryTest extends AbstractQOMTest {
     }
 
     /**
-     * Test case for {@link javax.jcr.query.qom.QueryObjectModelFactory#sameNodeJoinCondition(String, String, String)}
+     * Test case for {@link QueryObjectModelFactory#sameNodeJoinCondition(String, String, String)}
      */
     public void testSameNodeJoinCondition() throws RepositoryException {
         SameNodeJoinCondition cond = qf.sameNodeJoinCondition(SELECTOR_NAME1, SELECTOR_NAME2, ".");
@@ -594,7 +594,7 @@ public class QueryObjectModelFactoryTest extends AbstractQOMTest {
     }
 
     /**
-     * Test case for {@link javax.jcr.query.qom.QueryObjectModelFactory#sameNodeJoinCondition(String, String, String)}
+     * Test case for {@link QueryObjectModelFactory#sameNodeJoinCondition(String, String, String)}
      */
     public void testSameNodeJoinConditionWithPath() throws RepositoryException {
         SameNodeJoinCondition cond = qf.sameNodeJoinCondition(SELECTOR_NAME1, SELECTOR_NAME2, nodeName1);
@@ -604,7 +604,7 @@ public class QueryObjectModelFactoryTest extends AbstractQOMTest {
     }
 
     /**
-     * Test case for {@link javax.jcr.query.qom.QueryObjectModelFactory#selector(String, String)}
+     * Test case for {@link QueryObjectModelFactory#selector(String, String)}
      */
     public void testSelector() throws RepositoryException {
         Selector selector = qf.selector(ntBase, SELECTOR_NAME1);
@@ -613,7 +613,7 @@ public class QueryObjectModelFactoryTest extends AbstractQOMTest {
     }
 
     /**
-     * Test case for {@link javax.jcr.query.qom.QueryObjectModelFactory#selector(String, String)}
+     * Test case for {@link QueryObjectModelFactory#selector(String, String)}
      */
     public void testSelectorWithName() throws RepositoryException {
         Selector selector = qf.selector(ntBase, SELECTOR_NAME1);
@@ -622,7 +622,7 @@ public class QueryObjectModelFactoryTest extends AbstractQOMTest {
     }
 
     /**
-     * Test case for {@link javax.jcr.query.qom.QueryObjectModelFactory#upperCase(javax.jcr.query.qom.DynamicOperand)}
+     * Test case for {@link QueryObjectModelFactory#upperCase(DynamicOperand)}
      */
     public void testUpperCase() throws RepositoryException {
         PropertyValue propValue = qf.propertyValue(SELECTOR_NAME1, propertyName1);

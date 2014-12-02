@@ -98,8 +98,9 @@ public class RestoreTest extends AbstractVersionTest {
     /**
      * Test if restoring the root version fails.
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
+    @SuppressWarnings("deprecation")
     public void testRestoreRootVersionFail() throws RepositoryException {
         try {
             versionableNode.restore(rootVersion, true);
@@ -112,7 +113,7 @@ public class RestoreTest extends AbstractVersionTest {
     /**
      * Test if restoring the root version fails.
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testRestoreRootVersionFailJcr2() throws RepositoryException {
         try {
@@ -126,8 +127,9 @@ public class RestoreTest extends AbstractVersionTest {
     /**
      * Test if restoring a node works on checked-in node.
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
+    @SuppressWarnings("deprecation")
     public void testRestoreOnCheckedInNode() throws RepositoryException {
         versionableNode.checkin();
         versionableNode.restore(version, true);
@@ -136,7 +138,7 @@ public class RestoreTest extends AbstractVersionTest {
     /**
      * Test if restoring a node works on checked-in node.
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testRestoreOnCheckedInNodeJcr2_1() throws RepositoryException {
         versionManager.checkin(versionableNode.getPath());
@@ -146,7 +148,7 @@ public class RestoreTest extends AbstractVersionTest {
     /**
      * Test if restoring a node works on checked-in node.
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testRestoreOnCheckedInNodeJcr2_2() throws RepositoryException {
         versionManager.checkin(versionableNode.getPath());
@@ -156,7 +158,7 @@ public class RestoreTest extends AbstractVersionTest {
     /**
      * Test if restoring a node works on checked-in node.
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testRestoreOnCheckedInNodeJcr2_3() throws RepositoryException {
         versionManager.checkin(versionableNode.getPath());
@@ -166,7 +168,7 @@ public class RestoreTest extends AbstractVersionTest {
     /**
      * Test if restoring a node works on checked-in node.
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testRestoreOnCheckedInNodeJcr2_4() throws RepositoryException {
         versionManager.checkin(versionableNode.getPath());
@@ -176,8 +178,9 @@ public class RestoreTest extends AbstractVersionTest {
     /**
      * Test if restoring a node works on checked-out node.
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
+    @SuppressWarnings("deprecation")
     public void testRestoreOnCheckedOutNode() throws RepositoryException {
         versionableNode.restore(version, true);
     }
@@ -185,7 +188,7 @@ public class RestoreTest extends AbstractVersionTest {
     /**
      * Test if restoring a node works on checked-out node.
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testRestoreOnCheckedOutNodeJcr2() throws RepositoryException {
         versionManager.restore(version, true);
@@ -194,7 +197,7 @@ public class RestoreTest extends AbstractVersionTest {
     /**
      * Test if restoring a node works on checked-out node.
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testRestoreOnCheckedOutNodeJcr2_2() throws RepositoryException {
         versionManager.restore(version, true);
@@ -203,7 +206,7 @@ public class RestoreTest extends AbstractVersionTest {
     /**
      * Test if restoring a node works on checked-out node.
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testRestoreOnCheckedOutNodeJcr2_3() throws RepositoryException {
         versionManager.restore(versionableNode.getPath(), version.getName(), true);
@@ -212,7 +215,7 @@ public class RestoreTest extends AbstractVersionTest {
     /**
      * Test if restoring a node works on checked-out node.
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testRestoreOnCheckedOutNodeJcr2_4() throws RepositoryException {
         versionManager.restore(new Version[] {version}, true);
@@ -221,8 +224,9 @@ public class RestoreTest extends AbstractVersionTest {
     /**
      * Restoring a node set the jcr:isCheckedOut property to false.
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
+    @SuppressWarnings("deprecation")
     public void testRestoreSetsIsCheckedOutToFalse() throws RepositoryException {
         versionableNode.restore(version, true);
         assertFalse("Restoring a node sets the jcr:isCheckedOut property to false", versionableNode.isCheckedOut());
@@ -231,7 +235,7 @@ public class RestoreTest extends AbstractVersionTest {
     /**
      * Restoring a node set the jcr:isCheckedOut property to false.
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testRestoreSetsIsCheckedOutToFalseJcr2() throws RepositoryException {
         versionManager.restore(version, true);
@@ -241,7 +245,7 @@ public class RestoreTest extends AbstractVersionTest {
     /**
      * Restoring a node set the jcr:isCheckedOut property to false.
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testRestoreSetsIsCheckedOutToFalseJcr2_2() throws RepositoryException {
         versionManager.restore(version, true);
@@ -251,7 +255,7 @@ public class RestoreTest extends AbstractVersionTest {
     /**
      * Restoring a node set the jcr:isCheckedOut property to false.
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testRestoreSetsIsCheckedOutToFalseJcr3() throws RepositoryException {
         versionManager.restore(versionableNode.getPath(), version.getName(), true);
@@ -261,7 +265,7 @@ public class RestoreTest extends AbstractVersionTest {
     /**
      * Restoring a node set the jcr:isCheckedOut property to false.
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testRestoreSetsIsCheckedOutToFalseJcr2_4() throws RepositoryException {
         versionManager.restore(new Version[] {version}, true);
@@ -271,8 +275,9 @@ public class RestoreTest extends AbstractVersionTest {
     /**
      * Test if restoring a node restores the correct property
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
+    @SuppressWarnings("deprecation")
     public void testRestoreCorrectProperty() throws RepositoryException {
         versionableNode.restore(version, true);
         String value = versionableNode.getProperty(propertyName1).getString();
@@ -282,7 +287,7 @@ public class RestoreTest extends AbstractVersionTest {
     /**
      * Test if restoring a node restores the correct property
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testRestoreCorrectPropertyJcr2() throws RepositoryException {
         versionManager.restore(version, true);
@@ -293,7 +298,7 @@ public class RestoreTest extends AbstractVersionTest {
     /**
      * Test if restoring a node restores the correct property
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testRestoreCorrectPropertyJcr2_2() throws RepositoryException {
         versionManager.restore(version, true);
@@ -304,7 +309,7 @@ public class RestoreTest extends AbstractVersionTest {
     /**
      * Test if restoring a node restores the correct property
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testRestoreCorrectPropertyJcr2_3() throws RepositoryException {
         versionManager.restore(versionableNode.getPath(), version.getName(), true);
@@ -315,7 +320,7 @@ public class RestoreTest extends AbstractVersionTest {
     /**
      * Test if restoring a node restores the correct property
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testRestoreCorrectPropertyJcr2_4() throws RepositoryException {
         versionManager.restore(new Version[] {version}, true);
@@ -328,6 +333,7 @@ public class RestoreTest extends AbstractVersionTest {
      *
      * @throws javax.jcr.RepositoryException
      */
+    @SuppressWarnings("deprecation")
     public void testRestoreSetsBaseVersion() throws RepositoryException {
         versionableNode.restore(version, true);
         Version baseV = versionableNode.getBaseVersion();
@@ -381,8 +387,9 @@ public class RestoreTest extends AbstractVersionTest {
     /**
      * Test if InvalidItemStateException is thrown if the node has pending changes.
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
+    @SuppressWarnings("deprecation")
     public void testRestoreWithPendingChanges() throws RepositoryException {
         // modify node without calling save()
         try {
@@ -398,7 +405,7 @@ public class RestoreTest extends AbstractVersionTest {
     /**
      * Test if InvalidItemStateException is thrown if the node has pending changes.
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testRestoreWithPendingChangesJcr2() throws RepositoryException {
         // modify node without calling save()
@@ -415,7 +422,7 @@ public class RestoreTest extends AbstractVersionTest {
     /**
      * Test if InvalidItemStateException is thrown if the node has pending changes.
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testRestoreWithPendingChangesJcr2_2() throws RepositoryException {
         // modify node without calling save()
@@ -432,7 +439,7 @@ public class RestoreTest extends AbstractVersionTest {
     /**
      * Test if InvalidItemStateException is thrown if the node has pending changes.
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testRestoreWithPendingChangesJcr2_3() throws RepositoryException {
         // modify node without calling save()
@@ -449,7 +456,7 @@ public class RestoreTest extends AbstractVersionTest {
     /**
      * Test if InvalidItemStateException is thrown if the node has pending changes.
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testRestoreWithPendingChangesJcr2_4() throws RepositoryException {
         // modify node without calling save()
@@ -467,8 +474,9 @@ public class RestoreTest extends AbstractVersionTest {
      * VersionException expected on Node.restore(Version, boolean) if the
      * specified version is not part of this node's version history.
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
+    @SuppressWarnings("deprecation")
     public void testRestoreInvalidVersion() throws RepositoryException {
         Version vNode2 = versionableNode2.checkin();
         try {
@@ -484,7 +492,7 @@ public class RestoreTest extends AbstractVersionTest {
      * VersionException expected on Node.restore(Version, boolean) if the
      * specified version is not part of this node's version history.
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testRestoreInvalidVersionJcr2() throws RepositoryException {
         Version vNode2 = versionManager.checkin(versionableNode2.getPath());
@@ -500,8 +508,9 @@ public class RestoreTest extends AbstractVersionTest {
     /**
      * VersionException expected on Node.restore(String, boolean) if the specified version is not part of this node's version history.
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
+    @SuppressWarnings("deprecation")
     public void testRestoreInvalidVersion2() throws RepositoryException {
         String invalidName;
         do {
@@ -526,7 +535,7 @@ public class RestoreTest extends AbstractVersionTest {
     /**
      * VersionException expected on Node.restore(String, boolean) if the specified version is not part of this node's version history.
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testRestoreInvalidVersion2Jcr2() throws RepositoryException {
         String invalidName;
@@ -552,9 +561,10 @@ public class RestoreTest extends AbstractVersionTest {
     /**
      * Test calling Node.restore(String, boolean) on a non-versionable node.
      *
-     * @throws javax.jcr.RepositoryException
-     * @see javax.jcr.Node#restore(String, boolean)
+     * @throws RepositoryException
+     * @see Node#restore(String, boolean)
      */
+    @SuppressWarnings("deprecation")
     public void testRestoreNonVersionableNode() throws RepositoryException {
         try {
             nonVersionableNode.restore("foo", true);
@@ -567,8 +577,8 @@ public class RestoreTest extends AbstractVersionTest {
     /**
      * Test restoring on a non-versionable node.
      *
-     * @throws javax.jcr.RepositoryException
-     * @see javax.jcr.Node#restore(String, boolean)
+     * @throws RepositoryException
+     * @see Node#restore(String, boolean)
      */
     public void testRestoreNonVersionableNodeJcr2_2() throws RepositoryException {
         try {
@@ -582,8 +592,8 @@ public class RestoreTest extends AbstractVersionTest {
     /**
      * Test calling Node.restore(Version, String, boolean) on a non-versionable node.
      *
-     * @throws javax.jcr.RepositoryException
-     * @see javax.jcr.Node#restore(javax.jcr.version.Version, String, boolean)
+     * @throws RepositoryException
+     * @see Node#restore(Version, String, boolean)
      */
     public void testRestoreNonVersionableNode2() throws RepositoryException {
         // the 'version' will be restored at location 'foo'.
@@ -599,9 +609,10 @@ public class RestoreTest extends AbstractVersionTest {
     /**
      * Test calling Node.restore(Version, boolean) on a non-versionable node.
      *
-     * @throws javax.jcr.RepositoryException
-     * @see javax.jcr.Node#restore(javax.jcr.version.Version, boolean)
+     * @throws RepositoryException
+     * @see Node#restore(Version, boolean)
      */
+    @SuppressWarnings("deprecation")
     public void testRestoreNonVersionableNode3() throws RepositoryException {
         try {
             nonVersionableNode.restore(version, true);
@@ -614,8 +625,8 @@ public class RestoreTest extends AbstractVersionTest {
     /**
      * Test restoring on a non-versionable node.
      *
-     * @throws javax.jcr.RepositoryException
-     * @see javax.jcr.Node#restore(javax.jcr.version.Version, boolean)
+     * @throws RepositoryException
+     * @see Node#restore(Version, boolean)
      */
     public void testRestoreNonVersionableNode3Jcr2_2() throws RepositoryException {
         try {
@@ -629,8 +640,9 @@ public class RestoreTest extends AbstractVersionTest {
     /**
      * Test if restoring a node with an invalid Version throws a VersionException
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
+    @SuppressWarnings("deprecation")
     public void testRestoreWithInvalidVersion() throws RepositoryException {
         Version invalidVersion = versionableNode2.checkin();
         try {
@@ -644,7 +656,7 @@ public class RestoreTest extends AbstractVersionTest {
     /**
      * Test if restoring a node with an invalid Version throws a VersionException
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testRestoreWithInvalidVersionJcr2() throws RepositoryException {
         Version invalidVersion = versionManager.checkin(versionableNode2.getPath());
@@ -660,6 +672,7 @@ public class RestoreTest extends AbstractVersionTest {
      * Tests if restoring the <code>Version</code> of an existing node throws an
      * <code>ItemExistsException</code> if removeExisting is set to FALSE.
      */
+    @SuppressWarnings("deprecation")
     public void testRestoreWithUUIDConflict() throws RepositoryException, NotExecutableException {
         try {
             Node naa = createVersionableNode(versionableNode, nodeName4, versionableNodeType);
@@ -801,6 +814,38 @@ public class RestoreTest extends AbstractVersionTest {
         }
     }
 
+    @SuppressWarnings("deprecation")
+    public void testRestoreRemoved() throws RepositoryException {
+        Node parent = versionableNode.getParent();
+        String oldName = versionableNode.getName();
+        Version v1 = versionableNode.checkin();
+        versionableNode.remove();
+        versionableNode = null;
+        parent.getSession().save();
+
+        parent.restore(v1, oldName, true);
+
+        versionableNode = parent.getNode(oldName);
+
+        String value = versionableNode.getProperty(propertyName1).getString();
+        assertEquals("Restoring a node must set the correct property.", propertyValue2, value);
+    }
+
+    public void testRestoreRemovedJcr2() throws RepositoryException {
+        String path = versionableNode.getPath();
+        Version v1 = versionManager.checkin(path);
+        versionableNode.remove();
+        versionableNode = null;
+        superuser.save();
+
+        versionManager.restore(path, v1, true);
+
+        versionableNode = superuser.getNode(path);
+
+        String value = versionableNode.getProperty(propertyName1).getString();
+        assertEquals("Restoring a node must set the correct property.", propertyValue2, value);
+    }
+
     public void testRestoreChild1Jcr2() throws RepositoryException {
         versionableNode.addNode("child1");
         versionableNode.getSession().save();
@@ -883,8 +928,9 @@ public class RestoreTest extends AbstractVersionTest {
 
     /**
      * Test the restore of a versionable node using a label.
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
+    @SuppressWarnings("deprecation")
     public void testRestoreLabel() throws RepositoryException {
         // mark V1 with label test1
         versionableNode.getVersionHistory().addVersionLabel(version.getName(), "test", true);
@@ -897,7 +943,7 @@ public class RestoreTest extends AbstractVersionTest {
 
     /**
      * Test the restore of a versionable node using a label.
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testRestoreLabelJcr2() throws RepositoryException {
         // mark V1 with label test1
@@ -911,8 +957,9 @@ public class RestoreTest extends AbstractVersionTest {
 
     /**
      * Test the restore of the OPV=Version child nodes.
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
+    @SuppressWarnings("deprecation")
     public void testRestoreName() throws RepositoryException,
             NotExecutableException {
         // V1.0 of versionableNode has no child
@@ -927,7 +974,7 @@ public class RestoreTest extends AbstractVersionTest {
 
         // create V1.1 of child
         child1.checkout();
-        Version v11Child = child1.checkin();
+        child1.checkin();
 
         // V2 of versionable node has child1
         versionableNode.checkout();
@@ -962,7 +1009,7 @@ public class RestoreTest extends AbstractVersionTest {
 
     /**
      * Test the restore of the OPV=Version child nodes.
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testRestoreNameJcr2() throws RepositoryException,
             NotExecutableException {
@@ -971,14 +1018,14 @@ public class RestoreTest extends AbstractVersionTest {
         ensureMixinType(child1, mixVersionable);
         versionableNode.getSession().save();
         // create v1.0 of child
-        Version v1Child = child1.checkin();
+        Version v1Child = versionManager.checkin(child1.getPath());
 
         // V1 of versionable node has child1
         String v1 = versionManager.checkin(versionableNode.getPath()).getName();
 
         // create V1.1 of child
         versionManager.checkout(child1.getPath());
-        Version v11Child = versionManager.checkin(child1.getPath());
+        versionManager.checkin(child1.getPath());
 
         // V2 of versionable node has child1
         versionManager.checkout(versionableNode.getPath());
@@ -994,16 +1041,22 @@ public class RestoreTest extends AbstractVersionTest {
         child1 = versionableNode.getNode(nodeName4);
         assertEquals("restore must restore child node version 1.0.", v1Child.getName(), versionManager.getBaseVersion(child1.getPath()).getName());
 
-        // restore V2 via name. child should be 1.1
+        // JSR283 is more clear about restoring versionable OPV=VERSION nodes
+        // and states that an existing one is not restored when the parent
+        // is restored (see 15.7.5 Chained Versions on Restore)
+
+        // New JSR283 version:
+        // restore V2 via name. child should still be be 1.0
         versionManager.restore(versionableNode.getPath(), v2, true);
         child1 = versionableNode.getNode(nodeName4);
-        assertEquals("Node.restore('foo') must restore child node version 1.1.", v11Child.getName(), versionManager.getBaseVersion(child1.getPath()).getName());
+        assertEquals("Node.restore('foo') must not restore child node and keep version 1.0.", v1Child.getName(), versionManager.getBaseVersion(child1.getPath()).getName());
     }
 
     /**
      * Test the child ordering of restored nodes.
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
+    @SuppressWarnings("deprecation")
     public void testRestoreOrder() throws RepositoryException,
             NotExecutableException {
         // create a test-root that has orderable child nodes
@@ -1043,7 +1096,7 @@ public class RestoreTest extends AbstractVersionTest {
 
     /**
      * Test the child ordering of restored nodes.
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testRestoreOrderJcr2() throws RepositoryException,
             NotExecutableException {
@@ -1084,7 +1137,7 @@ public class RestoreTest extends AbstractVersionTest {
 
     /**
      * Test the child ordering of restored nodes.
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testRestoreOrderJcr2_2() throws RepositoryException,
             NotExecutableException {
@@ -1125,7 +1178,7 @@ public class RestoreTest extends AbstractVersionTest {
 
     /**
      * Test the child ordering of restored nodes.
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testRestoreOrderJcr2_3() throws RepositoryException,
             NotExecutableException {
@@ -1166,7 +1219,7 @@ public class RestoreTest extends AbstractVersionTest {
 
     /**
      * Test the child ordering of restored nodes.
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testRestoreOrderJcr2_4() throws RepositoryException,
             NotExecutableException {
@@ -1207,8 +1260,9 @@ public class RestoreTest extends AbstractVersionTest {
 
     /**
      * Test the child ordering of restored nodes.
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
+    @SuppressWarnings("deprecation")
     public void testRestoreOrder2() throws RepositoryException,
             NotExecutableException {
         // create a test-root that has orderable child nodes
@@ -1248,7 +1302,7 @@ public class RestoreTest extends AbstractVersionTest {
 
     /**
      * Test the child ordering of restored nodes.
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testRestoreOrder2Jcr2() throws RepositoryException,
             NotExecutableException {
@@ -1289,7 +1343,7 @@ public class RestoreTest extends AbstractVersionTest {
 
     /**
      * Test the child ordering of restored nodes.
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testRestoreOrder2Jcr2_2() throws RepositoryException,
             NotExecutableException {
@@ -1330,7 +1384,7 @@ public class RestoreTest extends AbstractVersionTest {
 
     /**
      * Test the child ordering of restored nodes.
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testRestoreOrder2Jcr2_3() throws RepositoryException,
             NotExecutableException {
@@ -1371,7 +1425,7 @@ public class RestoreTest extends AbstractVersionTest {
 
     /**
      * Test the child ordering of restored nodes.
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testRestoreOrder2Jcr2_4() throws RepositoryException,
             NotExecutableException {

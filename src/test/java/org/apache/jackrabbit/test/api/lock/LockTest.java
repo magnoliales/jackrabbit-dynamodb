@@ -50,7 +50,7 @@ public class LockTest extends AbstractJCRTest {
         // create new node
         Node n = testRootNode.addNode(nodeName1, testNodeType);
         ensureMixinType(n, mixLockable);
-        testRootNode.save();
+        testRootNode.getSession().save();
 
         // lock node and get lock token
         Lock lock = n.lock(false, false);
@@ -64,8 +64,10 @@ public class LockTest extends AbstractJCRTest {
 
             // remove lock token
             superuser.removeLockToken(lockToken);
-            // assert: session must get a null lock token
-            assertNull("session must get a null lock token", lock.getLockToken());
+
+            String nlt = lock.getLockToken();
+            assertTrue("freshly obtained lock token must either be null or the same as the one returned earlier",
+                    nlt == null || nlt.equals(lockToken));
 
             // assert: session must still hold lock token
             assertFalse("session must not hold lock token",
@@ -106,7 +108,7 @@ public class LockTest extends AbstractJCRTest {
         // create new node and lock it
         Node n1 = testRootNode.addNode(nodeName1, testNodeType);
         ensureMixinType(n1, mixLockable);
-        testRootNode.save();
+        testRootNode.getSession().save();
 
         // lock node
         Lock lock = n1.lock(false, true);
@@ -146,7 +148,7 @@ public class LockTest extends AbstractJCRTest {
         ensureMixinType(n1, mixLockable);
         Node n1Sub = n1.addNode(nodeName1, testNodeType);
         ensureMixinType(n1Sub, mixLockable);
-        testRootNode.save();
+        testRootNode.getSession().save();
 
         // lock node
         n1.lock(true, true);
@@ -170,7 +172,7 @@ public class LockTest extends AbstractJCRTest {
         // create new node and lock it
         Node n1 = testRootNode.addNode(nodeName1, testNodeType);
         ensureMixinType(n1, mixLockable);
-        testRootNode.save();
+        testRootNode.getSession().save();
 
         // lock node
         Lock lock = n1.lock(false, true);
@@ -196,7 +198,7 @@ public class LockTest extends AbstractJCRTest {
         // create new node and lock it
         Node n1 = testRootNode.addNode(nodeName1, testNodeType);
         ensureMixinType(n1, mixLockable);
-        testRootNode.save();
+        testRootNode.getSession().save();
 
         // lock node
         Lock lock = n1.lock(false, true);
@@ -217,7 +219,7 @@ public class LockTest extends AbstractJCRTest {
         Node n1 = testRootNode.addNode(nodeName1, testNodeType);
         ensureMixinType(n1, mixLockable);
         Node n2 = n1.addNode(nodeName2, testNodeType);
-        testRootNode.save();
+        testRootNode.getSession().save();
 
         // lock parent node
         n1.lock(false, true);
@@ -241,7 +243,7 @@ public class LockTest extends AbstractJCRTest {
         ensureMixinType(node, mixLockable);
         // try to make it versionable if it is not
         ensureMixinType(node, mixVersionable);
-        testRootNode.save();
+        testRootNode.getSession().save();
 
         node.checkin();
 
@@ -271,7 +273,7 @@ public class LockTest extends AbstractJCRTest {
         ensureMixinType(n1, mixLockable);
         Node n2 = n1.addNode(nodeName2, testNodeType);
         ensureMixinType(n2, mixLockable);
-        testRootNode.save();
+        testRootNode.getSession().save();
 
         // lock parent node
         n1.lock(false, true);
@@ -295,7 +297,7 @@ public class LockTest extends AbstractJCRTest {
         ensureMixinType(n1, mixLockable);
         Node n2 = n1.addNode(nodeName2, testNodeType);
         ensureMixinType(n2, mixLockable);
-        testRootNode.save();
+        testRootNode.getSession().save();
 
         // lock child node
         n2.lock(false, true);
@@ -318,7 +320,7 @@ public class LockTest extends AbstractJCRTest {
         ensureMixinType(n1, mixLockable);
         Node n2 = testRootNode.addNode(nodeName2, testNodeType);
         ensureMixinType(n2, mixLockable);
-        testRootNode.save();
+        testRootNode.getSession().save();
 
         // lock node 1 "undeeply"
         Lock lock1 = n1.lock(false, true);
@@ -343,7 +345,7 @@ public class LockTest extends AbstractJCRTest {
         ensureMixinType(n1, mixLockable);
         Node n2 = testRootNode.addNode(nodeName2, testNodeType);
         ensureMixinType(n2, mixLockable);
-        testRootNode.save();
+        testRootNode.getSession().save();
 
         // lock node 1 session-scoped
         Lock lock1 = n1.lock(false, true);
@@ -367,7 +369,7 @@ public class LockTest extends AbstractJCRTest {
         // add node
         Node n1 = testRootNode.addNode(nodeName1, testNodeType);
         ensureMixinType(n1, mixLockable);
-        testRootNode.save();
+        testRootNode.getSession().save();
 
         // create new session
         Session otherSuperuser = getHelper().getSuperuserSession();
@@ -407,7 +409,7 @@ public class LockTest extends AbstractJCRTest {
         // add node
         Node n1 = testRootNode.addNode(nodeName1, testNodeType);
         ensureMixinType(n1, mixLockable);
-        testRootNode.save();
+        testRootNode.getSession().save();
 
         // create new session
         Session otherSuperuser = getHelper().getSuperuserSession();
@@ -427,8 +429,9 @@ public class LockTest extends AbstractJCRTest {
             otherSuperuser.removeLockToken(lockToken);
             superuser.addLockToken(lockToken);
 
-            // assert: user must get null token
-            assertNull("user must get null token", lock.getLockToken());
+            String nlt = lock.getLockToken();
+            assertTrue("freshly obtained lock token must either be null or the same as the one returned earlier",
+                    nlt == null || nlt.equals(lockToken));
 
             // assert: user must get non-null token
             assertNotNull("user must get non-null token",
@@ -448,7 +451,7 @@ public class LockTest extends AbstractJCRTest {
         // add node
         Node n1 = testRootNode.addNode(nodeName1, testNodeType);
         ensureMixinType(n1, mixLockable);
-        testRootNode.save();
+        testRootNode.getSession().save();
 
         // create new session
         Session otherSuperuser = getHelper().getSuperuserSession();
@@ -480,7 +483,7 @@ public class LockTest extends AbstractJCRTest {
         // create new node
         Node n = testRootNode.addNode(nodeName1, testNodeType);
         ensureMixinType(n, mixLockable);
-        testRootNode.save();
+        testRootNode.getSession().save();
 
         // lock node and get lock token
         Lock lock = n.lock(false, true);
@@ -505,7 +508,7 @@ public class LockTest extends AbstractJCRTest {
         // create new node
         Node n = testRootNode.addNode(nodeName1, testNodeType);
         ensureMixinType(n, mixLockable);
-        testRootNode.save();
+        testRootNode.getSession().save();
 
         // lock node and get lock token
         Lock lock = n.lock(false, true);
@@ -537,7 +540,7 @@ public class LockTest extends AbstractJCRTest {
         ensureMixinType(n1, mixLockable);
         Node n2 = n1.addNode(nodeName2, testNodeType);
         ensureMixinType(n2, mixLockable);
-        testRootNode.save();
+        testRootNode.getSession().save();
 
         // deep lock parent node
         n1.lock(true, true);
@@ -561,7 +564,7 @@ public class LockTest extends AbstractJCRTest {
         Node testNode = testRootNode.addNode(nodeName1, testNodeType);
         ensureMixinType(testNode, mixLockable);
         ensureMixinType(testNode, mixVersionable);
-        testRootNode.save();
+        testRootNode.getSession().save();
 
         // lock and check-in
         try {
@@ -596,7 +599,7 @@ public class LockTest extends AbstractJCRTest {
 
         // move last node in front of first
         testRootNode.orderBefore(nodeName1 + "[3]", nodeName1 + "[1]");
-        testRootNode.save();
+        testRootNode.getSession().save();
 
         // assert: first node locked
         assertTrue("First child node locked",
@@ -619,7 +622,7 @@ public class LockTest extends AbstractJCRTest {
 
         // move first node to last
         testRootNode.orderBefore(nodeName1 + "[1]", null);
-        testRootNode.save();
+        testRootNode.getSession().save();
 
         // assert: third node locked
         assertTrue("Third child node locked",
@@ -639,7 +642,7 @@ public class LockTest extends AbstractJCRTest {
         ensureMixinType(testNode1, mixLockable);
         Node testNode2 = testNode1.addNode(nodeName2, testNodeType);
         ensureMixinType(testNode2, mixLockable);
-        testRootNode.save();
+        testRootNode.getSession().save();
 
         // lock child node
         testNode2.lock(false, true);
@@ -724,7 +727,7 @@ public class LockTest extends AbstractJCRTest {
             ensureMixinType(testNode, mixLockable);
             testNode = testRootNode.addNode(nodeName1, testNodeType);
             ensureMixinType(testNode, mixLockable);
-            testRootNode.save();
+            testRootNode.getSession().save();
             return testNode;
         }
         catch (ItemExistsException ex) {

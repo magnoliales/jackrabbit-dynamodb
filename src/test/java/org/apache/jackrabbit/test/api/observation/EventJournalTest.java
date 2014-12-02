@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.jcr.Node;
+import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.observation.Event;
@@ -36,6 +37,7 @@ public class EventJournalTest extends AbstractObservationTest {
     private EventJournal journal;
 
     protected void setUp() throws Exception {
+        checkSupportedOption(Repository.OPTION_JOURNALED_OBSERVATION_SUPPORTED);
         super.setUp();
         journal = obsMgr.getEventJournal();
     }
@@ -185,7 +187,52 @@ public class EventJournalTest extends AbstractObservationTest {
 
         checkJournal(new String[]{n2.getPath()}, new String[]{n1.getPath()});
     }
-    
+
+    public void testPersist() throws RepositoryException, NotExecutableException {
+        Node n1 = testRootNode.addNode(nodeName1);
+
+        journal = getEventJournal(Event.PERSIST, testRoot, true, null, null);
+        skipToNow();
+
+        superuser.save();
+
+        boolean hasPersistEvents = journal.hasNext();
+        if (! hasPersistEvents) {
+        	throw new NotExecutableException("repository does not appear to provide PERSIST events");
+        }
+
+        journal = getEventJournal(ALL_TYPES | Event.PERSIST, testRoot, true, null, null);
+        skipToNow();
+
+        // add another child node
+        Node n3 = testRootNode.addNode(nodeName2);
+        String target = n1.getPath();
+        n1.remove();
+        superuser.save();
+
+        // move it
+        superuser.getWorkspace().move(n3.getPath(), target);
+
+        // remove it again
+        n3 = superuser.getNode(target);
+        n3.remove();
+        superuser.save();
+
+        int persistCount = 0;
+        Event e = null;
+        while (journal.hasNext()) {
+        	e = journal.nextEvent();
+        	if (e.getType() == Event.PERSIST) {
+        		persistCount += 1;
+        	}
+        }
+
+        assertEquals(3, persistCount);
+
+        // last event should be persist
+        assertEquals(Event.PERSIST, e.getType());
+    }
+
     //-------------------------------< internal >-------------------------------
 
     private void skipToNow() {
@@ -209,12 +256,12 @@ public class EventJournalTest extends AbstractObservationTest {
      *
      * @param allowed allowed paths for the returned events.
      * @param denied denied paths for the returned events.
-     * @throws javax.jcr.RepositoryException if an error occurs while reading the event
+     * @throws RepositoryException if an error occurs while reading the event
      *          journal.
      */
     private void checkJournal(String[] allowed, String[] denied) throws RepositoryException {
-        Set allowedSet = new HashSet(Arrays.asList(allowed));
-        Set deniedSet = new HashSet(Arrays.asList(denied));
+        Set<String> allowedSet = new HashSet<String>(Arrays.asList(allowed));
+        Set<String> deniedSet = new HashSet<String>(Arrays.asList(denied));
         while (journal.hasNext()) {
             String path = journal.nextEvent().getPath();
             allowedSet.remove(path);

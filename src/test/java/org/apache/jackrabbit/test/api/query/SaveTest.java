@@ -134,7 +134,7 @@ public class SaveTest extends AbstractJCRTest {
         Node versionable = testRootNode.addNode(nodeName1, testNodeType);
         // or try to make it versionable if it is not
         ensureMixinType(versionable, mixVersionable);
-        testRootNode.save();
+        testRootNode.getSession().save();
         versionable.checkin();
 
         try {
@@ -157,9 +157,10 @@ public class SaveTest extends AbstractJCRTest {
     public void testConstraintViolationException() throws RepositoryException, NotExecutableException {
         checkNtQuery();
         Query query = superuser.getWorkspace().getQueryManager().createQuery(statement, Query.XPATH);
-        testRootNode.addNode(nodeName1, testNodeType);
+        testRootNode.addNode(nodeName1, testNodeTypeNoChildren);
         try {
             query.storeAsNode(testRoot + "/" + nodeName1 + "/" + nodeName2);
+            superuser.save();
             fail("Query.storeAsNode() must throw ConstraintViolationException, parent node does not allow child nodes.");
         } catch (ConstraintViolationException e) {
             // expected behaviour
@@ -186,7 +187,7 @@ public class SaveTest extends AbstractJCRTest {
         Node lockable = testRootNode.addNode(nodeName1, testNodeType);
         // or try to make it lockable if it is not
         ensureMixinType(lockable, mixLockable);
-        testRootNode.save();
+        testRootNode.getSession().save();
         lockable.lock(false, true);
 
         Session readWrite = getHelper().getReadWriteSession();
@@ -211,7 +212,7 @@ public class SaveTest extends AbstractJCRTest {
         checkNtQuery();
         Query query = superuser.getWorkspace().getQueryManager().createQuery(statement, Query.XPATH);
         try {
-            query.storeAsNode(testRoot + "/invalid[path");
+            query.storeAsNode(testRoot + "/invalid[42]");
             fail("Query.storeAsNode() must throw RepositoryException on malformed path.");
         } catch (RepositoryException e) {
             // expected behaviour

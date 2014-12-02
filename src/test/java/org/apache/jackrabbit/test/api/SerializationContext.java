@@ -131,7 +131,7 @@ class SerializationContext {
      * @param mixin the name of a mixin type.
      * @throws NotExecutableException if the node is not of type mixin and the
      *                                mixin cannot be added.
-     * @throws javax.jcr.RepositoryException    if an error occurs.
+     * @throws RepositoryException    if an error occurs.
      */
     protected void ensureMixinType(Node node, String mixin)
             throws NotExecutableException, RepositoryException {

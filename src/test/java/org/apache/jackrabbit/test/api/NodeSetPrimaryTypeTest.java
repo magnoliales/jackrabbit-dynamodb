@@ -16,9 +16,6 @@
  */
 package org.apache.jackrabbit.test.api;
 
-import org.apache.jackrabbit.test.AbstractJCRTest;
-import org.apache.jackrabbit.test.NotExecutableException;
-
 import javax.jcr.Node;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
@@ -26,10 +23,13 @@ import javax.jcr.Session;
 import javax.jcr.lock.LockException;
 import javax.jcr.nodetype.ConstraintViolationException;
 import javax.jcr.nodetype.NoSuchNodeTypeException;
+import javax.jcr.nodetype.NodeType;
 import javax.jcr.nodetype.NodeTypeIterator;
 import javax.jcr.nodetype.NodeTypeManager;
-import javax.jcr.nodetype.NodeType;
 import javax.jcr.version.VersionException;
+
+import org.apache.jackrabbit.test.AbstractJCRTest;
+import org.apache.jackrabbit.test.NotExecutableException;
 
 /**
  * <code>SetPrimaryType</code>...
@@ -58,7 +58,7 @@ public class NodeSetPrimaryTypeTest extends AbstractJCRTest {
         while (nts.hasNext()) {
             NodeType nt = nts.nextNodeType();
             String ntName = nt.getName();
-            if (!nt.isAbstract()) {
+            if (!nt.isAbstract() && !ntFrozenNode.equals(ntName)) {
                 try {
                     node.setPrimaryType(ntName);
                     // property value must be adjusted immediately
@@ -91,10 +91,10 @@ public class NodeSetPrimaryTypeTest extends AbstractJCRTest {
     }
 
     /**
-     * Passing the current primary type to {@link javax.jcr.Node#setPrimaryType(String)}
+     * Passing the current primary type to {@link Node#setPrimaryType(String)}
      * must always succeed.
-     * 
-     * @throws javax.jcr.RepositoryException
+     *
+     * @throws RepositoryException
      */
     public void testSetCurrentType() throws RepositoryException {
         Session session = testRootNode.getSession();
@@ -107,14 +107,14 @@ public class NodeSetPrimaryTypeTest extends AbstractJCRTest {
     }
 
     /**
-     * Passing the current primary type to {@link javax.jcr.Node#setPrimaryType(String)}
+     * Passing the current primary type to {@link Node#setPrimaryType(String)}
      * to a new node must always succeed.
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testSetCurrentTypeOnNew() throws RepositoryException {
         Session session = testRootNode.getSession();
-        
+
         Node node = testRootNode.addNode(nodeName1, testNodeType);
         node.setPrimaryType(testNodeType);
         superuser.save();
@@ -212,7 +212,7 @@ public class NodeSetPrimaryTypeTest extends AbstractJCRTest {
         Node node = testRootNode.addNode(nodeName1, testNodeType);
         // or try to make it lockable if it is not
         ensureMixinType(node, mixLockable);
-        testRootNode.save();
+        testRootNode.getSession().save();
 
         String primaryTypeName = getPrimaryTypeName(session, node);
         if (primaryTypeName == null) {

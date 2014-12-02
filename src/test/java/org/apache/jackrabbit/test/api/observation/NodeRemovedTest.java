@@ -42,12 +42,12 @@ public class NodeRemovedTest extends AbstractObservationTest {
      * when a single node is removed.
      */
     public void testSingleNodeRemoved() throws RepositoryException {
+        Node foo = testRootNode.addNode(nodeName1, testNodeType);
+        testRootNode.getSession().save();
         EventResult result = new EventResult(log);
         addEventListener(result, Event.NODE_REMOVED);
-        Node foo = testRootNode.addNode(nodeName1, testNodeType);
-        testRootNode.save();
         foo.remove();
-        testRootNode.save();
+        testRootNode.getSession().save();
         Event[] events = result.getEvents(DEFAULT_WAIT_TIMEOUT);
         removeEventListener(result);
         checkNodeRemoved(events, new String[]{nodeName1}, null);
@@ -58,13 +58,13 @@ public class NodeRemovedTest extends AbstractObservationTest {
      * triggered when multiple nodes are removed.
      */
     public void testMultiNodesRemoved() throws RepositoryException {
-        EventResult result = new EventResult(log);
-        addEventListener(result, Event.NODE_REMOVED);
         Node n1 = testRootNode.addNode(nodeName1, testNodeType);
         n1.addNode(nodeName2, testNodeType);
-        testRootNode.save();
+        testRootNode.getSession().save();
+        EventResult result = new EventResult(log);
+        addEventListener(result, Event.NODE_REMOVED);
         n1.remove();
-        testRootNode.save();
+        testRootNode.getSession().save();
         Event[] events = result.getEvents(DEFAULT_WAIT_TIMEOUT);
         removeEventListener(result);
         checkNodeRemoved(events, new String[]{nodeName1, nodeName1 + "/" + nodeName2}, null);

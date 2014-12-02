@@ -23,7 +23,7 @@ import javax.jcr.version.Version;
 import javax.jcr.version.VersionManager;
 
 /**
- * <code>OnParentVersionComputeTest</code> tests the OnParentVersion {@link javax.jcr.version.OnParentVersionAction#COMPUTE COMPUTE}
+ * <code>OnParentVersionComputeTest</code> tests the OnParentVersion {@link OnParentVersionAction#COMPUTE COMPUTE}
  * behaviour.
  *
  * @test

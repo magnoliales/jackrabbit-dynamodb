@@ -114,7 +114,7 @@ public class SetValueLockExceptionTest extends AbstractJCRTest {
             testNode.setProperty(stringProp, stringValue);
             ensureCanSetProperty(testNode, multiStringProp, PropertyType.STRING, true);
             testNode.setProperty(multiStringProp, multiString);
-            testRootNode.save();
+            testRootNode.getSession().save();
         }
     }
 
@@ -132,7 +132,7 @@ public class SetValueLockExceptionTest extends AbstractJCRTest {
      * Tests if a LockException is thrown if a value is added to a property of a locked node.
      *
      * @param type The possible argument types.
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void doTestSetValueLockException(int type)
             throws RepositoryException {
@@ -219,7 +219,7 @@ public class SetValueLockExceptionTest extends AbstractJCRTest {
 
     /**
      * Performs the test for all argument types.
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testSetValueLockException() throws RepositoryException {
        for (int i = 0; i < types.length; i++) {
@@ -231,7 +231,7 @@ public class SetValueLockExceptionTest extends AbstractJCRTest {
      * Create a referenceable node under the testRootNode
      * or null if it is not possible to create one.
      * @param name
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public Node createReferenceableNode(String name) throws RepositoryException {
         // remove a yet existing node at the target

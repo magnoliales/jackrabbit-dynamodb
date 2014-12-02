@@ -96,7 +96,7 @@ abstract class AbstractImportXmlTest extends AbstractJCRTest {
 
     // names for namespace import
     protected final String TEST_PREFIX = "docview";
-    protected final String TEST_URI = "www.apache.org/jackrabbit/test/namespaceImportTest";
+    protected final String TEST_URI = "http://www.apache.org/jackrabbit/test/namespaceImportTest";
     protected final String XML_NS = "xmlns";
 
     // xml document related names
@@ -226,8 +226,8 @@ abstract class AbstractImportXmlTest extends AbstractJCRTest {
      * @param document      the document to import
      * @param uuidBehaviour how the uuid collisions should be handled
      * @param withWorkspace if workspace or session interface should be used
-     * @throws javax.jcr.RepositoryException
-     * @throws java.io.IOException
+     * @throws RepositoryException
+     * @throws IOException
      */
     protected void importXML(String absPath, Document document,
                              int uuidBehaviour, boolean withWorkspace)
@@ -242,7 +242,7 @@ abstract class AbstractImportXmlTest extends AbstractJCRTest {
                 session.save();
             }
         } finally {
-            bin.close();
+            try { bin.close(); } catch (IOException ignore) {}
         }
     }
 
@@ -257,9 +257,9 @@ abstract class AbstractImportXmlTest extends AbstractJCRTest {
      * @param document      the document to import
      * @param uuidBehaviour how the uuid collisions should be handled
      * @param withWorkspace if workspace or session interface should be used
-     * @throws javax.jcr.RepositoryException
-     * @throws org.xml.sax.SAXException
-     * @throws java.io.IOException
+     * @throws RepositoryException
+     * @throws SAXException
+     * @throws IOException
      */
     public void importWithHandler(String absPath, Document document,
                                   int uuidBehaviour, boolean withWorkspace)
@@ -268,22 +268,27 @@ abstract class AbstractImportXmlTest extends AbstractJCRTest {
         serialize(document);
         BufferedInputStream bin = new BufferedInputStream(new FileInputStream(file));
 
-        ContentHandler handler;
-        if (withWorkspace) {
-            handler = workspace.getImportContentHandler(absPath, uuidBehaviour);
-        } else {
-            handler = session.getImportContentHandler(absPath, uuidBehaviour);
+        try {
+            ContentHandler handler;
+            if (withWorkspace) {
+                handler = workspace.getImportContentHandler(absPath, uuidBehaviour);
+            } else {
+                handler = session.getImportContentHandler(absPath, uuidBehaviour);
+            }
+
+            XMLReader reader = XMLReaderFactory.createXMLReader();
+            reader.setFeature("http://xml.org/sax/features/namespaces", true);
+            reader.setFeature("http://xml.org/sax/features/namespace-prefixes", false);
+            
+            reader.setContentHandler(handler);
+            reader.parse(new InputSource(bin));
+
+            if (!withWorkspace) {
+                session.save();
+            }
         }
-
-        XMLReader reader = XMLReaderFactory.createXMLReader();
-        reader.setFeature("http://xml.org/sax/features/namespaces", true);
-        reader.setFeature("http://xml.org/sax/features/namespace-prefixes", false);
-
-        reader.setContentHandler(handler);
-        reader.parse(new InputSource(bin));
-
-        if (!withWorkspace) {
-            session.save();
+        finally {
+            bin.close();
         }
     }
 
@@ -295,8 +300,8 @@ abstract class AbstractImportXmlTest extends AbstractJCRTest {
      * to be imported will be deleted.
      *
      * @return
-     * @throws javax.jcr.RepositoryException
-     * @throws java.io.IOException
+     * @throws RepositoryException
+     * @throws IOException
      */
     public boolean isMixRefRespected() throws RepositoryException, IOException {
         boolean respected = false;
@@ -335,7 +340,7 @@ abstract class AbstractImportXmlTest extends AbstractJCRTest {
      *
      * @param name
      * @return
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      * @throws NotExecutableException if the created node is not referenceable
      * and cannot be made referenceable by adding mix:referenceable.
      */
@@ -358,7 +363,7 @@ abstract class AbstractImportXmlTest extends AbstractJCRTest {
         }
         n1.addMixin(mixReferenceable);
         // make sure jcr:uuid is available
-        testRootNode.save();
+        testRootNode.getSession().save();
         return n1.getUUID();
     }
 
@@ -373,8 +378,8 @@ abstract class AbstractImportXmlTest extends AbstractJCRTest {
      * @param uuidBehaviour
      * @param withWorkspace
      * @param withHandler
-     * @throws javax.jcr.RepositoryException
-     * @throws java.io.IOException
+     * @throws RepositoryException
+     * @throws IOException
      */
     public void importRefNodeDocument(
             String absPath, String uuid, int uuidBehaviour,
@@ -466,7 +471,7 @@ abstract class AbstractImportXmlTest extends AbstractJCRTest {
      * @return an unused namespace prefix.
      */
     protected String getUnusedPrefix() throws RepositoryException {
-        Set prefixes = new HashSet(Arrays.asList(nsp.getPrefixes()));
+        Set<String> prefixes = new HashSet<String>(Arrays.asList(nsp.getPrefixes()));
         String prefix = TEST_PREFIX;
         int i = 0;
         while (prefixes.contains(prefix)) {
@@ -482,7 +487,7 @@ abstract class AbstractImportXmlTest extends AbstractJCRTest {
      * @return an unused namespace URI.
      */
     protected String getUnusedURI() throws RepositoryException {
-        Set uris = new HashSet(Arrays.asList(nsp.getURIs()));
+        Set<String> uris = new HashSet<String>(Arrays.asList(nsp.getURIs()));
         String uri = TEST_URI;
         int i = 0;
         while (uris.contains(uri)) {

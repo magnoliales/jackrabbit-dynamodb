@@ -39,7 +39,7 @@ import javax.jcr.version.OnParentVersionAction;
 import org.apache.jackrabbit.test.AbstractJCRTest;
 
 /**
- * Tests the node type creation functionality of the {@link javax.jcr.nodetype.NodeTypeManager}.
+ * Tests the node type creation functionality of the {@link NodeTypeManager}.
  *
  * @test
  * @sources NodeTypeCreationTest.java

@@ -27,7 +27,7 @@ import org.apache.jackrabbit.test.NotExecutableException;
 
 /**
  * <code>GetWeakReferencesTest</code> checks implementation of
- * {@link javax.jcr.Node#getWeakReferences()} and {@link javax.jcr.Node#getWeakReferences(String)}.
+ * {@link Node#getWeakReferences()} and {@link Node#getWeakReferences(String)}.
  */
 public class GetWeakReferencesTest extends AbstractJCRTest {
 

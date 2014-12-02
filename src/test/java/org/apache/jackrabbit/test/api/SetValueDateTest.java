@@ -27,7 +27,7 @@ import java.util.GregorianCalendar;
 import java.util.Calendar;
 
 /**
- * Tests the various {@link javax.jcr.Property#setValue(javax.jcr.Value)} methods.
+ * Tests the various {@link Property#setValue(Value)} methods.
  * <p>
  * Configuration requirements:
  * <p>

@@ -16,19 +16,19 @@
  */
 package org.apache.jackrabbit.test.api;
 
-import org.apache.jackrabbit.test.AbstractJCRTest;
-import org.apache.jackrabbit.test.NotExecutableException;
-
-import javax.jcr.version.VersionException;
-import javax.jcr.lock.LockException;
+import javax.jcr.Node;
+import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
-import javax.jcr.Node;
 import javax.jcr.Value;
-import javax.jcr.Repository;
 import javax.jcr.ValueFormatException;
-import javax.jcr.nodetype.NodeType;
+import javax.jcr.lock.LockException;
 import javax.jcr.nodetype.NoSuchNodeTypeException;
+import javax.jcr.nodetype.NodeType;
+import javax.jcr.version.VersionException;
+
+import org.apache.jackrabbit.test.AbstractJCRTest;
+import org.apache.jackrabbit.test.NotExecutableException;
 
 /**
  * <code>NodeAddMixinTest</code> contains the test cases for the method
@@ -70,7 +70,7 @@ public class NodeAddMixinTest extends AbstractJCRTest {
 
         // it is implementation-specific if a added mixin is available
         // before or after save therefore save before further tests
-        testRootNode.save();
+        testRootNode.getSession().save();
 
         // test if added mixin is available by node.getMixinNodeTypes()
         NodeType mixins[] = node.getMixinNodeTypes();
@@ -105,8 +105,8 @@ public class NodeAddMixinTest extends AbstractJCRTest {
 
     /**
      * Test if adding the same mixin twice works as expected.
-     * 
-     * @throws javax.jcr.RepositoryException
+     *
+     * @throws RepositoryException
      * @throws NotExecutableException
      * @since JCR 2.0
      */
@@ -124,15 +124,15 @@ public class NodeAddMixinTest extends AbstractJCRTest {
         node.addMixin(mixinName);
 
         session.save();
-        
+
         node.addMixin(mixinName);
         assertFalse(node.isModified());
     }
 
     /**
      * Test if adding an inherited mixin type has no effect.
-     * 
-     * @throws javax.jcr.RepositoryException
+     *
+     * @throws RepositoryException
      * @since JCR 2.0
      */
     public void testAddInheritedMixin() throws RepositoryException, NotExecutableException {
@@ -180,7 +180,7 @@ public class NodeAddMixinTest extends AbstractJCRTest {
         Node node = testRootNode.addNode(nodeName1, testNodeType);
         // or try to make it lockable if it is not
         ensureMixinType(node, mixLockable);
-        testRootNode.save();
+        testRootNode.getSession().save();
 
         String mixinName = NodeMixinUtil.getAddableMixinName(session, node);
         if (mixinName == null) {
@@ -235,10 +235,10 @@ public class NodeAddMixinTest extends AbstractJCRTest {
         Node node = testRootNode.addNode(nodeName1, testNodeType);
         // or try to make it versionable if it is not
         ensureMixinType(node, mixVersionable);
-        testRootNode.save();
+        testRootNode.getSession().save();
 
         String mixinName = NodeMixinUtil.getAddableMixinName(session, node);
-        if (mixinName == null) {
+        if (mixinName == null || node.isNodeType(mixinName)) {
             throw new NotExecutableException("No testable mixin node type found");
         }
 
@@ -267,7 +267,7 @@ public class NodeAddMixinTest extends AbstractJCRTest {
         Node node = testRootNode.addNode(nodeName1, testNodeType);
         ensureMixinType(node, mixReferenceable);
         // implementation specific: mixin may take effect only upon save
-        testRootNode.save();
+        testRootNode.getSession().save();
 
         // check that it did
         assertTrue(node.isNodeType(mixReferenceable));

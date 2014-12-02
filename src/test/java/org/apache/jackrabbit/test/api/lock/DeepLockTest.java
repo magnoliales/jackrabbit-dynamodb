@@ -17,8 +17,6 @@
 package org.apache.jackrabbit.test.api.lock;
 
 import org.apache.jackrabbit.test.NotExecutableException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
@@ -27,8 +25,6 @@ import javax.jcr.lock.LockException;
 
 /** <code>DeepLockTest</code>... */
 public class DeepLockTest extends AbstractLockTest {
-
-    private static Logger log = LoggerFactory.getLogger(DeepLockTest.class);
 
     protected boolean isSessionScoped() {
         return true;
@@ -52,7 +48,7 @@ public class DeepLockTest extends AbstractLockTest {
     public void testParentChildDeepLock()
             throws RepositoryException, NotExecutableException {
         ensureMixinType(childNode, mixLockable);
-        testRootNode.save();
+        testRootNode.getSession().save();
 
         // try to lock child node
         try {

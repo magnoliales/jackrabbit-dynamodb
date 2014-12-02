@@ -17,6 +17,7 @@
 package org.apache.jackrabbit.test.api.version;
 
 import javax.jcr.Node;
+import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.Workspace;
@@ -24,6 +25,7 @@ import javax.jcr.nodetype.NodeType;
 import javax.jcr.nodetype.NodeTypeManager;
 
 import org.apache.jackrabbit.test.AbstractJCRTest;
+import org.apache.jackrabbit.test.NotExecutableException;
 
 /**
  * <code>AbstractMergeTest</code> is the abstract base class for all merge
@@ -69,6 +71,8 @@ public abstract class AbstractMergeTest extends AbstractJCRTest {
      */
     protected void setUp() throws Exception {
         super.setUp();
+
+        super.checkSupportedOption(Repository.OPTION_VERSIONING_SUPPORTED);
 
         NodeTypeManager ntm = superuser.getWorkspace().getNodeTypeManager();
 
@@ -133,5 +137,5 @@ public abstract class AbstractMergeTest extends AbstractJCRTest {
     }
 
     // initialize nodes
-    abstract void initNodes() throws RepositoryException;
+    abstract void initNodes() throws RepositoryException, NotExecutableException;
 }

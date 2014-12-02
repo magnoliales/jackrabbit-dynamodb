@@ -26,9 +26,9 @@ import javax.jcr.nodetype.NodeType;
 import javax.jcr.nodetype.PropertyDefinition;
 
 /**
- * Tests that {@link javax.jcr.nodetype.NodeType#canRemoveItem(String)} returns true
- * node or property is removable (same for {@link javax.jcr.nodetype.NodeType#canRemoveNode(String)}
- * and {@link javax.jcr.nodetype.NodeType#canRemoveProperty(String)}).
+ * Tests that {@link NodeType#canRemoveItem(String)} returns true
+ * node or property is removable (same for {@link NodeType#canRemoveNode(String)}
+ * and {@link NodeType#canRemoveProperty(String)}).
  *
  * @test
  * @sources CanRemoveItemTest.java
@@ -65,8 +65,8 @@ public class CanRemoveItemTest extends AbstractJCRTest {
 
 
     /**
-     * Tests that {@link javax.jcr.nodetype.NodeType#canRemoveItem(String)} and
-     * {@link javax.jcr.nodetype.NodeType#canRemoveProperty(String)} return true
+     * Tests that {@link NodeType#canRemoveItem(String)} and
+     * {@link NodeType#canRemoveProperty(String)} return true
      * if the specified property is not a protected nor a mandatory
      * property.
      */
@@ -92,8 +92,8 @@ public class CanRemoveItemTest extends AbstractJCRTest {
     }
 
     /**
-     * Tests if {@link javax.jcr.nodetype.NodeType#canRemoveItem(String)} and
-     * {@link javax.jcr.nodetype.NodeType#canRemoveProperty(String)} return false
+     * Tests if {@link NodeType#canRemoveItem(String)} and
+     * {@link NodeType#canRemoveProperty(String)} return false
      * if the specified property is a protected property.
      */
     public void testProtectedProperty()
@@ -118,8 +118,8 @@ public class CanRemoveItemTest extends AbstractJCRTest {
     }
 
     /**
-     * Tests if {@link javax.jcr.nodetype.NodeType#canRemoveItem(String)} and
-     * {@link javax.jcr.nodetype.NodeType#canRemoveProperty(String)} return false
+     * Tests if {@link NodeType#canRemoveItem(String)} and
+     * {@link NodeType#canRemoveProperty(String)} return false
      * if the specified property is a mandatory property.
      */
     public void testMandatoryProperty()
@@ -144,8 +144,8 @@ public class CanRemoveItemTest extends AbstractJCRTest {
     }
 
     /**
-     * Tests if {@link javax.jcr.nodetype.NodeType#canRemoveItem(String)} and
-     * {@link javax.jcr.nodetype.NodeType#canRemoveNode(String)} return true
+     * Tests if {@link NodeType#canRemoveItem(String)} and
+     * {@link NodeType#canRemoveNode(String)} return true
      * if the specified node is not a protected nor a mandatory
      * child node.
      */
@@ -171,8 +171,8 @@ public class CanRemoveItemTest extends AbstractJCRTest {
 }
 
     /**
-     * Tests if {@link javax.jcr.nodetype.NodeType#canRemoveItem(String)} and
-     * {@link javax.jcr.nodetype.NodeType#canRemoveNode(String)} return
+     * Tests if {@link NodeType#canRemoveItem(String)} and
+     * {@link NodeType#canRemoveNode(String)} return 
      * false if the specified node is a protected child node.
      */
     public void testProtectedChildNode()
@@ -197,8 +197,8 @@ public class CanRemoveItemTest extends AbstractJCRTest {
 }
 
     /**
-     * Tests if {@link javax.jcr.nodetype.NodeType#canRemoveItem(String)} and
-     * {@link javax.jcr.nodetype.NodeType#canRemoveNode(String)} return
+     * Tests if {@link NodeType#canRemoveItem(String)} and
+     * {@link NodeType#canRemoveNode(String)} return 
      * false if the specified node is a mandatory child node.
      */
     public void testMandatoryChildNode()

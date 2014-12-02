@@ -69,7 +69,7 @@ public class VersionGraphTest extends AbstractVersionTest {
      * REFERENCE property jcr:predecessors of N is initialized to contain a
      * single UUID, that of the root version (the same as jcr:baseVersion).
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testInitialNodePredecessors() throws RepositoryException {
 
@@ -90,7 +90,7 @@ public class VersionGraphTest extends AbstractVersionTest {
      * REFERENCE property jcr:predecessors of N is initialized to contain a
      * single UUID, that of the root version (the same as jcr:baseVersion).
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testInitialNodePredecessorsJcr2() throws RepositoryException {
 
@@ -109,7 +109,7 @@ public class VersionGraphTest extends AbstractVersionTest {
     /**
      * Test if the root version does not have any predecessor versions.
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testRootVersionHasNoPredecessor() throws RepositoryException {
         Version[] predec = versionableNode.getVersionHistory().getRootVersion().getPredecessors();
@@ -119,7 +119,7 @@ public class VersionGraphTest extends AbstractVersionTest {
     /**
      * Test if the root version does not have any predecessor versions.
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testRootVersionHasNoPredecessorJcr2() throws RepositoryException {
         Version[] predec = versionableNode.getSession().getWorkspace().getVersionManager().getVersionHistory(versionableNode.getPath()).getRootVersion().getPredecessors();
@@ -130,7 +130,7 @@ public class VersionGraphTest extends AbstractVersionTest {
      * Test if UnsupportedRepositoryOperationException is thrown when calling
      * Node.getVersionHistory() on a non-versionable node.
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testGetBaseVersionOnNonVersionableNode() throws RepositoryException {
         try {
@@ -145,7 +145,7 @@ public class VersionGraphTest extends AbstractVersionTest {
      * Test if UnsupportedRepositoryOperationException is thrown when calling
      * Node.getVersionHistory() on a non-versionable node.
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testGetBaseVersionOnNonVersionableNodeJcr2() throws RepositoryException {
         try {

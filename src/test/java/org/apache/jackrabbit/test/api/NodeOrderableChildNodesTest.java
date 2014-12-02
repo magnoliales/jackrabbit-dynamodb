@@ -72,10 +72,10 @@ public class NodeOrderableChildNodesTest extends AbstractJCRTest {
     }
 
     /**
-     * Tries to reorder child nodes using {@link javax.jcr.Node#orderBefore(String, String)}
+     * Tries to reorder child nodes using {@link Node#orderBefore(String, String)}
      * with an invalid destination reference.
      * <p>
-     * This should throw an {@link javax.jcr.ItemNotFoundException}.
+     * This should throw an {@link ItemNotFoundException}.
      */
     public void testOrderBeforeInvalidDest()
             throws RepositoryException, NotExecutableException {
@@ -93,10 +93,10 @@ public class NodeOrderableChildNodesTest extends AbstractJCRTest {
     }
 
     /**
-     * Tries to reorder child nodes using {@link javax.jcr.Node#orderBefore(String,
+     * Tries to reorder child nodes using {@link Node#orderBefore(String,
      * String)} with an invalid source reference.
      * <p>
-     * This should throw an {@link javax.jcr.ItemNotFoundException}.
+     * This should throw an {@link ItemNotFoundException}.
      */
     public void testOrderBeforeInvalidSrc()
             throws RepositoryException, NotExecutableException {
@@ -114,11 +114,11 @@ public class NodeOrderableChildNodesTest extends AbstractJCRTest {
     }
 
     /**
-     * Tries to reorder on a node using {@link javax.jcr.Node#orderBefore(String, String)}
+     * Tries to reorder on a node using {@link Node#orderBefore(String, String)}
      * that does not support child reordering.
      * <p>
      * This should throw and
-     * {@link javax.jcr.UnsupportedRepositoryOperationException}. Prequisites: <ul>
+     * {@link UnsupportedRepositoryOperationException}. Prequisites: <ul>
      * <li>javax.jcr.tck.NodeOrderableChildNodesTest.testOrderBeforeUnsupportedRepositoryOperationException.nodetype2</li>
      * A valid node type that does not support child node ordering.</li>
      * <li>javax.jcr.tck.NodeOrderableChildNodesTest.testOrderBeforeUnsupportedRepositoryOperationException.nodetype3</li>
@@ -149,7 +149,7 @@ public class NodeOrderableChildNodesTest extends AbstractJCRTest {
 
     /**
      * Creates two child nodes, reorders first node to end, uses parentNode's
-     * {@link javax.jcr.Node#save()}.
+     * {@link Node#save()}.
      */
     public void testOrderBeforePlaceAtEndParentSave()
             throws RepositoryException, NotExecutableException {
@@ -196,7 +196,7 @@ public class NodeOrderableChildNodesTest extends AbstractJCRTest {
 
     /**
      * Creates two child nodes, reorders second node before first, uses
-     * parentNode's {@link javax.jcr.Node#save()}.
+     * parentNode's {@link Node#save()}.
      */
     public void testOrderBeforeSecondToFirstParentSave()
             throws RepositoryException, NotExecutableException {
@@ -219,7 +219,7 @@ public class NodeOrderableChildNodesTest extends AbstractJCRTest {
 
     /**
      * Creates two child nodes than reorders second node before first, saves
-     * using {@link javax.jcr.Session#save()}.
+     * using {@link Session#save()}.
      */
     public void testOrderBeforeSecondToFirstSessionSave()
             throws RepositoryException, NotExecutableException {

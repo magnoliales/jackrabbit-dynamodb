@@ -109,7 +109,7 @@ public class PropertyReadMethodsTest extends AbstractJCRTest {
      * Test if the ancestor at depth = n, where n is the depth of this
      * <code>Item</code>, returns this <code>Property</code> itself.
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testGetAncestorOfItemDepth() throws RepositoryException {
         Property propertyAtDepth = (Property) property.getAncestor(property.getDepth());
@@ -121,7 +121,7 @@ public class PropertyReadMethodsTest extends AbstractJCRTest {
      * Test if getting the ancestor of depth = n, where n is greater than depth
      * of this <code>Property</code>, throws an <code>ItemNotFoundException</code>.
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testGetAncestorOfGreaterDepth() throws RepositoryException {
         try {
@@ -138,7 +138,7 @@ public class PropertyReadMethodsTest extends AbstractJCRTest {
      * Test if getting the ancestor of negative depth throws an
      * <code>ItemNotFoundException</code>.
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testGetAncestorOfNegativeDepth() throws RepositoryException {
         try {
@@ -211,7 +211,7 @@ public class PropertyReadMethodsTest extends AbstractJCRTest {
 
     /**
      * Tests if a Property calls the correct visit method on an {@link
-     * javax.jcr.ItemVisitor}.
+     * ItemVisitor}.
      */
     public void testAccept() throws RepositoryException {
         final Property p = property;
@@ -326,7 +326,7 @@ public class PropertyReadMethodsTest extends AbstractJCRTest {
      * Tests if Property.getNode() fails with ValueFormatException for
      * multivalued properties.
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      * @throws NotExecutableException
      */
     public void testGetNode() throws RepositoryException, NotExecutableException {

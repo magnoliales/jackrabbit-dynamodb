@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.ArrayList;
 
 /**
- * Tests the various {@link javax.jcr.Property#setValue(javax.jcr.Value)} methods.
+ * Tests the various {@link Property#setValue(Value)} methods.
  * <p>
  * Configuration requirements:
  * <p>
@@ -106,7 +106,7 @@ public class SetValueStringTest extends AbstractJCRTest {
      */
     public void testValueParent() throws RepositoryException {
         property1.setValue(sv2);
-        testRootNode.save();
+        testRootNode.getSession().save();
         assertEquals("Value node property not saved", sv2, property1.getValue());
     }
 
@@ -321,7 +321,7 @@ public class SetValueStringTest extends AbstractJCRTest {
         property2.setValue(mv);
         superuser.save();
         Value[] values = property2.getValues();
-        List strValues = new ArrayList();
+        List<String> strValues = new ArrayList<String>();
         for (int i = 0; i < values.length; i++) {
             strValues.add(values[i].getString());
         }
@@ -338,7 +338,7 @@ public class SetValueStringTest extends AbstractJCRTest {
         property2.setValue(mv);
         node.save();
         Value[] values = property2.getValues();
-        List strValues = new ArrayList();
+        List<String> strValues = new ArrayList<String>();
         for (int i = 0; i < values.length; i++) {
             strValues.add(values[i].getString());
         }

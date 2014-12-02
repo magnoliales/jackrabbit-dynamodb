@@ -32,7 +32,7 @@ import org.apache.jackrabbit.test.NotExecutableException;
 
 /**
  * <code>GetQueryTest</code> contains test cases that check
- * {@link javax.jcr.query.QueryManager#getQuery(javax.jcr.Node)}.
+ * {@link QueryManager#getQuery(Node)}.
  */
 public class GetQueryTest extends AbstractQOMTest {
 
@@ -40,7 +40,7 @@ public class GetQueryTest extends AbstractQOMTest {
         checkNtQuery();
         Node n = testRootNode.addNode(nodeName1, testNodeType);
         superuser.save();
-        List queries = new ArrayList();
+        List<Query> queries = new ArrayList<Query>();
         QueryObjectModel qom = qf.createQuery(
                 qf.selector(testNodeType, "s"),
                 qf.childNode("s", testRoot),
@@ -49,20 +49,20 @@ public class GetQueryTest extends AbstractQOMTest {
         );
         queries.add(qom);
         queries.add(qm.createQuery(qom.getStatement(), Query.JCR_SQL2));
-        if (isSupportedLanguage(Query.XPATH)) {
+        if (isSupportedLanguage(qsXPATH)) {
             String xpath = testPath + "/element(*, " + testNodeType + ")";
-            queries.add(qm.createQuery(xpath, Query.XPATH));
+            queries.add(qm.createQuery(xpath, qsXPATH));
         }
-        if (isSupportedLanguage(Query.SQL)) {
+        if (isSupportedLanguage(qsSQL)) {
             String sql = "select * from " + testNodeType + " where jcr:path like '" + testRoot + "/%'";
-            queries.add(qm.createQuery(sql, Query.SQL));
+            queries.add(qm.createQuery(sql, qsSQL));
         }
-        for (Iterator it = queries.iterator(); it.hasNext(); ) {
-            Query q = (Query) it.next();
+        for (Iterator<Query> it = queries.iterator(); it.hasNext(); ) {
+            Query q = it.next();
             String lang = q.getLanguage();
             checkResult(q.execute(), new Node[]{n});
 
-            Node stored = q.storeAsNode(testRoot + "/" + nodeName1);
+            Node stored = q.storeAsNode(testRoot + "/storedQuery");
             q = qm.getQuery(stored);
             assertEquals("language of stored query does not match", lang, q.getLanguage());
             checkResult(q.execute(), new Node[]{n});
@@ -84,7 +84,7 @@ public class GetQueryTest extends AbstractQOMTest {
      * a <code>NotExecutableException</code>.
      *
      * @throws NotExecutableException if nt:query is not supported.
-     * @throws javax.jcr.RepositoryException if another error occurs.
+     * @throws RepositoryException if another error occurs.
      */
     private void checkNtQuery() throws RepositoryException, NotExecutableException {
         try {

@@ -16,12 +16,12 @@
  */
 package org.apache.jackrabbit.test.api;
 
+import javax.jcr.ItemNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;
 import javax.jcr.ValueFormatException;
 import javax.jcr.PropertyType;
 import javax.jcr.Property;
-import javax.jcr.PathNotFoundException;
 import javax.jcr.Node;
 
 /**
@@ -56,7 +56,7 @@ public class NamePropertyTest extends AbstractPropertyTest {
     /**
      * Tests conversion from Name type to String type.
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testGetString() throws RepositoryException {
         Value val = PropertyUtil.getValue(prop);
@@ -68,7 +68,7 @@ public class NamePropertyTest extends AbstractPropertyTest {
     /**
      * Tests failure of conversion from Name type to Boolean type.
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testGetBoolean() throws RepositoryException {
         try {
@@ -84,7 +84,7 @@ public class NamePropertyTest extends AbstractPropertyTest {
     /**
      * Tests failure of conversion from Name type to Date type.
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testGetDate() throws RepositoryException {
         try {
@@ -100,7 +100,7 @@ public class NamePropertyTest extends AbstractPropertyTest {
     /**
      * Tests failure from Name type to Double type.
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testGetDouble() throws RepositoryException {
         try {
@@ -116,7 +116,7 @@ public class NamePropertyTest extends AbstractPropertyTest {
     /**
      * Tests failure of conversion from Name type to Long type.
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testGetLong() throws RepositoryException {
         try {
@@ -134,7 +134,7 @@ public class NamePropertyTest extends AbstractPropertyTest {
      * tests that prop.getDefinition().getRequiredType() returns the same type
      * in case it is not of Undefined type.
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testGetType() throws RepositoryException {
         assertTrue("Value.getType() returns wrong type.",
@@ -151,12 +151,12 @@ public class NamePropertyTest extends AbstractPropertyTest {
             String path = prop.getString();
             if (prop.getParent().hasNode(path)) {
                 Node n = prop.getNode();
-                assertEquals("The path of the dereferenced property must be equal to the value", path, n.getPath());
+                assertEquals("The name of the dereferenced property must be equal to the value", path, n.getName());
             } else {
                 try {
                     prop.getNode();
-                    fail("Calling Property.getNode() for a PATH value that doesn't have a corresponding Node, PathNotFoundException is expected");
-                } catch (PathNotFoundException e) {
+                    fail("Calling Property.getNode() for a NAME value that doesn't have a corresponding Node, ItemNotFoundException is expected");
+                } catch (ItemNotFoundException e) {
                     // success.
                 }
             }
@@ -181,12 +181,12 @@ public class NamePropertyTest extends AbstractPropertyTest {
             String path = prop.getString();
             if (prop.getParent().hasProperty(path)) {
                 Property p = prop.getProperty();
-                assertEquals("The path of the dereferenced property must be equal to the value", path, p.getPath());
+                assertEquals("The name of the dereferenced property must be equal to the value", path, p.getName());
             } else {
                 try {
                     prop.getProperty();
-                    fail("Calling Property.getProperty() for a PATH value that doesn't have a corresponding Node, PathNotFoundException is expected");
-                } catch (PathNotFoundException e) {
+                    fail("Calling Property.getProperty() for a NAME value that doesn't have a corresponding Node, ItemNotFoundException is expected");
+                } catch (ItemNotFoundException e) {
                     // success.
                 }
             }

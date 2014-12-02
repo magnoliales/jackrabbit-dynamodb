@@ -36,7 +36,6 @@ import javax.jcr.nodetype.ConstraintViolationException;
 import javax.jcr.nodetype.NodeType;
 import javax.jcr.nodetype.PropertyDefinition;
 import javax.jcr.retention.RetentionManager;
-import javax.jcr.retention.RetentionPolicy;
 
 import java.util.StringTokenizer;
 import java.util.Random;
@@ -51,7 +50,7 @@ public abstract class AbstractJCRTest extends JUnitTest {
     /**
      * Pool of helper objects to access repository transparently
      */
-    private static final RepositoryHelperPool HELPER_POOL = new RepositoryHelperPoolImpl();
+    private static final RepositoryHelperPool HELPER_POOL = RepositoryHelperPoolImpl.getInstance();
 
     /**
      * Namespace URI for jcr prefix.
@@ -239,6 +238,11 @@ public abstract class AbstractJCRTest extends JUnitTest {
     protected String testNodeType;
 
     /**
+     * The node type name for the test root node.
+     */
+    protected String testNodeTypeTestRoot;
+
+    /**
      * A node type that does not allow any child nodes, such as nt:base.
      */
     protected String testNodeTypeNoChildren;
@@ -309,6 +313,10 @@ public abstract class AbstractJCRTest extends JUnitTest {
         // cut off '/' to build testPath
         testPath = testRoot.substring(1);
         testNodeType = getProperty(RepositoryStub.PROP_NODETYPE);
+        testNodeTypeTestRoot = getProperty(RepositoryStub.PROP_NODETYPETESTROOT);
+        if (testNodeTypeTestRoot == null) {
+            testNodeTypeTestRoot = testNodeType; // backwards compatibility
+        }
         testNodeTypeNoChildren = getProperty(RepositoryStub.PROP_NODETYPENOCHILDREN);
         // setup node names
         nodeName1 = getProperty(RepositoryStub.PROP_NODE_NAME1);
@@ -489,7 +497,7 @@ public abstract class AbstractJCRTest extends JUnitTest {
      * @param propName the propName of the configration property.
      * @return the value of the property or <code>null</code> if the property
      *  does not exist.
-     * @throws javax.jcr.RepositoryException if an error occurs while reading from
+     * @throws RepositoryException if an error occurs while reading from
      *  the configuration.
      */
     public String getProperty(String propName) throws RepositoryException {
@@ -538,7 +546,7 @@ public abstract class AbstractJCRTest extends JUnitTest {
      * @param name the name of the property to retrieve.
      * @param defaultValue the default value if the property does not exist.
      * @return the value of the property or <code>defaultValue</code> if non existent.
-     * @throws javax.jcr.RepositoryException if the configuration file cannot be found.
+     * @throws RepositoryException if the configuration file cannot be found.
      */
     public String getProperty(String name, String defaultValue) throws RepositoryException {
         String val = getProperty(name);
@@ -554,12 +562,12 @@ public abstract class AbstractJCRTest extends JUnitTest {
      * @param s
      * @param valueProp Name of the config property that contains the property value.
      * @param typeProp Name of the config property that contains the property type.
-     * If the config parameter is missing, {@link javax.jcr.PropertyType#STRING} is used
+     * If the config parameter is missing, {@link PropertyType#STRING} is used
      * to create the JCR value.
      * @param defaultValue Default value to be used if the config does not define
      * the value property.
      * @return JCR value to be used for a test.
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public Value getJcrValue(Session s, String valueProp, String typeProp, String defaultValue) throws RepositoryException {
         ValueFactory vf = s.getValueFactory();
@@ -571,7 +579,7 @@ public abstract class AbstractJCRTest extends JUnitTest {
     /**
      * Returns the size of the <code>RangeIterator</code> <code>it</code>.
      * Note, that the <code>RangeIterator</code> might get consumed, because
-     * {@link javax.jcr.RangeIterator#getSize()} might return -1 (information unavailable).
+     * {@link RangeIterator#getSize()} might return -1 (information unavailable).
      * @param it a <code>RangeIterator</code>.
      * @return the size of the iterator (number of elements).
      */
@@ -589,18 +597,51 @@ public abstract class AbstractJCRTest extends JUnitTest {
     }
 
     /**
-     * Returns the local name for the given <code>name</code>.
-     *
-     * @param name the name.
+     * Returns the local name for the given <code>jcrName</code>.
+     * 
+     * @param jcrName
+     *            the name.
      * @return the local name part.
      */
-    protected static String getLocalName(String name) {
-        int idx = name.indexOf(':');
+    protected static String getLocalName(String jcrName) {
+        int idx = jcrName.indexOf(':');
         if (idx != -1) {
-            return name.substring(idx + 1);
+            return jcrName.substring(idx + 1);
         } else {
-            return name;
+            return jcrName;
         }
+    }
+
+    /**
+     * Returns the prefix for the given <code>jcrName</code>.
+     * 
+     * @param jcrName
+     *            the name.
+     * @return the prefix part (empty string when not prefixed)
+     */
+    protected static String getPrefix(String jcrName) {
+        int idx = jcrName.indexOf(':');
+        if (idx != -1) {
+            return jcrName.substring(0, idx);
+        } else {
+            return "";
+        }
+    }
+
+    /**
+     * Returns the expanded name for the given <code>jcrName</code>.
+     * 
+     * @param jcrName
+     *            the name.
+     * @return the expanded name representation
+     * @throws RepositoryException
+     * @throws NamespaceException
+     */
+    protected static String getQualifiedName(Session session, String jcrName) throws RepositoryException {
+        String prefix = getPrefix(jcrName);
+        String namespace = session.getNamespaceURI(prefix);
+        String localname = getLocalName(jcrName);
+        return (namespace.length() > 0 ? "{" + namespace + "}" : "{}") + localname;
     }
 
     /**
@@ -608,10 +649,10 @@ public abstract class AbstractJCRTest extends JUnitTest {
      * <code>session</code>.
      * @param session the session.
      * @return name of a non existing workspace.
-     * @throws javax.jcr.RepositoryException if an error occurs.
+     * @throws RepositoryException if an error occurs.
      */
     protected String getNonExistingWorkspaceName(Session session) throws RepositoryException {
-        List names = Arrays.asList(session.getWorkspace().getAccessibleWorkspaceNames());
+        List<String> names = Arrays.asList(session.getWorkspace().getAccessibleWorkspaceNames());
         String nonExisting = null;
         while (nonExisting == null) {
             String name = createRandomString(10);
@@ -646,7 +687,7 @@ public abstract class AbstractJCRTest extends JUnitTest {
      *
      * @param descriptorKey the descriptor key.
      * @return <code>true</code> if the option is supported.
-     * @throws javax.jcr.RepositoryException if an error occurs.
+     * @throws RepositoryException if an error occurs.
      */
     protected boolean isSupported(String descriptorKey) throws RepositoryException {
         return "true".equals(getHelper().getRepository().getDescriptor(descriptorKey));
@@ -657,7 +698,7 @@ public abstract class AbstractJCRTest extends JUnitTest {
      * not support the feature identified by the given <code>discriptorKey</code>.
      *
      * @param descriptorKey the descriptor key.
-     * @throws javax.jcr.RepositoryException if an error occurs.
+     * @throws RepositoryException if an error occurs.
      * @throws NotExecutableException If the feature is not supported.
      */
     protected void checkSupportedOption(String descriptorKey) throws RepositoryException, NotExecutableException {
@@ -772,7 +813,7 @@ public abstract class AbstractJCRTest extends JUnitTest {
      * @param mixin the name of a mixin type.
      * @throws NotExecutableException if the node is not of type mixin and the
      *                                mixin cannot be added.
-     * @throws javax.jcr.RepositoryException    if an error occurs.
+     * @throws RepositoryException    if an error occurs.
      */
     protected void ensureMixinType(Node node, String mixin)
             throws NotExecutableException, RepositoryException {
@@ -800,36 +841,35 @@ public abstract class AbstractJCRTest extends JUnitTest {
      *
      * @param s the session to clean up.
      * @return the {@link javax.jcr.Node} that represents the test root.
-     * @throws javax.jcr.RepositoryException if an error occurs.
+     * @throws RepositoryException if an error occurs.
      */
     protected Node cleanUpTestRoot(Session s) throws RepositoryException {
         // do a 'rollback'
         s.refresh(false);
         Node root = s.getRootNode();
         Node testRootNode;
-        
-        RetentionManager rm;
-        try {
-            rm = s.getRetentionManager();
-        } catch (UnsupportedRepositoryOperationException ex) {
-            rm = null;
-        }
-        
+
         if (root.hasNode(testPath)) {
+            RetentionManager rm;
+            try {
+                rm = s.getRetentionManager();
+            } catch (UnsupportedRepositoryOperationException e) {
+                rm = null;
+            }
+
             // clean test root
             testRootNode = root.getNode(testPath);
-            for (NodeIterator children = testRootNode.getNodes(); children.hasNext();) {
+            NodeIterator children = testRootNode.getNodes();
+            while (children.hasNext()) {
                 Node child = children.nextNode();
 
                 // Remove retention policy if needed
-                if (rm != null) {
-                    RetentionPolicy pol = rm.getRetentionPolicy(child.getPath());
-                    if (pol != null) {
-                        rm.removeRetentionPolicy(child.getPath());
-                        s.save();
-                    }
+                String childPath = child.getPath();
+                if (rm != null && rm.getRetentionPolicy(childPath) != null) {
+                    rm.removeRetentionPolicy(childPath);
+                    s.save();
                 }
-                
+
                 NodeDefinition nodeDef = child.getDefinition();
                 if (!nodeDef.isMandatory() && !nodeDef.isProtected()) {
                     // try to remove child
@@ -849,7 +889,7 @@ public abstract class AbstractJCRTest extends JUnitTest {
                 if (currentNode.hasNode(name)) {
                     currentNode = currentNode.getNode(name);
                 } else {
-                    currentNode = currentNode.addNode(name, testNodeType);
+                    currentNode = currentNode.addNode(name, testNodeTypeTestRoot);
                 }
             }
             testRootNode = currentNode;

@@ -68,13 +68,13 @@ public class GetPropertyNamesTest extends AbstractQueryTest {
         String queryStatement = "/" + jcrRoot;
 
         // build and execute search query
-        Query query = superuser.getWorkspace().getQueryManager().createQuery(queryStatement, Query.XPATH);
+        Query query = superuser.getWorkspace().getQueryManager().createQuery(queryStatement, qsXPATH);
         QueryResult result = query.execute();
 
         // Get the node's non-residual properties
         PropertyDefinition[] pd = superuser.getWorkspace().getNodeTypeManager().getNodeType(ntBase).getDeclaredPropertyDefinitions();
 
-        List singleValPropNames = new ArrayList();
+        List<String> singleValPropNames = new ArrayList<String>();
         for (int i = 0; i < pd.length; i++) {
             // only keep the single-value properties
             if (!pd[i].isMultiple()) {

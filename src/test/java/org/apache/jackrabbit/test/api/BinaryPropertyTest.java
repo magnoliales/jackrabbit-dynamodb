@@ -348,7 +348,7 @@ public class BinaryPropertyTest extends AbstractPropertyTest {
             // not testable since format of ID is implementation specific
         } else {
             try {
-                prop.getNode();
+                prop.getProperty();
                 fail("Property.getProperty() called on a multivalue property " +
                         "should throw a ValueFormatException.");
             } catch (ValueFormatException vfe) {
@@ -395,7 +395,7 @@ public class BinaryPropertyTest extends AbstractPropertyTest {
         } finally {
             binary.dispose();
         }
-        long bytes = PropertyUtil.countBytes(prop.getValue());
+        long bytes = PropertyUtil.countBytes(val);
         if (bytes != -1) {
             assertEquals("Binary.getSize() returns wrong number of bytes.",
                     bytes, length);

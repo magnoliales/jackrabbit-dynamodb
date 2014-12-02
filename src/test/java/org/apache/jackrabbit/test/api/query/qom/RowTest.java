@@ -25,7 +25,7 @@ import javax.jcr.query.qom.QueryObjectModel;
 import javax.jcr.query.qom.Column;
 
 /**
- * <code>RowIteratorTest</code> contains test cases for {@link javax.jcr.query.Row}.
+ * <code>RowIteratorTest</code> contains test cases for {@link Row}.
  */
 public class RowTest extends AbstractQOMTest {
 

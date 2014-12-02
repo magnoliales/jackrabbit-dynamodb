@@ -24,7 +24,7 @@ import javax.jcr.version.VersionManager;
 
 /**
  * <code>SVCheckoutTest</code> covers tests related to {@link
- * javax.jcr.Node#checkout()} and {@link javax.jcr.Node#isCheckedOut()} of simple versionable
+ * Node#checkout()} and {@link Node#isCheckedOut()} of simple versionable
  * nodes.
  *
  * @test

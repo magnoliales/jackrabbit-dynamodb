@@ -51,7 +51,7 @@ public class RepositoryLoginTest extends AbstractJCRTest {
     }
 
     /**
-     * Tests if {@link javax.jcr.Repository#login(javax.jcr.Credentials credentials, String workspaceName)}
+     * Tests if {@link javax.jcr.Repository#login(Credentials credentials, String workspaceName)}
      * throws a {@link javax.jcr.NoSuchWorkspaceException}
      * if no workspace of the requested name is existing.
      */
@@ -81,7 +81,7 @@ public class RepositoryLoginTest extends AbstractJCRTest {
     }
 
     /**
-     * Tests if {@link javax.jcr.Repository#login(javax.jcr.Credentials credentials, String workspaceName)}
+     * Tests if {@link javax.jcr.Repository#login(Credentials credentials, String workspaceName)}
      * does return a session, i. e. not null.
      */
     public void testSignatureCredentialsAndWorkspaceName()
@@ -98,7 +98,7 @@ public class RepositoryLoginTest extends AbstractJCRTest {
     }
 
     /**
-     * Tests if {@link javax.jcr.Repository#login(javax.jcr.Credentials credentials)} does
+     * Tests if {@link javax.jcr.Repository#login(Credentials credentials)} does
      * return a session, i. e. not null.
      */
     public void testSignatureCredentials()

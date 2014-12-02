@@ -28,7 +28,7 @@ import javax.jcr.LoginException;
 import java.security.AccessControlException;
 
 /**
- * Tests if {@link javax.jcr.Session#impersonate(javax.jcr.Credentials)} to a read-only session
+ * Tests if {@link Session#impersonate(Credentials)} to a read-only session
  * respects access controls.
  *
  * @test

@@ -37,7 +37,7 @@ import javax.jcr.nodetype.NoSuchNodeTypeException;
 public class GetPersistentQueryPathTest extends AbstractQueryTest {
 
     /**
-     * Tests if {@link javax.jcr.query.Query#getStoredQueryPath()} returns the correct path
+     * Tests if {@link Query#getStoredQueryPath()} returns the correct path
      * where the query had been saved.
      *
      * @throws NotExecutableException if the repository does not support the
@@ -51,7 +51,7 @@ public class GetPersistentQueryPathTest extends AbstractQueryTest {
             throw new NotExecutableException("repository does not support nt:query");
         }
         String statement = "/" + jcrRoot;
-        Query q = superuser.getWorkspace().getQueryManager().createQuery(statement, Query.XPATH);
+        Query q = superuser.getWorkspace().getQueryManager().createQuery(statement, qsXPATH);
         String path = testRoot + "/" + nodeName1;
         q.storeAsNode(path);
         assertEquals("Query.getPersistentQueryPath() does not return the correct path.",

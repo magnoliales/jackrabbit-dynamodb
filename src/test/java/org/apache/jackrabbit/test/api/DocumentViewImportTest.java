@@ -93,9 +93,9 @@ public class DocumentViewImportTest extends AbstractImportXmlTest {
      * Additionally it checks the uuidBehaviour flag if the jcr:uuid property is
      * respected during import.
      *
-     * @throws javax.jcr.RepositoryException
-     * @throws java.io.IOException
-     * @throws org.xml.sax.SAXException
+     * @throws RepositoryException
+     * @throws IOException
+     * @throws SAXException
      * @throws NotExecutableException
      */
     public void doTestImportXML() throws Exception {
@@ -120,9 +120,9 @@ public class DocumentViewImportTest extends AbstractImportXmlTest {
      * Additionally it checks the uuidBehaviour flag if the jcr:uuid property is
      * respected during import.
      *
-     * @throws javax.jcr.RepositoryException
-     * @throws org.xml.sax.SAXException
-     * @throws java.io.IOException
+     * @throws RepositoryException
+     * @throws SAXException
+     * @throws IOException
      * @throws NotExecutableException
      */
     public void doTestGetImportContentHandler() throws Exception {
@@ -225,7 +225,7 @@ public class DocumentViewImportTest extends AbstractImportXmlTest {
      * node with name jcr:xmltext and that the value of the text is stored in
      * the singlevalued jcr:xmlcharacters property of String type.
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void checkXmlTextNode(Node node) throws RepositoryException, IOException {
 
@@ -256,8 +256,8 @@ public class DocumentViewImportTest extends AbstractImportXmlTest {
      * Checks if a namespace not yet existing in the repository is registered
      * after an according document import.
      *
-     * @throws javax.jcr.RepositoryException
-     * @throws java.io.IOException
+     * @throws RepositoryException
+     * @throws IOException
      */
     public void checkNamespaceAdded() throws RepositoryException, IOException {
         try {
@@ -275,7 +275,7 @@ public class DocumentViewImportTest extends AbstractImportXmlTest {
     // as attribute and we import this document below the refTargetNode.
 
     /**
-     * Checks {@link javax.jcr.ImportUUIDBehavior#IMPORT_UUID_CREATE_NEW} i.e. that a node
+     * Checks {@link ImportUUIDBehavior#IMPORT_UUID_CREATE_NEW} i.e. that a node
      * receives a new uuid when imported in any case.
      */
     public void checkImportDocumentView_IMPORT_UUID_CREATE_NEW() throws Exception {
@@ -347,8 +347,8 @@ public class DocumentViewImportTest extends AbstractImportXmlTest {
      * ItemExistsException is thrown in case of importing with an input stream
      * or a SAXException is thrown in case of importing with a ContentHandler.
      *
-     * @throws javax.jcr.RepositoryException
-     * @throws java.io.IOException
+     * @throws RepositoryException
+     * @throws IOException
      */
     public void checkImportDocumentView_IMPORT_UUID_COLLISION_THROW()
             throws Exception {

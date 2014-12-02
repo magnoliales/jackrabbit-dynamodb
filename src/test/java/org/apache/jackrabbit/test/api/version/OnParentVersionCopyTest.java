@@ -23,7 +23,7 @@ import javax.jcr.version.Version;
 import javax.jcr.version.VersionManager;
 
 /**
- * <code>OnParentVersionCopyTest</code> tests the OnParentVersion {@link javax.jcr.version.OnParentVersionAction#COPY COPY}
+ * <code>OnParentVersionCopyTest</code> tests the OnParentVersion {@link OnParentVersionAction#COPY COPY}
  * behaviour.
  *
  * @test
@@ -54,6 +54,7 @@ public class OnParentVersionCopyTest extends AbstractOnParentVersionTest {
      *
      * @throws javax.jcr.RepositoryException
      */
+    @SuppressWarnings("deprecation")
     public void testRestoreNode() throws RepositoryException {
         // prepare for node test
         Node childNode = addChildNode(OPVAction);

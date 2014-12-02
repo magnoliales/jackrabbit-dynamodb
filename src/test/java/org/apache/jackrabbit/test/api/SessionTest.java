@@ -16,19 +16,19 @@
  */
 package org.apache.jackrabbit.test.api;
 
+import javax.jcr.InvalidItemStateException;
+import javax.jcr.ItemExistsException;
+import javax.jcr.Node;
+import javax.jcr.PathNotFoundException;
+import javax.jcr.Repository;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.jcr.Value;
+import javax.jcr.lock.LockException;
+import javax.jcr.nodetype.ConstraintViolationException;
+
 import org.apache.jackrabbit.test.AbstractJCRTest;
 import org.apache.jackrabbit.test.NotExecutableException;
-
-import javax.jcr.nodetype.ConstraintViolationException;
-import javax.jcr.RepositoryException;
-import javax.jcr.Node;
-import javax.jcr.ItemExistsException;
-import javax.jcr.PathNotFoundException;
-import javax.jcr.Session;
-import javax.jcr.InvalidItemStateException;
-import javax.jcr.Value;
-import javax.jcr.Repository;
-import javax.jcr.lock.LockException;
 
 /**
  * <code>SessionTest</code> contains all test cases for the
@@ -235,7 +235,7 @@ public class SessionTest extends AbstractJCRTest {
         // save only moved node
         try {
             destParentNode.save();
-            fail("Saving only moved node after a Session.move() operation should throw ContstraintViolationException");
+            fail("Saving only moved node after a Session.move() operation should throw ConstraintViolationException");
         } catch (ConstraintViolationException e) {
             // ok try to save the source
         }
@@ -245,7 +245,7 @@ public class SessionTest extends AbstractJCRTest {
      * Calls {@link javax.jcr.Session#move(String src, String dest)} where
      * the parent node of src is locked.
      * <p>
-     * Should throw a {@link javax.jcr.lock.LockException} immediately or on save.
+     * Should throw a {@link LockException} immediately or on save.
      */
     public void testMoveLockException()
         throws NotExecutableException, RepositoryException {
@@ -264,7 +264,7 @@ public class SessionTest extends AbstractJCRTest {
         // add a sub node (the one that is tried to move later on)
         Node srcNode = lockableNode.addNode(nodeName1, testNodeType);
 
-        testRootNode.save();
+        testRootNode.getSession().save();
 
         // remove first slash of path to get rel path to root
         String pathRelToRoot = lockableNode.getPath().substring(1);
@@ -278,7 +278,7 @@ public class SessionTest extends AbstractJCRTest {
             try {
                 String destPath = testRoot + "/" + nodeName2;
                 session.move(srcNode.getPath(), destPath);
-                testRootNode.save();
+                testRootNode.getSession().save();
                 fail("A LockException is thrown either immediately or on save  if a lock prevents the move.");
             } catch (LockException e){
                 // success
@@ -401,11 +401,11 @@ public class SessionTest extends AbstractJCRTest {
      * Tries to create and save a node using {@link javax.jcr.Session#save()}
      * with an mandatory property that is not set on saving time.
      * <p>
-     * Prerequisites: <ul> <li><code>javax.jcr.tck.SessionTest.testSaveContstraintViolationException.nodetype2</code>
+     * Prerequisites: <ul> <li><code>javax.jcr.tck.SessionTest.testSaveConstraintViolationException.nodetype2</code>
      * must reference a nodetype that has one at least one property that is
      * mandatory but not autocreated</li> </ul>
      */
-    public void testSaveContstraintViolationException() throws RepositoryException {
+    public void testSaveConstraintViolationException() throws RepositoryException {
         // get default workspace test root node using superuser session
         Node defaultRootNode = (Node) superuser.getItem(testRootNode.getPath());
 
@@ -459,7 +459,7 @@ public class SessionTest extends AbstractJCRTest {
             // make node removal persistent
             testSession.save();
 
-            // save changes made wit superuser session
+            // save changes made with superuser session
             try {
                 superuser.save();
                 fail("Saving a modified Node using Session.save() already deleted by an other session should throw InvalidItemStateException");
@@ -671,20 +671,21 @@ public class SessionTest extends AbstractJCRTest {
     /**
      * Checks if {@link javax.jcr.Session#hasCapability(String, Object, Object[])}
      * works as specified.
-     * <p/>
+     * <p>
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testHasCapability() throws RepositoryException {
         Session roSession = getHelper().getReadOnlySession();
         try {
-            Node root = roSession.getRootNode();
+            Node testRoot = roSession.getNode(testRootNode.getPath());
             Object[] args = new Object[] { "foo" };
-            if (!roSession.hasCapability("addNode",  root, args)) {
+            if (!roSession.hasCapability("addNode",  testRoot, args)) {
                 // if hasCapability() returns false, the actual method call
                 // is expected to fail
                 try {
-                    root.addNode("foo");
+                    testRoot.addNode("foo");
+                    roSession.save();
                     fail("Node.addNode() should fail according to Session.hasCapability()");
                 } catch (RepositoryException e) {
                     // expected 

@@ -19,6 +19,7 @@ package org.apache.jackrabbit.test.api.version;
 import javax.jcr.Node;
 import javax.jcr.PropertyIterator;
 import javax.jcr.PropertyType;
+import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 
 import org.apache.jackrabbit.test.AbstractJCRTest;
@@ -51,6 +52,8 @@ public class GetReferencesNodeTest extends AbstractJCRTest {
     protected void setUp() throws Exception {
         super.setUp();
 
+        super.checkSupportedOption(Repository.OPTION_VERSIONING_SUPPORTED);
+
         versionableNodeType = getProperty(PROP_VERSIONABLE_NODE_TYPE);
         if (versionableNodeType == null) {
             fail("Property '" + PROP_VERSIONABLE_NODE_TYPE + "' is not defined.");
@@ -78,13 +81,13 @@ public class GetReferencesNodeTest extends AbstractJCRTest {
         ensureCanSetProperty(testNode, propertyName1, PropertyType.REFERENCE, false);
         testNode.setProperty(propertyName1, nodeToBeReferenced);
 
-        testRootNode.save();
+        testRootNode.getSession().save();
         testNode.checkin();
 
         // create a version 1.1 and remove reference
         testNode.checkout();
         testNode.getProperty(propertyName1).remove();
-        testRootNode.save();
+        testRootNode.getSession().save();
         testNode.checkin();
 
         // check if reference is returned
@@ -107,6 +110,6 @@ public class GetReferencesNodeTest extends AbstractJCRTest {
 
         // node to be referenced, does not have to be versionable
         nodeToBeReferenced = testRootNode.addNode(nodeName2, versionableNodeType);
-        testRootNode.save();
+        testRootNode.getSession().save();
     }
 }

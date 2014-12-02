@@ -47,7 +47,7 @@ public class NameTest extends AbstractJCRTest {
      * Expanded names must always be resolved.
      * Test NAME-value creation.
      * 
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testExpandedNameValue() throws RepositoryException {
         ValueFactory vf = superuser.getValueFactory();
@@ -63,7 +63,7 @@ public class NameTest extends AbstractJCRTest {
      * Expanded names must always be resolved.
      * Test setting a NAME-value property.
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testExpandedNameValueProperty() throws RepositoryException {
         ValueFactory vf = superuser.getValueFactory();
@@ -80,7 +80,7 @@ public class NameTest extends AbstractJCRTest {
      * Test if the name of property created with an expanded name is properly
      * return as standard JCR name.
      * 
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testExpandedNameItem() throws RepositoryException {
         String propName = getExpandedName(propertyName1);
@@ -93,7 +93,7 @@ public class NameTest extends AbstractJCRTest {
      * Test if creating a node with an expanded node type name returns the proper
      * standard JCR node type name.
      * 
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testExpandedNodeTypeName() throws RepositoryException {
         String nodeName = getExpandedName(nodeName1);

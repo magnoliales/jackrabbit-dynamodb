@@ -26,7 +26,7 @@ import javax.jcr.nodetype.NodeType;
 import javax.jcr.nodetype.NoSuchNodeTypeException;
 
 /**
- * Tests if the {@link javax.jcr.nodetype.NodeTypeManager} properly returns primary types an mixin
+ * Tests if the {@link NodeTypeManager} properly returns primary types an mixin
  * types.
  *
  * @test

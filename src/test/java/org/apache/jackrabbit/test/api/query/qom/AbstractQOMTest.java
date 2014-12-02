@@ -47,7 +47,7 @@ public abstract class AbstractQOMTest extends AbstractQueryTest {
      * @param value value to bind
      * @throws IllegalArgumentException if <code>var</code> is not a valid
      *                                  variable in this query.
-     * @throws javax.jcr.RepositoryException      if an error occurs.
+     * @throws RepositoryException      if an error occurs.
      */
     protected void bindVariableValue(Query q, String var, Value value)
             throws RepositoryException {
@@ -68,7 +68,7 @@ public abstract class AbstractQOMTest extends AbstractQueryTest {
                                     Node[][] nodes)
             throws RepositoryException {
         // collect rows
-        List expectedPaths = new ArrayList();
+        List<String> expectedPaths = new ArrayList<String>();
         log.println("expected:");
         for (int i = 0; i < nodes.length; i++) {
             StringBuffer aggregatedPaths = new StringBuffer();
@@ -80,7 +80,7 @@ public abstract class AbstractQOMTest extends AbstractQueryTest {
             log.println(aggregatedPaths.toString());
         }
 
-        List resultPaths = new ArrayList();
+        List<String> resultPaths = new ArrayList<String>();
         log.println("result:");
         for (RowIterator it = result.getRows(); it.hasNext();) {
             Row r = it.nextRow();
@@ -99,12 +99,12 @@ public abstract class AbstractQOMTest extends AbstractQueryTest {
     /**
      * Checks the query object model by executing it directly and matching the
      * result against the given <code>nodes</code>. Then the QOM is executed
-     * again using {@link javax.jcr.query.qom.QueryObjectModel#getStatement()} with {@link
-     * javax.jcr.query.Query#JCR_SQL2}.
+     * again using {@link QueryObjectModel#getStatement()} with {@link
+     * Query#JCR_SQL2}.
      *
      * @param qom   the query object model to check.
      * @param nodes the result nodes.
-     * @throws javax.jcr.RepositoryException if an error occurs while executing the
+     * @throws RepositoryException if an error occurs while executing the
      *                             query.
      */
     protected void checkQOM(QueryObjectModel qom, Node[] nodes)
@@ -116,13 +116,13 @@ public abstract class AbstractQOMTest extends AbstractQueryTest {
     /**
      * Checks the query object model by executing it directly and matching the
      * result against the given <code>nodes</code>. Then the QOM is executed
-     * again using {@link javax.jcr.query.qom.QueryObjectModel#getStatement()} with
-     * {@link javax.jcr.query.Query#JCR_SQL2}.
+     * again using {@link QueryObjectModel#getStatement()} with
+     * {@link Query#JCR_SQL2}.
      *
      * @param qom           the query object model to check.
      * @param selectorNames the selector names of the qom.
      * @param nodes         the result nodes.
-     * @throws javax.jcr.RepositoryException if an error occurs while executing the
+     * @throws RepositoryException if an error occurs while executing the
      *                             query.
      */
     protected void checkQOM(QueryObjectModel qom,
@@ -138,7 +138,7 @@ public abstract class AbstractQOMTest extends AbstractQueryTest {
                                Node[][] nodes)
             throws RepositoryException {
         // collect rows
-        Set expectedPaths = new HashSet();
+        Set<String> expectedPaths = new HashSet<String>();
         log.println("expected:");
         for (int i = 0; i < nodes.length; i++) {
             StringBuffer aggregatedPaths = new StringBuffer();
@@ -150,7 +150,7 @@ public abstract class AbstractQOMTest extends AbstractQueryTest {
             log.println(aggregatedPaths.toString());
         }
 
-        Set resultPaths = new HashSet();
+        Set<String> resultPaths = new HashSet<String>();
         log.println("result:");
         for (RowIterator it = result.getRows(); it.hasNext();) {
             Row r = it.nextRow();
@@ -164,13 +164,13 @@ public abstract class AbstractQOMTest extends AbstractQueryTest {
         }
 
         // check if all expected are in result
-        for (Iterator it = expectedPaths.iterator(); it.hasNext();) {
-            String path = (String) it.next();
+        for (Iterator<String> it = expectedPaths.iterator(); it.hasNext();) {
+            String path = it.next();
             assertTrue(path + " is not part of the result set", resultPaths.contains(path));
         }
         // check result does not contain more than expected
-        for (Iterator it = resultPaths.iterator(); it.hasNext();) {
-            String path = (String) it.next();
+        for (Iterator<String> it = resultPaths.iterator(); it.hasNext();) {
+            String path = it.next();
             assertTrue(path + " is not expected to be part of the result set", expectedPaths.contains(path));
         }
     }
@@ -182,7 +182,7 @@ public abstract class AbstractQOMTest extends AbstractQueryTest {
      * @param node a node or <code>null</code>.
      * @return the path of the node or an empty string if <code>node</code> is
      *         <code>null</code>.
-     * @throws javax.jcr.RepositoryException if an error occurs while reading from the
+     * @throws RepositoryException if an error occurs while reading from the
      *                             repository.
      */
     protected static String getPath(Node node) throws RepositoryException {
@@ -195,19 +195,19 @@ public abstract class AbstractQOMTest extends AbstractQueryTest {
 
     /**
      * Calls back the <code>callable</code> first with the <code>qom</code> and
-     * then a JCR_SQL2 query created from {@link javax.jcr.query.qom.QueryObjectModel#getStatement()}.
+     * then a JCR_SQL2 query created from {@link QueryObjectModel#getStatement()}.
      *
      * @param qom      a query object model.
      * @param callable the callback.
-     * @throws javax.jcr.RepositoryException if an error occurs.
+     * @throws RepositoryException if an error occurs.
      */
     protected void forQOMandSQL2(QueryObjectModel qom, Callable callable)
             throws RepositoryException {
-        List queries = new ArrayList();
+        List<Query> queries = new ArrayList<Query>();
         queries.add(qom);
         queries.add(qm.createQuery(qom.getStatement(), Query.JCR_SQL2));
-        for (Iterator it = queries.iterator(); it.hasNext();) {
-            callable.call((Query) it.next());
+        for (Iterator<Query> it = queries.iterator(); it.hasNext();) {
+            callable.call(it.next());
         }
     }
 

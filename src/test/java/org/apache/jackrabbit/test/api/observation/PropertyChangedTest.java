@@ -50,11 +50,11 @@ public class PropertyChangedTest extends AbstractObservationTest {
     public void testSinglePropertyChanged() throws RepositoryException {
         Node node = testRootNode.addNode(nodeName1, testNodeType);
         node.setProperty(propertyName1, "foo");
-        testRootNode.save();
+        testRootNode.getSession().save();
         EventResult result = new EventResult(log);
         addEventListener(result, Event.PROPERTY_CHANGED);
         node.getProperty(propertyName1).setValue("foobar");
-        testRootNode.save();
+        testRootNode.getSession().save();
         Event[] events = result.getEvents(DEFAULT_WAIT_TIMEOUT);
         removeEventListener(result);
         checkPropertyChanged(events, new String[]{nodeName1 + "/" + propertyName1});
@@ -63,18 +63,18 @@ public class PropertyChangedTest extends AbstractObservationTest {
     /**
      * Tests if {@link javax.jcr.observation.Event#PROPERTY_CHANGED} are
      * triggered when multiple properties are changed.
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testMultiPropertyChanged() throws RepositoryException {
         Node node = testRootNode.addNode(nodeName1, testNodeType);
         node.setProperty(propertyName1, "foo");
         node.setProperty(propertyName2, "bar");
-        testRootNode.save();
+        testRootNode.getSession().save();
         EventResult result = new EventResult(log);
         addEventListener(result, Event.PROPERTY_CHANGED);
         node.getProperty(propertyName1).setValue("foobar");
         node.getProperty(propertyName2).setValue("foobar");
-        testRootNode.save();
+        testRootNode.getSession().save();
         Event[] events = result.getEvents(DEFAULT_WAIT_TIMEOUT);
         removeEventListener(result);
         checkPropertyChanged(events, new String[]{nodeName1 + "/" + propertyName1,
@@ -88,12 +88,12 @@ public class PropertyChangedTest extends AbstractObservationTest {
     public void testSinglePropertyChangedWithAdded() throws RepositoryException {
         Node node = testRootNode.addNode(nodeName1, testNodeType);
         node.setProperty(propertyName1, "foo");
-        testRootNode.save();
+        testRootNode.getSession().save();
         EventResult result = new EventResult(log);
         addEventListener(result, Event.PROPERTY_CHANGED);
         node.getProperty(propertyName1).setValue("foobar");
         node.setProperty(propertyName2, "bar");    // will not fire prop changed event
-        testRootNode.save();
+        testRootNode.getSession().save();
         Event[] events = result.getEvents(DEFAULT_WAIT_TIMEOUT);
         removeEventListener(result);
         checkPropertyChanged(events, new String[]{nodeName1 + "/" + propertyName1});
@@ -102,14 +102,14 @@ public class PropertyChangedTest extends AbstractObservationTest {
     /**
      * Tests if either a
      * <ul>
-     * <li>{@link javax.jcr.observation.Event#PROPERTY_CHANGED}</li>
-     * <li>{@link javax.jcr.observation.Event#PROPERTY_REMOVED} and {@link javax.jcr.observation.Event#PROPERTY_ADDED}</li>
+     * <li>{@link Event#PROPERTY_CHANGED}</li>
+     * <li>{@link Event#PROPERTY_REMOVED} and {@link Event#PROPERTY_ADDED}</li>
      * </ul>
      * is triggered if a property is transiently removed and set again with
      * the same name but different type and then saved.
      * <p>
      * If the node type {@link #testNodeType} does not suppport a property with
-     * name {@link #propertyName1} of type {@link javax.jcr.PropertyType#UNDEFINED} a
+     * name {@link #propertyName1} of type {@link PropertyType#UNDEFINED} a
      * {@link NotExecutableException} is thrown.
      */
     public void testPropertyRemoveCreate()
@@ -122,12 +122,12 @@ public class PropertyChangedTest extends AbstractObservationTest {
             throw new NotExecutableException("Property " + propertyName1 + " is not of type UNDEFINED");
         }
         n.setProperty(propertyName1, v1);
-        testRootNode.save();
+        testRootNode.getSession().save();
         EventResult result = new EventResult(log);
         addEventListener(result, Event.PROPERTY_ADDED | Event.PROPERTY_CHANGED | Event.PROPERTY_REMOVED);
         n.getProperty(propertyName1).remove();
         n.setProperty(propertyName1, v2);
-        testRootNode.save();
+        testRootNode.getSession().save();
         Event[] events = result.getEvents(DEFAULT_WAIT_TIMEOUT);
         removeEventListener(result);
 

@@ -16,7 +16,6 @@
  */
 package org.apache.jackrabbit.test.api.query;
 
-import javax.jcr.query.Query;
 import javax.jcr.query.InvalidQueryException;
 import javax.jcr.query.QueryManager;
 import javax.jcr.RepositoryException;
@@ -77,14 +76,14 @@ public class PredicatesTest extends AbstractQueryTest {
     /**
      * Verifies that the value of a property can be searched
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testEquality() throws RepositoryException {
         String stmt =
             xpathRoot + "/*[@" + jcrPrimaryType + "='" + nodeTypeName + "']";
 
         try {
-            qm.createQuery(stmt, Query.XPATH);
+            qm.createQuery(stmt, qsXPATH);
         } catch (InvalidQueryException e) {
             fail("invalid statement syntax for '" + stmt + "'");
         }
@@ -93,7 +92,7 @@ public class PredicatesTest extends AbstractQueryTest {
     /**
      * Verifies that the or operator is accepted for properties's values
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testCombinedOr() throws RepositoryException {
         String stmt =
@@ -101,7 +100,7 @@ public class PredicatesTest extends AbstractQueryTest {
             + "' or @" + jcrPrimaryType + "='" + ntBase + "']";
 
         try {
-            qm.createQuery(stmt, Query.XPATH);
+            qm.createQuery(stmt, qsXPATH);
         } catch (InvalidQueryException e) {
             fail("invalid statement syntax for '" + stmt + "'");
         }
@@ -110,14 +109,14 @@ public class PredicatesTest extends AbstractQueryTest {
     /**
      * Verifies that the or operator is accepted for a property name
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testOr() throws RepositoryException {
         String stmt =
             xpathRoot + "/*[@" + jcrPrimaryType + " or @" + jcrMixinTypes + "]";
 
         try {
-            qm.createQuery(stmt, Query.XPATH);
+            qm.createQuery(stmt, qsXPATH);
         } catch (InvalidQueryException e) {
             fail("invalid statement syntax for '" + stmt + "'");
         }
@@ -126,14 +125,14 @@ public class PredicatesTest extends AbstractQueryTest {
     /**
      * Verifies that the and operator is accepted for a property name
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testAnd() throws RepositoryException {
         String stmt =
             xpathRoot + "/*[@" + jcrPrimaryType + " and @" + jcrMixinTypes + "]";
 
         try {
-            qm.createQuery(stmt, Query.XPATH);
+            qm.createQuery(stmt, qsXPATH);
         } catch (InvalidQueryException e) {
             fail("invalid statement syntax for '" + stmt + "'");
         }
@@ -142,7 +141,7 @@ public class PredicatesTest extends AbstractQueryTest {
     /**
      * Verifies that the and operator is accepted for properties's values
      *
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testCombinedAnd() throws RepositoryException {
         String stmt =
@@ -150,7 +149,7 @@ public class PredicatesTest extends AbstractQueryTest {
             + "' and @" + jcrPrimaryType + "='" + ntBase + "']";
 
         try {
-            qm.createQuery(stmt, Query.XPATH);
+            qm.createQuery(stmt, qsXPATH);
         } catch (InvalidQueryException e) {
             fail("invalid statement syntax for '" + stmt + "'");
         }

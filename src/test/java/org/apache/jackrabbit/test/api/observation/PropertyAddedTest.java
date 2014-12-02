@@ -48,10 +48,10 @@ public class PropertyAddedTest extends AbstractObservationTest {
         EventResult result = new EventResult(log);
         addEventListener(result, Event.PROPERTY_ADDED);
         testRootNode.addNode(nodeName1, testNodeType);
-        testRootNode.save();
+        testRootNode.getSession().save();
         Event[] events = result.getEvents(DEFAULT_WAIT_TIMEOUT);
         removeEventListener(result);
-        List paths = new ArrayList();
+        List<String> paths = new ArrayList<String>();
         for (int i = 0; i < events.length; i++) {
             paths.add(events[i].getPath());
         }
@@ -62,15 +62,15 @@ public class PropertyAddedTest extends AbstractObservationTest {
     /**
      * Tests if {@link javax.jcr.observation.Event#PROPERTY_ADDED} is triggered
      * when a single property is added.
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public void testSinglePropertyAdded() throws RepositoryException {
         Node foo = testRootNode.addNode(nodeName1, testNodeType);
-        testRootNode.save();
+        testRootNode.getSession().save();
         EventResult result = new EventResult(log);
         addEventListener(result, Event.PROPERTY_ADDED);
         foo.setProperty(propertyName1, "test content");
-        testRootNode.save();
+        testRootNode.getSession().save();
         Event[] events = result.getEvents(DEFAULT_WAIT_TIMEOUT);
         removeEventListener(result);
         checkPropertyAdded(events, new String[]{nodeName1 + "/" + propertyName1});
@@ -82,12 +82,12 @@ public class PropertyAddedTest extends AbstractObservationTest {
      */
     public void testMultiPropertyAdded() throws RepositoryException {
         Node foo = testRootNode.addNode(nodeName1, testNodeType);
-        testRootNode.save();
+        testRootNode.getSession().save();
         EventResult result = new EventResult(log);
         addEventListener(result, Event.PROPERTY_ADDED);
         foo.setProperty(propertyName1, "foo");
         foo.setProperty(propertyName2, "bar");
-        testRootNode.save();
+        testRootNode.getSession().save();
         Event[] events = result.getEvents(DEFAULT_WAIT_TIMEOUT);
         removeEventListener(result);
         checkPropertyAdded(events, new String[]{nodeName1 + "/" + propertyName1,

@@ -32,7 +32,7 @@ import org.apache.jackrabbit.test.AbstractJCRTest;
 /**
  * Test cases for JSR 283 sections 3.5.2 Session-Local Mappings and
  * 5.11 Namespace Mapping and the related namespace mapping methods
- * in {@link javax.jcr.Session}.
+ * in {@link Session}.
  *
  * @test
  * @sources NamespaceRemappingTest.java
@@ -115,8 +115,8 @@ public class NamespaceRemappingTest extends AbstractJCRTest {
      * </blockquote>
      */
     public void testAutomaticNewLocalPrefix() throws RepositoryException {
-        Set prefixes =
-            new HashSet(Arrays.asList(session.getNamespacePrefixes()));
+        Set<String> prefixes =
+            new HashSet<String>(Arrays.asList(session.getNamespacePrefixes()));
         prefixes.remove(session.getNamespacePrefix(NS_JCR_URI));
         prefixes.remove(session.getNamespacePrefix(NS_NT_URI));
 
@@ -209,7 +209,7 @@ public class NamespaceRemappingTest extends AbstractJCRTest {
      *
      * <p>
      * Also specified in the javadoc of
-     * {@link javax.jcr.Session#setNamespacePrefix(String, String)}:
+     * {@link Session#setNamespacePrefix(String, String)}:
      *
      * <blockquote>
      * The remapping only affects operations done through this
@@ -242,15 +242,15 @@ public class NamespaceRemappingTest extends AbstractJCRTest {
      * <blockquote>
      * However, the method will throw an exception if
      * <ul>
-     * <li>the specified prefix begins with the characters “xml”
+     * <li>the specified prefix begins with the characters "xml"
      *     (in any combination of case) or,</li>
      * <li>the specified prefix is the empty string or,</li>
      * <li>the specified namespace URI is the empty string.</li>
      * </blockquote>
      *
      * <p>
-     * Also specified in the javadoc for throwing a {@link javax.jcr.NamespaceException}
-     * from {@link javax.jcr.Session#setNamespacePrefix(String, String)}:
+     * Also specified in the javadoc for throwing a {@link NamespaceException}
+     * from {@link Session#setNamespacePrefix(String, String)}:
      *
      * <blockquote>
      * if an attempt is made to map a namespace URI to a prefix beginning
@@ -293,12 +293,12 @@ public class NamespaceRemappingTest extends AbstractJCRTest {
     }
 
     /**
-     * Checks that a {@link javax.jcr.Session#setNamespacePrefix(String, String)}
-     * call with the given arguments throws a {@link javax.jcr.NamespaceException}.
+     * Checks that a {@link Session#setNamespacePrefix(String, String)}
+     * call with the given arguments throws a {@link NamespaceException}.
      *
      * @param prefix namespace prefix
      * @param uri namespace URI
-     * @throws javax.jcr.RepositoryException if another error occurs
+     * @throws RepositoryException if another error occurs
      */
     private void assertSetNamespacePrefixFails(String prefix, String uri)
             throws RepositoryException {
@@ -374,7 +374,7 @@ public class NamespaceRemappingTest extends AbstractJCRTest {
      * @return a namespace prefix that is not in use.
      */
     private String getUnusedPrefix() throws RepositoryException {
-        Set prefixes = new HashSet();
+        Set<String> prefixes = new HashSet<String>();
         prefixes.addAll(Arrays.asList(session.getNamespacePrefixes()));
         String prefix = "myapp";
         int count = 0;

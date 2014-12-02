@@ -23,13 +23,12 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.Value;
 
-import org.apache.jackrabbit.test.AbstractJCRTest;
 import org.apache.jackrabbit.test.RepositoryStub;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /** <code>RSessionAccessControlTest</code>... */
-public class RSessionAccessControlTest extends AbstractJCRTest {
+public class RSessionAccessControlTest extends AbstractAccessControlTest {
 
     private static Logger log = LoggerFactory.getLogger(RSessionAccessControlTest.class);
 
@@ -44,7 +43,7 @@ public class RSessionAccessControlTest extends AbstractJCRTest {
         Value v = getJcrValue(superuser, RepositoryStub.PROP_PROP_VALUE1, RepositoryStub.PROP_PROP_TYPE1, "test");
         Property p = n.setProperty(propertyName1, v);
         testPropertyPath = p.getPath();
-        testRootNode.save();
+        testRootNode.getSession().save();
 
         readOnlySession = getHelper().getReadOnlySession();
     }

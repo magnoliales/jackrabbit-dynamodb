@@ -448,7 +448,7 @@ public class VersionTest extends AbstractVersionTest {
      * Tests if <code>Version.getUUID()</code> returns the right UUID
      */
     public void testGetUUID() throws Exception {
-        List successorValues = Arrays.asList(versionableNode.getVersionHistory().getRootVersion().getProperty(jcrSuccessors).getValues());
+        List<Value> successorValues = Arrays.asList(versionableNode.getVersionHistory().getRootVersion().getProperty(jcrSuccessors).getValues());
         assertTrue("Version.getUUID() did not return the right UUID", successorValues.contains(superuser.getValueFactory().createValue(version)));
     }
 
@@ -571,7 +571,7 @@ public class VersionTest extends AbstractVersionTest {
 
     /**
      * Tests if <code>Version.lock(boolean, boolean)</code> throws a {@link
-     * javax.jcr.lock.LockException}
+     * LockException}
      */
     public void testLock() throws Exception {
         try {
@@ -598,7 +598,7 @@ public class VersionTest extends AbstractVersionTest {
 
     /**
      * Tests if <code>Version.lock(boolean, boolean)</code> throws a {@link
-     * javax.jcr.lock.LockException}
+     * LockException}
      */
     public void testLockJcr2() throws Exception {
         LockManager lockManager = version.getSession().getWorkspace().getLockManager();
@@ -712,9 +712,9 @@ public class VersionTest extends AbstractVersionTest {
     /**
      * Tests if <code>Version.restore(String, boolean)</code> and
      * <code>Version.restore(Version, boolean)</code> throw an
-     * {@link javax.jcr.UnsupportedRepositoryOperationException} and
+     * {@link UnsupportedRepositoryOperationException} and
      * <code>Version.restore(Version, String, boolean)</code> throws a
-     * {@link javax.jcr.nodetype.ConstraintViolationException}.
+     * {@link ConstraintViolationException}.
      */
     public void testRestore() throws Exception {
         try {
@@ -737,9 +737,9 @@ public class VersionTest extends AbstractVersionTest {
     /**
      * Tests if <code>Version.restore(String, boolean)</code> and
      * <code>Version.restore(Version, boolean)</code> throw an
-     * {@link javax.jcr.UnsupportedRepositoryOperationException} and
+     * {@link UnsupportedRepositoryOperationException} and
      * <code>Version.restore(Version, String, boolean)</code> throws a
-     * {@link javax.jcr.nodetype.ConstraintViolationException}.
+     * {@link ConstraintViolationException}.
      */
     public void testRestoreJcr2() throws Exception {
         try {
@@ -859,7 +859,7 @@ public class VersionTest extends AbstractVersionTest {
         } catch (ConstraintViolationException success) {
         }
         try {
-            version.setProperty(propertyName1, testRootNode);
+            version.setProperty(propertyName1, version);
             version.getSession().save();
             fail("Version should be read-only: Version.setProperty(String,Node) did not throw a ConstraintViolationException");
         } catch (ConstraintViolationException success) {

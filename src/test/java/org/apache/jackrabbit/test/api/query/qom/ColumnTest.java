@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.jcr.RepositoryException;
 import javax.jcr.Node;
@@ -47,11 +49,11 @@ public class ColumnTest extends AbstractQOMTest {
 
     /**
      * From the spec:
-     * <p/>
+     * <p>
      * If propertyName is not specified, a column is included for each
      * single-valued non-residual property of the node type specified by the
      * nodeType attribute of the selector selectorName.
-     * <p/>
+     * <p>
      * [..] If propertyName is not specified,
      * columnName must not be specified, and the included columns will be
      * named "selectorName.propertyName".
@@ -65,21 +67,21 @@ public class ColumnTest extends AbstractQOMTest {
         forQOMandSQL2(qom, new Callable() {
             public Object call(Query query) throws RepositoryException {
                 QueryResult result = query.execute();
-                List names = new ArrayList(Arrays.asList(result.getColumnNames()));
                 NodeTypeManager ntMgr = superuser.getWorkspace().getNodeTypeManager();
                 NodeType nt = ntMgr.getNodeType(testNodeType);
                 PropertyDefinition[] propDefs = nt.getPropertyDefinitions();
+                Set<String> names = new HashSet<String>();
                 for (int i = 0; i < propDefs.length; i++) {
                     PropertyDefinition propDef = propDefs[i];
                     if (!propDef.isMultiple() && !propDef.getName().equals("*")) {
                         String columnName = SELECTOR_1 + "." + propDef.getName();
-                        assertTrue("Missing column: " + columnName,
-                                names.remove(columnName));
+                        names.add(columnName);
                     }
                 }
-                for (Iterator it = names.iterator(); it.hasNext(); ) {
-                    fail(it.next() + " is not a property on node type " + testNodeType);
+                for (String columnName : result.getColumnNames()) {
+                    names.remove(columnName);
                 }
+                assertTrue("Missing required column(s): " + names, names.isEmpty());
                 return null;
             }
         });
@@ -87,7 +89,7 @@ public class ColumnTest extends AbstractQOMTest {
 
     /**
      * From the spec:
-     * <p/>
+     * <p>
      * If propertyName is specified, columnName is required and used to name
      * the column in the tabular results.
      */
@@ -100,9 +102,9 @@ public class ColumnTest extends AbstractQOMTest {
         forQOMandSQL2(qom, new Callable() {
             public Object call(Query query) throws RepositoryException {
                 QueryResult result = query.execute();
-                List names = new ArrayList(Arrays.asList(result.getColumnNames()));
+                List<String> names = new ArrayList<String>(Arrays.asList(result.getColumnNames()));
                 assertTrue("Missing column: " + propertyName1, names.remove(propertyName1));
-                for (Iterator it = names.iterator(); it.hasNext(); ) {
+                for (Iterator<String> it = names.iterator(); it.hasNext(); ) {
                     fail(it.next() + " was not declared as a column");
                 }
                 return null;

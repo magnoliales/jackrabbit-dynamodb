@@ -16,16 +16,20 @@
  */
 package org.apache.jackrabbit.test.api.observation;
 
-import javax.jcr.RepositoryException;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 import javax.jcr.Node;
 import javax.jcr.Property;
+import javax.jcr.RepositoryException;
 import javax.jcr.observation.Event;
 
 /**
  * <code>GetInfoTest</code> checks that the info map is empty for event types:
- * {@link javax.jcr.observation.Event#NODE_ADDED}, {@link javax.jcr.observation.Event#NODE_REMOVED},
- * {@link javax.jcr.observation.Event#PROPERTY_ADDED}, {@link javax.jcr.observation.Event#PROPERTY_CHANGED} and
- * {@link javax.jcr.observation.Event#PROPERTY_REMOVED}.
+ * {@link Event#NODE_ADDED}, {@link Event#NODE_REMOVED},
+ * {@link Event#PROPERTY_ADDED}, {@link Event#PROPERTY_CHANGED} and
+ * {@link Event#PROPERTY_REMOVED}.
  */
 public class GetInfoTest extends AbstractObservationTest {
 
@@ -33,25 +37,27 @@ public class GetInfoTest extends AbstractObservationTest {
         Event[] events = getEvents(new Callable(){
             public void call() throws RepositoryException {
                 testRootNode.addNode(nodeName1, testNodeType);
-                testRootNode.save();
+                testRootNode.getSession().save();
             }
         }, Event.NODE_ADDED);
         for (int i = 0; i < events.length; i++) {
-            assertEquals("info map must be empty", 0, events[i].getInfo().size());
+            Set<?> unexpectedKeys = getUnexpectedKeys(events[i].getInfo());
+            assertEquals("info map contains invalid keys: " + unexpectedKeys, 0, unexpectedKeys.size());
         }
     }
 
     public void testNodeRemoved() throws RepositoryException {
         final Node n = testRootNode.addNode(nodeName1, testNodeType);
-        testRootNode.save();
+        testRootNode.getSession().save();
         Event[] events = getEvents(new Callable(){
             public void call() throws RepositoryException {
                 n.remove();
-                testRootNode.save();
+                testRootNode.getSession().save();
             }
         }, Event.NODE_REMOVED);
         for (int i = 0; i < events.length; i++) {
-            assertEquals("info map must be empty", 0, events[i].getInfo().size());
+            Set<?> unexpectedKeys = getUnexpectedKeys(events[i].getInfo());
+            assertEquals("info map must be empty", 0, unexpectedKeys.size());
         }
     }
 
@@ -59,39 +65,50 @@ public class GetInfoTest extends AbstractObservationTest {
         Event[] events = getEvents(new Callable(){
             public void call() throws RepositoryException {
                 testRootNode.addNode(nodeName1, testNodeType).setProperty(propertyName1, "test");
-                testRootNode.save();
+                testRootNode.getSession().save();
             }
         }, Event.PROPERTY_ADDED);
         for (int i = 0; i < events.length; i++) {
-            assertEquals("info map must be empty", 0, events[i].getInfo().size());
+            Set<?> unexpectedKeys = getUnexpectedKeys(events[i].getInfo());
+            assertEquals("info map must be empty", 0, unexpectedKeys.size());
         }
     }
 
     public void testPropertyChanged() throws RepositoryException {
         Node n = testRootNode.addNode(nodeName1, testNodeType);
         final Property prop = n.setProperty(propertyName1, "test");
-        testRootNode.save();
+        testRootNode.getSession().save();
         Event[] events = getEvents(new Callable(){
             public void call() throws RepositoryException {
                 prop.setValue("modified");
             }
         }, Event.PROPERTY_CHANGED);
         for (int i = 0; i < events.length; i++) {
-            assertEquals("info map must be empty", 0, events[i].getInfo().size());
+            Set<?> unexpectedKeys = getUnexpectedKeys(events[i].getInfo());
+            assertEquals("info map must be empty", 0, unexpectedKeys.size());
         }
     }
 
     public void testPropertyRemoved() throws RepositoryException {
         Node n = testRootNode.addNode(nodeName1, testNodeType);
         final Property prop = n.setProperty(propertyName1, "test");
-        testRootNode.save();
+        testRootNode.getSession().save();
         Event[] events = getEvents(new Callable(){
             public void call() throws RepositoryException {
                 prop.remove();
             }
         }, Event.PROPERTY_REMOVED);
         for (int i = 0; i < events.length; i++) {
-            assertEquals("info map must be empty", 0, events[i].getInfo().size());
+            Set<?> unexpectedKeys = getUnexpectedKeys(events[i].getInfo());
+            assertEquals("info map must be empty", 0, unexpectedKeys.size());
         }
+    }
+
+    private static Set<?> getUnexpectedKeys(Map<?, ?> info) {
+        Set<Object> result = new HashSet<Object>();
+        result.addAll(info.keySet());
+        result.remove("jcr:primaryType");
+        result.remove("jcr:mixinTypes");
+        return result;
     }
 }

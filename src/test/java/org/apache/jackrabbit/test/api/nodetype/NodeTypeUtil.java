@@ -28,7 +28,10 @@ import javax.jcr.nodetype.NodeType;
 import javax.jcr.nodetype.NodeTypeIterator;
 import javax.jcr.nodetype.NodeTypeManager;
 import javax.jcr.nodetype.PropertyDefinition;
+
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -40,7 +43,8 @@ public class NodeTypeUtil {
     public static final int ANY_PROPERTY_TYPE = -1;
 
     /**
-     * Locate a non-protected child node def parsing all node types
+     * Locate a non-protected child node def declared by a non-abstract node type
+     * parsing all node types
      *
      * @param session                  the session to access the node types
      * @param regardDefaultPrimaryType if true, the default primary type of the
@@ -56,7 +60,7 @@ public class NodeTypeUtil {
      * @param residual                 if true, the returned <code>NodeDef</code>
      *                                 is of the residual name "*", else not
      * @return
-     * @throws javax.jcr.RepositoryException
+     * @throws RepositoryException
      */
     public static NodeDefinition locateChildNodeDef(Session session,
                                                     boolean regardDefaultPrimaryType,
@@ -67,7 +71,7 @@ public class NodeTypeUtil {
         NodeTypeManager manager = session.getWorkspace().getNodeTypeManager();
         NodeTypeIterator types = manager.getAllNodeTypes();
 
-        boolean overjump = false;
+        boolean skip = false;
 
         while (types.hasNext()) {
             NodeType type = types.nextNodeType();
@@ -92,6 +96,10 @@ public class NodeTypeUtil {
 
             for (int i = 0; i < nodeDefs.length; i++) {
                 NodeDefinition nodeDef = nodeDefs[i];
+
+                if (nodeDef.getDeclaringNodeType().isAbstract()) {
+                    continue;
+                }
 
                 if (nodeDef.isProtected()) {
                     continue;
@@ -120,17 +128,17 @@ public class NodeTypeUtil {
 
                 if (!residual) {
                     // if another child node def is a residual definition
-                    // overjump the current node type
+                    // skip the current node type
                     NodeDefinition nodeDefsAll[] = type.getChildNodeDefinitions();
                     for (int j = 0; j < nodeDefsAll.length; j++) {
                         if (nodeDefsAll[j].getName().equals("*")) {
-                            overjump = true;
+                            skip = true;
                             break;
                         }
                     }
-                    if (overjump) {
+                    if (skip) {
                         // break the loop of the current child not defs
-                        overjump = false;
+                        skip = false;
                         break;
                     }
                 }
@@ -139,6 +147,114 @@ public class NodeTypeUtil {
             }
         }
         return null;
+    }
+
+    /**
+     * Locate all non-protected child node def declared by a non-abstract node type
+     * parsing all node types
+     *
+     * @param session                  the session to access the node types
+     * @param regardDefaultPrimaryType if true, the default primary type of the
+     *                                 returned <code>NodeDef</code> is
+     *                                 according to param <code>defaultPrimaryType</code>.
+     *                                 If false, the returned <code>NodeDef</code>
+     *                                 might have a default primary type or
+     *                                 not.
+     * @param defaultPrimaryType       if <code>regardDefaultPrimaryType</code>
+     *                                 is true: if true, the returned
+     *                                 <code>NodeDef</code> has a default
+     *                                 primary type, else not
+     * @param residual                 if true, the returned <code>NodeDef</code>
+     *                                 is of the residual name "*", else not
+     * @return
+     * @throws RepositoryException
+     */
+    public static List<NodeDefinition> locateAllChildNodeDef(Session session,
+                                                    boolean regardDefaultPrimaryType,
+                                                    boolean defaultPrimaryType,
+                                                    boolean residual)
+            throws RepositoryException {
+        List<NodeDefinition> nodeTypes = new ArrayList<NodeDefinition>();
+
+        NodeTypeManager manager = session.getWorkspace().getNodeTypeManager();
+        NodeTypeIterator types = manager.getAllNodeTypes();
+
+        boolean skip = false;
+
+        while (types.hasNext()) {
+            NodeType type = types.nextNodeType();
+
+            // node types with more than one residual child node definition
+            // will cause trouble in test cases. the implementation
+            // might pick another definition than the definition returned by
+            // this method, when a child node is set.
+            NodeDefinition[] childDefs = type.getChildNodeDefinitions();
+            int residuals = 0;
+            for (int i = 0; i < childDefs.length; i++) {
+                if (childDefs[i].getName().equals("*")) {
+                    residuals++;
+                }
+            }
+            if (residuals > 1) {
+                // more than one residual, not suitable for tests
+                continue;
+            }
+
+            NodeDefinition nodeDefs[] = type.getDeclaredChildNodeDefinitions();
+
+            for (int i = 0; i < nodeDefs.length; i++) {
+                NodeDefinition nodeDef = nodeDefs[i];
+
+                if (nodeDef.getDeclaringNodeType().isAbstract()) {
+                    continue;
+                }
+
+                if (nodeDef.isProtected()) {
+                    continue;
+                }
+
+                if (nodeDef.getRequiredPrimaryTypes().length > 1) {
+                    // behaviour of implementations that support multiple multiple inheritance
+                    // of primary node types is not specified
+                    continue;
+                }
+
+                if (regardDefaultPrimaryType) {
+
+                    if (defaultPrimaryType && nodeDef.getDefaultPrimaryType() == null) {
+                        continue;
+                    }
+
+                    if (!defaultPrimaryType && nodeDef.getDefaultPrimaryType() != null) {
+                        continue;
+                    }
+                }
+
+                if (residual && !nodeDef.getName().equals("*")) {
+                    continue;
+                }
+
+                if (!residual) {
+                    // if another child node def is a residual definition
+                    // skip the current node type
+                    NodeDefinition nodeDefsAll[] = type.getChildNodeDefinitions();
+                    for (int j = 0; j < nodeDefsAll.length; j++) {
+                        if (nodeDefsAll[j].getName().equals("*")) {
+                            skip = true;
+                            break;
+                        }
+                    }
+                    if (skip) {
+                        // break the loop of the current child not defs
+                        skip = false;
+                        break;
+                    }
+                }
+
+                nodeTypes.add(nodeDef);
+            }
+        }
+        return nodeTypes;
     }
 
     /**

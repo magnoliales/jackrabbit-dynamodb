@@ -195,12 +195,12 @@ public class NodeDefTest extends AbstractJCRTest {
             
             for (int i = 0; i < defs.length; i++) {
                 NodeType requiredPrimaryTypes[] = defs[i].getRequiredPrimaryTypes();
-                Set rptnames = new HashSet();
+                Set<String> rptnames = new HashSet<String>();
                 for (int j = 0; j < requiredPrimaryTypes.length; j++) {
                     rptnames.add(requiredPrimaryTypes[j].getName());
                 }
                 
-                Set rptnames2 = new HashSet(Arrays.asList(defs[i].getRequiredPrimaryTypeNames()));
+                Set<String> rptnames2 = new HashSet<String>(Arrays.asList(defs[i].getRequiredPrimaryTypeNames()));
                 assertEquals("names returned from getRequiredPrimaryTypeNames should match types returned from getRequiredPrimaryTypes", rptnames, rptnames2);
             }
         }
@@ -209,7 +209,7 @@ public class NodeDefTest extends AbstractJCRTest {
     /**
      * Tests if the default primary type is of the same or a sub node type as the
      * the required primary types. Test runs for all existing node types. Also
-     * tests the string based access ({@link javax.jcr.nodetype.NodeDefinition#getDefaultPrimaryTypeName()}.
+     * tests the string based access ({@link NodeDefinition#getDefaultPrimaryTypeName()}.
      * 
      * @since JCR 2.0
      */

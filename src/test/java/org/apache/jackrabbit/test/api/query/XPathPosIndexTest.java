@@ -21,7 +21,6 @@ import org.apache.jackrabbit.test.NotExecutableException;
 import javax.jcr.RepositoryException;
 import javax.jcr.NodeIterator;
 import javax.jcr.Repository;
-import javax.jcr.query.Query;
 import javax.jcr.query.QueryResult;
 
 /**
@@ -51,13 +50,13 @@ public class XPathPosIndexTest extends AbstractQueryTest {
     /**
      * Test if the indexed notation is supported.
      * <p>
-     * For configuration description see {@link org.apache.jackrabbit.test.api.query.XPathPosIndexTest}.
+     * For configuration description see {@link XPathPosIndexTest}.
      */
     public void testDocOrderIndexedNotation() throws Exception {
         String path = testRoot + "/" + nodeName1 + "[2]";
         StringBuffer tmp = new StringBuffer("/");
         tmp.append(jcrRoot).append(path);
-        docOrderTest(new Statement(tmp.toString(), Query.XPATH), path);
+        docOrderTest(new Statement(tmp.toString(), qsXPATH), path);
     }
 
     //-----------------------------< internal >---------------------------------

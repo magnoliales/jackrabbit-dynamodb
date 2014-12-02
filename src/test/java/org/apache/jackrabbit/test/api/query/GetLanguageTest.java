@@ -24,7 +24,7 @@ import javax.jcr.Session;
 import org.apache.jackrabbit.test.NotExecutableException;
 
 /**
- * Test the method {@link javax.jcr.query.Query#getLanguage()}.
+ * Test the method {@link Query#getLanguage()}.
  *
  * @test
  * @sources GetLanguageTest.java
@@ -58,32 +58,32 @@ public class GetLanguageTest extends AbstractQueryTest {
     }
 
     /**
-     * Tests if a XPath query returns {@link javax.jcr.query.Query#XPATH} when calling
-     * {@link javax.jcr.query.Query#getLanguage()}.
+     * Tests if a XPath query returns {@link Query#XPATH} when calling
+     * {@link Query#getLanguage()}.
      */
     public void testGetLanguage() throws RepositoryException {
         String statement = "/" + jcrRoot;
-        Query q = session.getWorkspace().getQueryManager().createQuery(statement, Query.XPATH);
-        assertEquals("Query returns wrong language.", Query.XPATH, q.getLanguage());
+        Query q = session.getWorkspace().getQueryManager().createQuery(statement, qsXPATH);
+        assertEquals("Query returns wrong language.", qsXPATH, q.getLanguage());
     }
 
     /**
-     * Tests if a SQL query returns {@link javax.jcr.query.Query#SQL} when calling
-     * {@link javax.jcr.query.Query#getLanguage()}.
+     * Tests if a SQL query returns {@link Query#SQL} when calling
+     * {@link Query#getLanguage()}.
      */
     public void testSQL() throws RepositoryException, NotExecutableException {
-        if (isSupportedLanguage(Query.SQL)) {
+        if (isSupportedLanguage(qsSQL)) {
             String stmt = "select * from " + testNodeType;
-            Query q = session.getWorkspace().getQueryManager().createQuery(stmt, Query.SQL);
-            assertEquals("Query returns wrong language.", Query.SQL, q.getLanguage());
+            Query q = session.getWorkspace().getQueryManager().createQuery(stmt, qsSQL);
+            assertEquals("Query returns wrong language.", qsSQL, q.getLanguage());
         } else {
             throw new NotExecutableException("SQL not supported");
         }
     }
 
     /**
-     * Tests if a JCR_SQL2 query returns {@link javax.jcr.query.Query#JCR_SQL2} when calling
-     * {@link javax.jcr.query.Query#getLanguage()}.
+     * Tests if a JCR_SQL2 query returns {@link Query#JCR_SQL2} when calling
+     * {@link Query#getLanguage()}.
      */
     public void testJCRSQL2() throws RepositoryException {
         String stmt = "SELECT * FROM [" + testNodeType + "]";
@@ -92,8 +92,8 @@ public class GetLanguageTest extends AbstractQueryTest {
     }
 
     /**
-     * Tests if a query object model returns {@link javax.jcr.query.Query#JCR_JQOM} when calling
-     * {@link javax.jcr.query.Query#getLanguage()}.
+     * Tests if a query object model returns {@link Query#JCR_JQOM} when calling
+     * {@link Query#getLanguage()}.
      */
     public void testJCRQOM() throws RepositoryException {
         QueryObjectModel qom = qf.createQuery(

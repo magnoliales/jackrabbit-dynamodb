@@ -30,13 +30,9 @@ import javax.jcr.lock.LockManager;
 
 import org.apache.jackrabbit.test.AbstractJCRTest;
 import org.apache.jackrabbit.test.NotExecutableException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /** <code>LockManagerTest</code>... */
 public class LockManagerTest extends AbstractJCRTest {
-
-    private static Logger log = LoggerFactory.getLogger(LockManagerTest.class);
 
     protected LockManager lockMgr;
     protected Node testNode;
@@ -51,7 +47,7 @@ public class LockManagerTest extends AbstractJCRTest {
         }
         
         testNode = testRootNode.addNode(nodeName1, testNodeType);
-        testRootNode.save();
+        testRootNode.getSession().save();
         testPath = testNode.getPath();
 
         lockMgr = getLockManager(superuser);
@@ -153,7 +149,7 @@ public class LockManagerTest extends AbstractJCRTest {
             NotExecutableException {
         assertLockable(testNode);
 
-        List tokensBefore = Arrays.asList(lockMgr.getLockTokens());
+        List<String> tokensBefore = Arrays.asList(lockMgr.getLockTokens());
 
         boolean sessionScoped = true;
         Lock l = lockMgr.lock(testPath, true, sessionScoped, Long.MAX_VALUE, null);
@@ -243,7 +239,9 @@ public class LockManagerTest extends AbstractJCRTest {
         try {
             lockMgr.removeLockToken(ltoken);
 
-            assertNull("Lock token must not be exposed any more.", l.getLockToken());
+            String nlt = l.getLockToken();
+            assertTrue("freshly obtained lock token must either be null or the same as the one returned earlier",
+                    nlt == null || nlt.equals(ltoken));
         } finally {
             // make sure lock token is added even if test fail
             lockMgr.addLockToken(ltoken);

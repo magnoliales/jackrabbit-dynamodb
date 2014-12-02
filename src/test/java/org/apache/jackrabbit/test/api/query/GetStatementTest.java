@@ -21,7 +21,7 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
 /**
- * Tests the method {@link javax.jcr.query.Query#getStatement()}.
+ * Tests the method {@link Query#getStatement()}.
  *
  * @test
  * @sources GetStatementTest.java
@@ -55,12 +55,12 @@ public class GetStatementTest extends AbstractQueryTest {
     }
 
     /**
-     * Tests it the statement returned by {@link javax.jcr.query.Query#getStatement()} is equal
+     * Tests it the statement returned by {@link Query#getStatement()} is equal
      * to the one passed in createQuery().
      */
     public void testGetStatement() throws RepositoryException {
         String statement = "/" + jcrRoot + "/foo";
-        Query q = session.getWorkspace().getQueryManager().createQuery(statement, Query.XPATH);
+        Query q = session.getWorkspace().getQueryManager().createQuery(statement, qsXPATH);
         assertEquals("Statement returned by Query.getStatement() is not equal to the initial statement.",
                 statement,
                 q.getStatement());

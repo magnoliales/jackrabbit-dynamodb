@@ -253,7 +253,7 @@ public class HoldTest extends AbstractRetentionTest {
     public void testAddHoldOnLockedNode() throws NotExecutableException, RepositoryException {
         Node child = getLockedChildNode();
         // remember current holds for clean up.
-        List holdsBefore = Arrays.asList(retentionMgr.getHolds(child.getPath()));
+        List<Hold> holdsBefore = Arrays.asList(retentionMgr.getHolds(child.getPath()));
 
         // get another session.
         javax.jcr.Session otherS = getHelper().getSuperuserSession();
@@ -269,9 +269,9 @@ public class HoldTest extends AbstractRetentionTest {
             otherS.logout();
 
             // clear holds (in case of test failure)
-            List holds = new ArrayList(Arrays.asList(retentionMgr.getHolds(child.getPath())));
+            List<Hold> holds = new ArrayList<Hold>(Arrays.asList(retentionMgr.getHolds(child.getPath())));
             if (holds.removeAll(holdsBefore)) {
-                for (Iterator it = holds.iterator(); it.hasNext();) {
+                for (Iterator<Hold> it = holds.iterator(); it.hasNext();) {
                     retentionMgr.removeHold(child.getPath(), (Hold) it.next());
                 }
             }
@@ -282,7 +282,7 @@ public class HoldTest extends AbstractRetentionTest {
     public void testRemoveHoldOnLockedNode() throws NotExecutableException, RepositoryException {
         Node child = getLockedChildNode();
         Hold h = retentionMgr.addHold(child.getPath(), getHoldName(), false);
-        testRootNode.save();
+        testRootNode.getSession().save();
 
         javax.jcr.Session otherS = getHelper().getSuperuserSession();
         try {
@@ -313,7 +313,7 @@ public class HoldTest extends AbstractRetentionTest {
         checkSupportedOption(Repository.OPTION_LOCKING_SUPPORTED);
         Node child = testRootNode.addNode(nodeName2, testNodeType);
         ensureMixinType(child, mixLockable);
-        testRootNode.save();
+        testRootNode.getSession().save();
         child.lock(false, true); // session-scoped lock clean upon superuser-logout.
         return child;
     }
@@ -386,7 +386,7 @@ public class HoldTest extends AbstractRetentionTest {
         checkSupportedOption(Repository.OPTION_VERSIONING_SUPPORTED);
         Node child = testRootNode.addNode(nodeName2, testNodeType);
         ensureMixinType(child, mixVersionable);
-        testRootNode.save();
+        testRootNode.getSession().save();
         return child;
     }
 
@@ -403,13 +403,11 @@ public class HoldTest extends AbstractRetentionTest {
     }
 
     public void testHoldIsDeep() throws RepositoryException, NotExecutableException {
-        String holdName = getHoldName();
         Hold h = retentionMgr.addHold(testNodePath, getHoldName(), false);
         assertEquals("Hold.isDeep() must reflect the specified flag.", false, h.isDeep());
     }
 
     public void testHoldIsDeep2() throws RepositoryException, NotExecutableException {
-        String holdName = getHoldName();
         Hold h = retentionMgr.addHold(testNodePath, getHoldName(), true);
         assertEquals("Hold.isDeep() must reflect the specified flag.", true, h.isDeep());
     }

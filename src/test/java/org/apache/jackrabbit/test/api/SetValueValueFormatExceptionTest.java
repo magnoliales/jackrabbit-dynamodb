@@ -217,7 +217,7 @@ public class SetValueValueFormatExceptionTest extends AbstractJCRTest {
             }
 
             // some implementations may require a save after addMixin()
-            testRootNode.save();
+            testRootNode.getSession().save();
 
             // make sure the node is now referenceable
             assertTrue("test node should be mix:referenceable", referenceableNode.isNodeType(mixReferenceable));
@@ -259,7 +259,7 @@ public class SetValueValueFormatExceptionTest extends AbstractJCRTest {
      * @param propertyType the type of the property to create.
      * @param multiple     if the property must support multiple values.
      * @return the property
-     * @throws javax.jcr.RepositoryException    if an error occurs
+     * @throws RepositoryException    if an error occurs
      * @throws NotExecutableException if there is no such property defined on
      *                                the node type for the new child node.
      */
@@ -271,7 +271,7 @@ public class SetValueValueFormatExceptionTest extends AbstractJCRTest {
             } else {
                 n.addMixin(mixReferenceable);
                 // some implementations may require a save after addMixin()
-                testRootNode.save();
+                testRootNode.getSession().save();
             }
         }
 

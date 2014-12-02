@@ -22,8 +22,8 @@ import javax.jcr.version.VersionManager;
 
 /**
  * <code>GetPredecessorsTest</code>  provides test methods covering {@link
- * javax.jcr.version.Version#getPredecessors()}, {@link javax.jcr.version.Version#getLinearPredecessor()} and
- * {@link javax.jcr.version.Version#getLinearSuccessor()}.
+ * Version#getPredecessors()}, {@link Version#getLinearPredecessor()} and
+ * {@link Version#getLinearSuccessor()}.
  *
  * @test
  * @sources GetPredecessorsTest.java

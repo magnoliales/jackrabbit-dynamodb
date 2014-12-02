@@ -16,6 +16,8 @@
  */
 package org.apache.jackrabbit.test.api;
 
+import java.text.Normalizer;
+
 import org.apache.jackrabbit.test.AbstractJCRTest;
 import org.apache.jackrabbit.test.NotExecutableException;
 
@@ -46,7 +48,7 @@ public class AddNodeTest extends AbstractJCRTest {
      */
     public void testName() throws RepositoryException {
         Node n1 = testRootNode.addNode(nodeName1, testNodeType);
-        testRootNode.save();
+        testRootNode.getSession().save();
         assertEquals("Wrong node name.", n1.getName(), nodeName1);
     }
 
@@ -55,7 +57,7 @@ public class AddNodeTest extends AbstractJCRTest {
      */
     public void testNodeType() throws RepositoryException {
         Node n1 = testRootNode.addNode(nodeName1, testNodeType);
-        testRootNode.save();
+        testRootNode.getSession().save();
         String ntName = n1.getPrimaryNodeType().getName();
         assertEquals("Wrong node NodeType name.", testNodeType, ntName);
     }
@@ -68,7 +70,7 @@ public class AddNodeTest extends AbstractJCRTest {
         if (testRootNode.getDefinition().allowsSameNameSiblings()) {
             Node n1 = testRootNode.addNode(nodeName1, testNodeType);
             Node n2 = testRootNode.addNode(nodeName1, testNodeType);
-            testRootNode.save();
+            testRootNode.getSession().save();
             assertEquals("Names of same name siblings are not equal.",
                     n1.getName(), n2.getName());
         } else {
@@ -143,7 +145,7 @@ public class AddNodeTest extends AbstractJCRTest {
      */
     public void testPath() throws RepositoryException {
         Node n1 = testRootNode.addNode(nodeName1, testNodeType);
-        testRootNode.save();
+        testRootNode.getSession().save();
         String expected = testRootNode.getPath() + "/" + nodeName1;
         assertEquals("Wrong path for created node.", expected, n1.getPath());
     }
@@ -196,7 +198,7 @@ public class AddNodeTest extends AbstractJCRTest {
     }
 
     /**
-     * Creates a new node using {@link javax.jcr.Node#addNode(String,String)}, saves using
+     * Creates a new node using {@link Node#addNode(String,String)}, saves using
      * {@link javax.jcr.Node#save()} on parent node. Uses a second session to
      * verify if the node have been saved.
      */
@@ -220,7 +222,7 @@ public class AddNodeTest extends AbstractJCRTest {
     }
 
     /**
-     * Creates a new node using {@link javax.jcr.Node#addNode(String, String)}, saves using
+     * Creates a new node using {@link Node#addNode(String, String)}, saves using
      * {@link javax.jcr.Session#save()}. Uses a second session to verify if the
      * node has been safed.
      */
@@ -244,10 +246,10 @@ public class AddNodeTest extends AbstractJCRTest {
     }
 
     /**
-     * Creates a new node using {@link javax.jcr.Node#addNode(String, String)}, then tries
+     * Creates a new node using {@link Node#addNode(String, String)}, then tries
      * to call {@link javax.jcr.Node#save()} on the new node.
      * <p>
-     * This should throw an {@link javax.jcr.RepositoryException}.
+     * This should throw an {@link RepositoryException}.
      */
     public void testAddNodeRepositoryExceptionSaveOnNewNode() throws RepositoryException {
         // get default workspace test root node using superuser session
@@ -262,6 +264,63 @@ public class AddNodeTest extends AbstractJCRTest {
             fail("Calling Node.save() on a newly created node should throw RepositoryException");
         } catch (RepositoryException e) {
             // ok, works as expected.
+        }
+    }
+
+    /**
+     * Tests the behavior with respect to case-sensitivity
+     */
+    public void testSimilarNodeNamesUpperLower() throws RepositoryException {
+
+        internalTestSimilarNodeNames("Test-a", "Test-A");
+    }
+
+    /**
+     * Tests the behavior with respect to Unicode normalization
+     */
+    public void testSimilarNodeNamesNfcNfd() throws RepositoryException {
+
+        String precomposed = "Test-\u00e4"; // a umlaut
+        String decomposed = Normalizer.normalize(precomposed, Normalizer.Form.NFD);
+        assertFalse(precomposed.equals(decomposed)); // sanity check
+        internalTestSimilarNodeNames(precomposed, decomposed);
+    }
+
+    /**
+     * Tests behavior for creation of "similarly" named nodes
+     * @throws RepositoryException 
+     */
+    private void internalTestSimilarNodeNames(String name1, String name2) throws RepositoryException {
+
+        Node n1 = null, n2 = null;
+        Session s = testRootNode.getSession();
+
+        try {
+            n1 = testRootNode.addNode(name1);
+            assertEquals(name1, n1.getName());
+            s.save();
+
+            assertFalse(testRootNode.hasNode(name2));
+        } catch (ConstraintViolationException e) {
+            // accepted
+        }
+        try {
+            n2 = testRootNode.addNode(name2);
+            assertEquals(name2, n2.getName());
+            s.save();
+        } catch (ConstraintViolationException e) {
+            // accepted
+        }
+
+        // If both nodes have been created, do further checks
+        if (n1 != null && n2 != null) {
+            assertFalse(n1.isSame(n2));
+            assertFalse(n1.getIdentifier().equals(n2.getIdentifier()));
+            String n2path = n2.getPath();
+            n1.remove();
+            s.save();
+            Node n3 = s.getNode(n2path);
+            assertTrue(n3.isSame(n2));
         }
     }
 }
