@@ -16,8 +16,7 @@
     <Workspaces rootPath="${rep.home}/workspaces" defaultWorkspace="default"/>
     <Workspace name="${wsp.name}">
         <FileSystem class="org.apache.jackrabbit.core.fs.mem.MemoryFileSystem"/>
-        <PersistenceManager class="com.kartashov.jackrabbit.dynamodb.DynamoDBPersistenceManager">
-        </PersistenceManager>
+        <PersistenceManager class="com.kartashov.jackrabbit.dynamodb.DynamoDBPersistenceManager"></PersistenceManager>
         <SearchIndex class="org.apache.jackrabbit.core.query.lucene.SearchIndex">
             <param name="path" value="${wsp.home}/index"/>
             <param name="supportHighlighting" value="true"/>
@@ -28,8 +27,7 @@
     <Versioning rootPath="${rep.home}/version">
         <FileSystem class="org.apache.jackrabbit.core.fs.mem.MemoryFileSystem">
         </FileSystem>
-        <PersistenceManager class="com.kartashov.jackrabbit.dynamodb.DynamoDBPersistenceManager">
-        </PersistenceManager>
+        <PersistenceManager class="com.kartashov.jackrabbit.dynamodb.DynamoDBPersistenceManager"></PersistenceManager>
     </Versioning>
     <SearchIndex class="org.apache.jackrabbit.core.query.lucene.SearchIndex">
         <param name="path" value="${rep.home}/repository/index"/>

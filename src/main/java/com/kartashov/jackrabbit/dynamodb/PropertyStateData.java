@@ -8,6 +8,8 @@ import org.apache.jackrabbit.core.state.PropertyState;
 import org.apache.jackrabbit.core.value.InternalValue;
 import org.apache.jackrabbit.spi.Name;
 import org.apache.jackrabbit.spi.commons.name.NameFactoryImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
@@ -16,6 +18,8 @@ import java.util.Calendar;
 import java.util.List;
 
 public class PropertyStateData {
+
+    private static final Logger log = LoggerFactory.getLogger(PropertyStateData.class);
 
     private String type;
     private boolean multiValued;
@@ -60,6 +64,7 @@ public class PropertyStateData {
                     values.add(internalValue.getString());
                     break;
                 default:
+                    log.error("Serializer is not implemented for type " + type);
                     throw new AssertionError("Not implemented for " + type);
             }
         }
@@ -91,6 +96,7 @@ public class PropertyStateData {
                     internalValues.add(InternalValue.create((String) value));
                     break;
                 default:
+                    log.error("Deserializer is not implemented for type " + type);
                     throw new AssertionError("Not implemented for " + type);
             }
         }

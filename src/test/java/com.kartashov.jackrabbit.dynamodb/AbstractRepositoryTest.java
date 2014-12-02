@@ -1,8 +1,10 @@
 package com.kartashov.jackrabbit.dynamodb;
 
+import com.sun.org.apache.bcel.internal.Repository;
 import org.apache.jackrabbit.api.JackrabbitRepository;
 import org.apache.jackrabbit.core.RepositoryImpl;
 import org.apache.jackrabbit.core.TransientRepository;
+import org.apache.jackrabbit.core.config.ConfigurationException;
 import org.apache.jackrabbit.core.config.RepositoryConfig;
 import org.junit.*;
 
@@ -19,10 +21,10 @@ public abstract class AbstractRepositoryTest {
     protected static Session session;
 
     @BeforeClass
-    public static void createRepository() throws URISyntaxException {
+    public static void createRepository() throws URISyntaxException, RepositoryException {
         File configuration = new File(AbstractRepositoryTest.class.getResource("/repository.xml").toURI());
-        File directory = new File(System.getProperty("java.io.tmpdir"));
-        repository = new TransientRepository(configuration, directory);
+        RepositoryConfig repositoryConfig = RepositoryConfig.create(configuration.getParentFile());
+        repository = new TransientRepository(repositoryConfig);
     }
 
     @AfterClass

@@ -10,7 +10,8 @@ public class SimpleRepositoryTest extends AbstractRepositoryTest {
     @Test
     public void directlyWriteNodesAndProperties() throws Exception {
         Node root = session.getRootNode();
-        Node australia = session.getRootNode().addNode("australia-" + new Date().getTime());
+        Node australia = session.getRootNode().addNode("australia");
+        session.save();
         Node canberra = australia.addNode("canberra");
         canberra.setProperty("capital", true);
         Node sydney = australia.addNode("sydney");

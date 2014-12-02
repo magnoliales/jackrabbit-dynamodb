@@ -10,7 +10,7 @@
     </appender>
 
     <logger name="com.kartashov">
-        <level value="all"/>
+        <level value="warn"/>
     </logger>
 
     <root>
