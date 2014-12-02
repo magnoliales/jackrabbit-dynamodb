@@ -3,13 +3,14 @@ package com.kartashov.jackrabbit.dynamodb;
 import org.junit.Test;
 
 import javax.jcr.Node;
+import java.util.Date;
 
 public class SimpleRepositoryTest extends AbstractRepositoryTest {
 
     @Test
     public void directlyWriteNodesAndProperties() throws Exception {
         Node root = session.getRootNode();
-        Node australia = session.getRootNode().addNode("australia");
+        Node australia = session.getRootNode().addNode("australia-" + new Date().getTime());
         Node canberra = australia.addNode("canberra");
         canberra.setProperty("capital", true);
         Node sydney = australia.addNode("sydney");

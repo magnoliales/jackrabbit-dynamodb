@@ -5,10 +5,13 @@ import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
-import com.amazonaws.services.dynamodbv2.document.*;
-import com.amazonaws.services.dynamodbv2.document.spec.BatchWriteItemSpec;
+import com.amazonaws.services.dynamodbv2.document.DynamoDB;
+import com.amazonaws.services.dynamodbv2.document.Item;
+import com.amazonaws.services.dynamodbv2.document.PrimaryKey;
+import com.amazonaws.services.dynamodbv2.document.Table;
+import com.amazonaws.services.dynamodbv2.document.spec.DeleteItemSpec;
 import com.amazonaws.services.dynamodbv2.document.spec.GetItemSpec;
-import com.amazonaws.services.dynamodbv2.model.WriteRequest;
+import com.amazonaws.services.dynamodbv2.document.spec.PutItemSpec;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.jackrabbit.core.id.NodeId;
@@ -22,16 +25,19 @@ import org.slf4j.LoggerFactory;
 import javax.jcr.RepositoryException;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 public class DynamoDBPersistenceManager implements PersistenceManager {
 
     private static final Logger log = LoggerFactory.getLogger(DynamoDBPersistenceManager.class);
 
     private boolean initialized;
-    private DynamoDB database;
     private Table nodesTable;
     private Table propertiesTable;
     private ObjectMapper mapper;
+    private ConcurrentMap<NodeId, NodeState> nodesCache;
+    private NodeState missingNodeState;
 
     @Override
     public void init(PMContext context) throws Exception {
@@ -47,10 +53,13 @@ public class DynamoDBPersistenceManager implements PersistenceManager {
 
         AmazonDynamoDB amazonDynamoDBClient = new AmazonDynamoDBClient();
         amazonDynamoDBClient.setRegion(region);
-        database = new DynamoDB(amazonDynamoDBClient);
+        DynamoDB database = new DynamoDB(amazonDynamoDBClient);
 
         nodesTable = database.getTable("Nodes");
         propertiesTable = database.getTable("Properties");
+
+        nodesCache = new ConcurrentHashMap<>();
+        missingNodeState = createNew(NodeId.randomId());
 
         initialized = true;
         log.trace("Persistence manager is initialized");
@@ -78,11 +87,21 @@ public class DynamoDBPersistenceManager implements PersistenceManager {
         if (!initialized) {
             throw new IllegalStateException("Not initialized");
         }
+        if (nodesCache.containsKey(nodeId)) {
+            log.trace("Nodes cache hit for " + nodeId.toString());
+            NodeState cachedNodeState = nodesCache.get(nodeId);
+            if (cachedNodeState == missingNodeState) {
+                throw new NoSuchItemStateException("Cannot find node " + nodeId.toString());
+            } else {
+                return cachedNodeState;
+            }
+        }
         log.trace("Loading node " + nodeId.toString());
         PrimaryKey primaryKey = new PrimaryKey("nodeId", nodeId.toString());
         GetItemSpec spec = new GetItemSpec().withPrimaryKey(primaryKey);
         Item item = nodesTable.getItem(spec);
         if (item == null) {
+            nodesCache.putIfAbsent(nodeId, missingNodeState);
             throw new NoSuchItemStateException("Cannot find node " + nodeId.toString());
         }
         String data = item.getJSONPretty("data");
@@ -90,17 +109,24 @@ public class DynamoDBPersistenceManager implements PersistenceManager {
         if (data == null) {
             throw new ItemStateException("Empty data for node " + nodeId.toString());
         }
+        NodeState nodeState;
         try {
-            return mapper.readValue(data, NodeStateData.class).toNodeState(this, nodeId);
+            nodeState = mapper.readValue(data, NodeStateData.class).toNodeState(this, nodeId);
         } catch (IOException e) {
             throw new ItemStateException("Cannot read data for node " + nodeId.toString(), e);
         }
+        nodesCache.putIfAbsent(nodeId, nodeState);
+        return nodeState;
     }
 
     @Override
     public PropertyState load(PropertyId propertyId) throws ItemStateException {
         if (!initialized) {
             throw new IllegalStateException("Not initialized");
+        }
+        if (nodesCache.get(propertyId.getParentId()) == missingNodeState) {
+            log.trace("Skip looking for a property of missing node " + propertyId.toString());
+            throw new NoSuchItemStateException("Cannot find property " + propertyId.toString());
         }
         log.trace("Loading property " + propertyId.toString());
         PrimaryKey primaryKey = new PrimaryKey("propertyId", propertyId.toString());
@@ -125,6 +151,9 @@ public class DynamoDBPersistenceManager implements PersistenceManager {
     public NodeReferences loadReferencesTo(NodeId nodeId) throws ItemStateException {
         if (!initialized) {
             throw new IllegalStateException("Not initialized");
+        }
+        if (nodesCache.get(nodeId) == missingNodeState) {
+            throw new NoSuchItemStateException("Cannot find node " + nodeId.toString());
         }
         log.trace("Loading references to " + nodeId);
         PrimaryKey primaryKey = new PrimaryKey("nodeId", nodeId.toString());
@@ -152,6 +181,10 @@ public class DynamoDBPersistenceManager implements PersistenceManager {
         if (!initialized) {
             throw new IllegalStateException("Not initialized");
         }
+        if (nodesCache.get(nodeId) == missingNodeState) {
+            log.trace("Nodes cache hit for " + nodeId.toString());
+            return false;
+        }
         log.trace("Check if node " + nodeId.toString() + " exists");
         PrimaryKey primaryKey = new PrimaryKey("nodeId", nodeId.toString());
         GetItemSpec spec = new GetItemSpec().withPrimaryKey(primaryKey);
@@ -161,13 +194,22 @@ public class DynamoDBPersistenceManager implements PersistenceManager {
         } catch (AmazonClientException e) {
             throw new ItemStateException("Cannot load node " + nodeId.toString(), e);
         }
-        return item != null;
+        if (item == null) {
+            nodesCache.putIfAbsent(nodeId, missingNodeState);
+            return false;
+        } else {
+            return true;
+        }
     }
 
     @Override
     public boolean exists(PropertyId propertyId) throws ItemStateException {
         if (!initialized) {
             throw new IllegalStateException("Not initialized");
+        }
+        if (nodesCache.get(propertyId.getParentId()) == missingNodeState) {
+            log.trace("Nodes cache hit for " + propertyId.toString());
+            return false;
         }
         log.trace("Check if property " + propertyId.toString() + " exists");
         PrimaryKey primaryKey = new PrimaryKey("propertyId", propertyId.toString());
@@ -185,6 +227,9 @@ public class DynamoDBPersistenceManager implements PersistenceManager {
     public boolean existsReferencesTo(NodeId nodeId) throws ItemStateException {
         if (!initialized) {
             throw new IllegalStateException("Not initialized");
+        }
+        if (nodesCache.get(nodeId) == missingNodeState) {
+            throw new NoSuchItemStateException("Cannot find node " + nodeId.toString());
         }
         log.trace("Check if there are references to node " + nodeId.toString());
         PrimaryKey primaryKey = new PrimaryKey("nodeId", nodeId.toString());
@@ -205,15 +250,10 @@ public class DynamoDBPersistenceManager implements PersistenceManager {
     @Override
     public void store(ChangeLog changeLog) throws ItemStateException {
 
-        BatchWriteItemSpec batchWriteItemSpec = new BatchWriteItemSpec();
-
         log.trace("Storing change log");
         log.trace("Items to delete: " + changeLog.deletedStates());
         log.trace("Items to add: " + changeLog.addedStates());
         log.trace("Items to modify: " + changeLog.modifiedStates());
-
-        TableWriteItems nodesTableWriteItems = new TableWriteItems(nodesTable.getTableName());
-        TableWriteItems propertiesTableWriteItems = new TableWriteItems(propertiesTable.getTableName());
 
         Map<NodeId, Set<String>> modifiedReferences = new HashMap<>();
         for (NodeReferences nodeReferences : changeLog.modifiedRefs()) {
@@ -227,11 +267,13 @@ public class DynamoDBPersistenceManager implements PersistenceManager {
         for (ItemState itemState : changeLog.deletedStates()) {
             if (itemState.isNode()) {
                 PrimaryKey primaryKey = new PrimaryKey("nodeId", itemState.getId().toString());
-                nodesTableWriteItems.withPrimaryKeysToDelete(primaryKey);
+                DeleteItemSpec deleteItemSpec = new DeleteItemSpec().withPrimaryKey(primaryKey);
+                nodesTable.deleteItem(deleteItemSpec);
                 log.trace("Deleting node " + itemState.getId().toString());
             } else {
                 PrimaryKey primaryKey = new PrimaryKey("propertyId", itemState.getId().toString());
-                propertiesTableWriteItems.withPrimaryKeysToDelete(primaryKey);
+                DeleteItemSpec deleteItemSpec = new DeleteItemSpec().withPrimaryKey(primaryKey);
+                propertiesTable.deleteItem(deleteItemSpec);
                 log.trace("Deleting property " + itemState.getId().toString());
             }
         }
@@ -260,7 +302,8 @@ public class DynamoDBPersistenceManager implements PersistenceManager {
                 if (modifiedReferences.containsKey(nodeId)) {
                     item.withStringSet("references", modifiedReferences.get(nodeId));
                 }
-                nodesTableWriteItems.withItemsToPut(item);
+                PutItemSpec putItemSpec = new PutItemSpec().withItem(item);
+                nodesTable.putItem(putItemSpec);
                 log.trace("Adding new node " + nodeId.toString());
             } else {
                 PropertyState propertyState = (PropertyState) itemState;
@@ -273,21 +316,10 @@ public class DynamoDBPersistenceManager implements PersistenceManager {
                     throw new ItemStateException("Cannot read property state", e);
                 }
                 Item item = new Item().withPrimaryKey(primaryKey).withJSON("data", data);
-                propertiesTableWriteItems.withItemsToPut(item);
+                PutItemSpec putItemSpec = new PutItemSpec().withItem(item);
+                propertiesTable.putItem(putItemSpec);
                 log.trace("Adding new property " + propertyState.getPropertyId().toString());
             }
-        }
-
-        batchWriteItemSpec.withTableWriteItems(nodesTableWriteItems, propertiesTableWriteItems);
-        try {
-            // @todo this does not work!
-            BatchWriteItemOutcome batchWriteItemOutcome = database.batchWriteItem(batchWriteItemSpec);
-            Map<String, List<WriteRequest>> unprocessedItems = batchWriteItemOutcome.getUnprocessedItems();
-            if (unprocessedItems.size() > 0) {
-                throw new ItemStateException("could not store everything");
-            }
-        } catch (AmazonClientException e) {
-            throw new ItemStateException("Cannot update database", e);
         }
     }
 
