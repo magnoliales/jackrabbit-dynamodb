@@ -54,7 +54,7 @@ public class NodeStateData {
         for (Name property : nodeState.getPropertyNames()) {
             properties.add(property.toString());
         }
-        children = new ArrayList<Child>();
+        children = new ArrayList<>();
         for (ChildNodeEntry childNodeEntry : nodeState.getChildNodeEntries()) {
             children.add(new Child(childNodeEntry));
         }

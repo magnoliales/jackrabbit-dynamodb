@@ -9,13 +9,13 @@
         </layout>
     </appender>
 
+    <logger name="com.kartashov">
+        <level value="all"/>
+    </logger>
+
     <root>
         <priority value="warn" />
         <appender-ref ref="Console" />
     </root>
-
-    <logger name="com.kartashov">
-        <level value="all"/>
-    </logger>
 
 </log4j:configuration>
