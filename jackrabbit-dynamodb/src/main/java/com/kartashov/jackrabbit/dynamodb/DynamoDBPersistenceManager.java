@@ -414,7 +414,7 @@ public class DynamoDBPersistenceManager implements PersistenceManager, CachingPe
         for (ItemState itemState : changes.deletedStates()) {
             if (itemState.isNode()) {
                 NodeId nodeId = (NodeId) itemState.getId();
-                nodesCache.putIfAbsent(nodeId, missingNodeState);
+                nodesCache.put(nodeId, missingNodeState);
             }
         }
     }
