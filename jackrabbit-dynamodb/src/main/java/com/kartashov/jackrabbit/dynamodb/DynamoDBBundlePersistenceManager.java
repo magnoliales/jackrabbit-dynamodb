@@ -14,6 +14,7 @@ import com.amazonaws.services.dynamodbv2.model.DescribeTableResult;
 import com.amazonaws.services.dynamodbv2.model.ResourceNotFoundException;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.apache.jackrabbit.core.id.NodeId;
 import org.apache.jackrabbit.core.id.PropertyId;
 import org.apache.jackrabbit.core.persistence.PMContext;
@@ -33,6 +34,18 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * This is a persistence manager that stores the {@link NodePropBundle}s in a DynamoDB table.
+ *
+ * <p>
+ * Configuration:<br>
+ * <ul>
+ * <li>&lt;param name="{@link #setTable(String) table}" value=""/>
+ * <li>&lt;param name="{@link #setRegion(String) region}" value=""/>
+ * <li>&lt;param name="{@link #setConsistencyCheck(String) consistencyCheck}" value="false"/>
+ * <li>&lt;param name="{@link #setConsistencyFix(String) consistencyFix}" value="false"/>
+ * </ul>
+ */
 public class DynamoDBBundlePersistenceManager extends AbstractBundlePersistenceManager {
 
     private static final Logger log = LoggerFactory.getLogger(DynamoDBBundlePersistenceManager.class);
@@ -42,11 +55,21 @@ public class DynamoDBBundlePersistenceManager extends AbstractBundlePersistenceM
     private Table table;
     private Region region;
     private boolean initialized;
+    private boolean consistencyCheck;
+    private boolean consistencyFix;
 
+    /**
+     * Set DynamoDB table name where the bundles need to be stored.
+     * @param tableName the case sensitive name of the table
+     */
     public void setTable(String tableName) {
         this.tableName = tableName;
     }
 
+    /**
+     * Set AWS Region name.
+     * @param regionName the name of the region as specified in {@link com.amazonaws.regions.Region}
+     */
     public void setRegion(String regionName) {
         region = RegionUtils.getRegion(regionName);
         if (region == null) {
@@ -54,6 +77,23 @@ public class DynamoDBBundlePersistenceManager extends AbstractBundlePersistenceM
             log.error(message);
             throw new IllegalArgumentException(message);
         }
+    }
+
+    /**
+     * Defines if a consistency check is to be performed on initialization.
+     * @param consistencyCheck the consistency check flag.
+     */
+    public void setConsistencyCheck(String consistencyCheck) {
+        this.consistencyCheck = Boolean.valueOf(consistencyCheck);
+    }
+
+    /**
+     * Defines if the consistency check should attempt to fix issues that
+     * it finds.
+     * @param consistencyFix the consistency fix flag.
+     */
+    public void setConsistencyFix(String consistencyFix) {
+        this.consistencyFix = Boolean.valueOf(consistencyFix);
     }
 
     @Override
@@ -91,7 +131,10 @@ public class DynamoDBBundlePersistenceManager extends AbstractBundlePersistenceM
             throw e;
         }
         table = database.getTable(tableName);
-
+        if (consistencyCheck) {
+            log.info("Consistency check requested");
+            checkConsistency(null, true, consistencyFix);
+        }
         initialized = true;
     }
 

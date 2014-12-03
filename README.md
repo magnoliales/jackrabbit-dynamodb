@@ -12,3 +12,5 @@ To Do
 - Add mapper for the rest of the property types
 - Add check consistency flag
 - Check that the table has the proper format
+- Scan doesn't work the right way (fix)
+- Check what the Derby does and if you can restart while working with derby
