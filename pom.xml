@@ -61,13 +61,11 @@
                 <groupId>org.apache.jackrabbit</groupId>
                 <artifactId>jackrabbit-core</artifactId>
                 <version>${version.jackrabbit}</version>
-                <scope>compile</scope>
             </dependency>
             <dependency>
                 <groupId>javax.jcr</groupId>
                 <artifactId>jcr</artifactId>
                 <version>${version.jcr}</version>
-                <scope>compile</scope>
             </dependency>
             <dependency>
                 <groupId>com.amazonaws</groupId>
@@ -78,13 +76,11 @@
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
                 <version>${version.junit}</version>
-                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-log4j12</artifactId>
                 <version>${version.slf4j}</version>
-                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
