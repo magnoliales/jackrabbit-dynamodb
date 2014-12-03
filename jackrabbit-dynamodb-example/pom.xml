@@ -17,49 +17,71 @@
         <version.magnolia>5.3.5</version.magnolia>
     </properties>
 
-    <build>
-        <finalName>jackrabbit-dynamodb-example</finalName>
-        <plugins>
-            <!-- delete repository on clean -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-clean-plugin</artifactId>
-                <version>2.5</version>
-                <configuration>
-                    <filesets>
-                        <fileset>
-                            <directory>${basedir}/.runtime</directory>
-                        </fileset>
-                    </filesets>
-                </configuration>
-                <executions>
-                    <execution>
-                        <phase>clean</phase>
-                        <goals>
-                            <goal>clean</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <!-- run jetty in root -->
-            <plugin>
-                <groupId>org.mortbay.jetty</groupId>
-                <artifactId>maven-jetty-plugin</artifactId>
-                <version>6.1.26</version>
-                <configuration>
-                    <contextPath>/</contextPath>
-                </configuration>
-                <executions>
-                    <execution>
-                        <phase>deploy</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
+    <profiles>
+        <profile>
+            <id>development</id>
+            <build>
+                <plugins>
+                    <!-- delete repository on clean -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-clean-plugin</artifactId>
+                        <version>2.5</version>
+                        <configuration>
+                            <filesets>
+                                <fileset>
+                                    <directory>${basedir}/.runtime</directory>
+                                </fileset>
+                            </filesets>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <phase>clean</phase>
+                                <goals>
+                                    <goal>clean</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!-- run jetty in root -->
+                    <plugin>
+                        <groupId>org.mortbay.jetty</groupId>
+                        <artifactId>maven-jetty-plugin</artifactId>
+                        <version>6.1.26</version>
+                        <configuration>
+                            <contextPath>/</contextPath>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <phase>deploy</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+            <dependencies>
+                <dependency>
+                    <groupId>info.magnolia</groupId>
+                    <artifactId>magnolia-empty-webapp</artifactId>
+                    <type>war</type>
+                </dependency>
+            </dependencies>
+            <dependencyManagement>
+                <dependencies>
+                    <dependency>
+                        <groupId>info.magnolia</groupId>
+                        <artifactId>magnolia-empty-webapp</artifactId>
+                        <version>${version.magnolia}</version>
+                        <type>war</type>
+                    </dependency>
+                </dependencies>
+            </dependencyManagement>
+        </profile>
+    </profiles>
+
 
     <dependencies>
         <dependency>
@@ -74,11 +96,6 @@
             <scope>import</scope>
         </dependency>
         <dependency>
-            <groupId>info.magnolia</groupId>
-            <artifactId>magnolia-empty-webapp</artifactId>
-            <type>war</type>
-        </dependency>
-        <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk</artifactId>
         </dependency>
@@ -91,12 +108,6 @@
                 <artifactId>magnolia-empty-webapp</artifactId>
                 <version>${version.magnolia}</version>
                 <type>pom</type>
-            </dependency>
-            <dependency>
-                <groupId>info.magnolia</groupId>
-                <artifactId>magnolia-empty-webapp</artifactId>
-                <version>${version.magnolia}</version>
-                <type>war</type>
             </dependency>
         </dependencies>
     </dependencyManagement>

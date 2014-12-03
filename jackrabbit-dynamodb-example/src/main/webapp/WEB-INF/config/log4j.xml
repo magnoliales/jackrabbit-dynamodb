@@ -4,16 +4,20 @@
 
     <appender name="Console" class="org.apache.log4j.ConsoleAppender">
         <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern" value="%d  %-5p  [%c{1}] %m %n" />
+            <param name="ConversionPattern" value="%d{HH:mm:ss,SSS} %5p %c (%L) : %m%n" />
         </layout>
     </appender>
 
     <logger name="com.kartashov">
-        <level value="warn"/>
+        <level value="WARN"/>
+    </logger>
+
+    <logger name="info.magnolia">
+        <level value="WARN"/>
     </logger>
 
     <root>
-        <priority value="warn" />
+        <priority value="WARN" />
         <appender-ref ref="Console" />
     </root>
 

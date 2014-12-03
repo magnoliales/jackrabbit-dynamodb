@@ -39,9 +39,7 @@
     <context-param>
         <param-name>magnolia.initialization.file</param-name>
         <param-value>
-            WEB-INF/config/profiles/${systemProperty/PROFILE}/magnolia.properties,
-            WEB-INF/config/profiles/${profileName}/magnolia.properties,
-            WEB-INF/config/profiles/default/magnolia.properties
+            WEB-INF/config/magnolia.properties
         </param-value>
     </context-param>
 
