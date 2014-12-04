@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import javax.jcr.RepositoryException;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -163,7 +164,7 @@ public class DynamoDBBundlePersistenceManager extends AbstractBundlePersistenceM
         }
         try {
             return mapper.readValue(data, NodePropBundleData.class).toNodePropBundle(this, nodeId);
-        } catch (IOException | URISyntaxException e) {
+        } catch (IOException | URISyntaxException | ParseException e) {
             String message = "Cannot deserialize bundle data " + nodeId.toString();
             log.error(message, e);
             throw new ItemStateException(message, e);

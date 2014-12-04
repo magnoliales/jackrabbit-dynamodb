@@ -25,9 +25,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-import java.text.ParsePosition;
+import java.text.*;
 import java.util.*;
 
 import static org.apache.jackrabbit.core.persistence.util.NodePropBundle.ChildNodeEntry;
@@ -51,6 +49,15 @@ import static org.apache.jackrabbit.core.persistence.util.NodePropBundle.Propert
  * <code>false</code> value is written instead.
  */
 class NodePropBundleData {
+
+    private static final DateFormat dateFormat;
+    private static final DecimalFormat decimalFormat;
+
+    static {
+        dateFormat = DateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.FULL, Locale.US);
+        decimalFormat = (DecimalFormat) NumberFormat.getInstance(Locale.US);
+        decimalFormat.setParseBigDecimal(true);
+    }
 
     private String nodeType;
     private String parentId;
@@ -96,7 +103,7 @@ class NodePropBundleData {
     }
 
     public NodePropBundle toNodePropBundle(PersistenceManager pm, NodeId nodeId)
-            throws URISyntaxException, ItemStateException {
+            throws URISyntaxException, ItemStateException, ParseException {
 
         NameFactory nameFactory = NameFactoryImpl.getInstance();
         NodePropBundle nodePropBundle = new NodePropBundle(pm.createNew(nodeId));
@@ -203,7 +210,8 @@ class NodePropBundleData {
                         values.add(internalValue.getBoolean());
                         break;
                     case PropertyType.DATE:
-                        values.add(internalValue.getDate().getTimeInMillis());
+                        Calendar calendar = internalValue.getDate();
+                        values.add(dateFormat.format(calendar.getTime()));
                         break;
                     case PropertyType.DECIMAL:
                         values.add(internalValue.getDecimal().toPlainString());
@@ -246,7 +254,7 @@ class NodePropBundleData {
         }
 
         public PropertyEntry toPropertyEntry(PersistenceManager pm, PropertyId propertyId)
-                throws URISyntaxException, ItemStateException {
+                throws URISyntaxException, ItemStateException, ParseException {
 
             PropertyState propertyState = pm.createNew(propertyId);
             propertyState.setType(PropertyType.valueFromName(type));
@@ -273,12 +281,10 @@ class NodePropBundleData {
                         break;
                     case PropertyType.DATE:
                         Calendar calendar = Calendar.getInstance();
-                        calendar.setTimeInMillis((Long) value);
+                        calendar.setTime(dateFormat.parse((String) value));
                         internalValues.add(InternalValue.create(calendar));
                         break;
                     case PropertyType.DECIMAL:
-                        DecimalFormat decimalFormat = (DecimalFormat) NumberFormat.getInstance(Locale.US);
-                        decimalFormat.setParseBigDecimal(true);
                         BigDecimal decimal = (BigDecimal) decimalFormat.parse((String) value, new ParsePosition(0));
                         internalValues.add(InternalValue.create(decimal));
                         break;
