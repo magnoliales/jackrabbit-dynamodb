@@ -2,10 +2,13 @@ package com.kartashov.jackrabbit.dynamodb;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.IOUtils;
 import org.apache.jackrabbit.core.id.NodeId;
 import org.apache.jackrabbit.core.id.PropertyId;
 import org.apache.jackrabbit.core.persistence.PersistenceManager;
 import org.apache.jackrabbit.core.persistence.util.NodePropBundle;
+import org.apache.jackrabbit.core.state.ItemStateException;
 import org.apache.jackrabbit.core.state.PropertyState;
 import org.apache.jackrabbit.core.value.InternalValue;
 import org.apache.jackrabbit.spi.Name;
@@ -18,7 +21,10 @@ import org.slf4j.LoggerFactory;
 
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParsePosition;
@@ -44,7 +50,7 @@ import static org.apache.jackrabbit.core.persistence.util.NodePropBundle.Propert
  * Please note special handling for empty strings. As DynamoDB doesn't support empty strings,
  * <code>false</code> value is written instead.
  */
-public class NodePropBundleData {
+class NodePropBundleData {
 
     private String nodeType;
     private String parentId;
@@ -68,7 +74,7 @@ public class NodePropBundleData {
         this.children = children;
     }
 
-    public NodePropBundleData(NodePropBundle nodePropBundle) throws RepositoryException {
+    public NodePropBundleData(NodePropBundle nodePropBundle)  throws RepositoryException, IOException {
         nodeType = nodePropBundle.getNodeTypeName().toString();
         NodeId pid = nodePropBundle.getParentId();
         if (pid != null) {
@@ -89,7 +95,9 @@ public class NodePropBundleData {
         }
     }
 
-    public NodePropBundle toNodePropBundle(PersistenceManager pm, NodeId nodeId) {
+    public NodePropBundle toNodePropBundle(PersistenceManager pm, NodeId nodeId)
+            throws URISyntaxException, ItemStateException {
+
         NameFactory nameFactory = NameFactoryImpl.getInstance();
         NodePropBundle nodePropBundle = new NodePropBundle(pm.createNew(nodeId));
 
@@ -152,7 +160,7 @@ public class NodePropBundleData {
         return children;
     }
 
-    public static class Property {
+    static class Property {
 
         private static final Logger log = LoggerFactory.getLogger(Property.class);
 
@@ -175,7 +183,7 @@ public class NodePropBundleData {
             this.values = values;
         }
 
-        public Property(PropertyEntry propertyEntry) throws RepositoryException {
+        public Property(PropertyEntry propertyEntry) throws RepositoryException, IOException {
             name = propertyEntry.getName().toString();
             type = PropertyType.nameFromValue(propertyEntry.getType());
             multiValued = propertyEntry.isMultiValued();
@@ -183,6 +191,14 @@ public class NodePropBundleData {
             values = new ArrayList<>();
             for (InternalValue internalValue : propertyEntry.getValues()) {
                 switch (propertyEntry.getType()) {
+                    case PropertyType.BINARY:
+                        byte[] bytes = Base64.encodeBase64(IOUtils.toByteArray(internalValue.getStream()));
+                        if (bytes != null && bytes.length > 0) {
+                            values.add(new String(bytes));
+                        } else {
+                            values.add(Boolean.FALSE);
+                        }
+                        break;
                     case PropertyType.BOOLEAN:
                         values.add(internalValue.getBoolean());
                         break;
@@ -204,6 +220,10 @@ public class NodePropBundleData {
                     case PropertyType.PATH:
                         values.add(internalValue.getPath().toString());
                         break;
+                    case PropertyType.REFERENCE:
+                    case PropertyType.WEAKREFERENCE:
+                        values.add(internalValue.getNodeId().toString());
+                        break;
                     case PropertyType.STRING:
                         String s = internalValue.getString();
                         if (s.equals("")) {
@@ -212,6 +232,12 @@ public class NodePropBundleData {
                             values.add(s);
                         }
                         break;
+                    case PropertyType.UNDEFINED:
+                        values.add(internalValue.getString());
+                        break;
+                    case PropertyType.URI:
+                        values.add(internalValue.getURI().toString());
+                        break;
                     default:
                         log.error("Serializer is not implemented for type " + type);
                         throw new AssertionError("Not implemented for " + type);
@@ -219,7 +245,9 @@ public class NodePropBundleData {
             }
         }
 
-        public PropertyEntry toPropertyEntry(PersistenceManager pm, PropertyId propertyId) {
+        public PropertyEntry toPropertyEntry(PersistenceManager pm, PropertyId propertyId)
+                throws URISyntaxException, ItemStateException {
+
             PropertyState propertyState = pm.createNew(propertyId);
             propertyState.setType(PropertyType.valueFromName(type));
             propertyState.setMultiValued(multiValued);
@@ -227,6 +255,19 @@ public class NodePropBundleData {
             List<InternalValue> internalValues = new ArrayList<>();
             for (Object value : values) {
                 switch (propertyState.getType()) {
+                    case PropertyType.BINARY:
+                        byte[] bytes;
+                        if (value instanceof Boolean && value.equals(Boolean.FALSE)) {
+                            bytes = new byte[0];
+                        } else if (value instanceof  String) {
+                            bytes = Base64.decodeBase64(((String) value).getBytes());
+                        } else {
+                            String message = "Cannot deserialize to binary " + value;
+                            log.error(message);
+                            throw new ItemStateException(message);
+                        }
+                        internalValues.add(InternalValue.create(bytes));
+                        break;
                     case PropertyType.BOOLEAN:
                         internalValues.add(InternalValue.create((Boolean) value));
                         break;
@@ -255,12 +296,24 @@ public class NodePropBundleData {
                         Path path = PathFactoryImpl.getInstance().create((String) value);
                         internalValues.add(InternalValue.create(path));
                         break;
+                    case PropertyType.REFERENCE:
+                    case PropertyType.WEAKREFERENCE:
+                        NodeId nodeId = NodeId.valueOf((String) value);
+                        internalValues.add(InternalValue.create(nodeId));
+                        break;
                     case PropertyType.STRING:
                         if (value instanceof Boolean) {
                             internalValues.add(InternalValue.create(""));
                         } else {
                             internalValues.add(InternalValue.create((String) value));
                         }
+                        break;
+                    case PropertyType.UNDEFINED:
+                        internalValues.add(InternalValue.create((String) value));
+                        break;
+                    case PropertyType.URI:
+                        URI uri = new URI((String) value);
+                        internalValues.add(InternalValue.create(uri));
                         break;
                     default:
                         log.error("Deserializer is not implemented for type " + type);
@@ -297,7 +350,7 @@ public class NodePropBundleData {
         }
     }
 
-    public static class Child {
+    static class Child {
 
         private String name;
         private String nodeId;
