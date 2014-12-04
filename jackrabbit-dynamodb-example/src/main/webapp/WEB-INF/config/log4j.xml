@@ -9,7 +9,7 @@
     </appender>
 
     <logger name="com.kartashov">
-        <level value="WARN"/>
+        <level value="ALL"/>
     </logger>
 
     <logger name="info.magnolia">

@@ -10,11 +10,9 @@ import com.amazonaws.services.dynamodbv2.document.spec.DeleteItemSpec;
 import com.amazonaws.services.dynamodbv2.document.spec.GetItemSpec;
 import com.amazonaws.services.dynamodbv2.document.spec.PutItemSpec;
 import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
-import com.amazonaws.services.dynamodbv2.model.DescribeTableResult;
-import com.amazonaws.services.dynamodbv2.model.ResourceNotFoundException;
+import com.amazonaws.services.dynamodbv2.model.*;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.apache.jackrabbit.core.id.NodeId;
 import org.apache.jackrabbit.core.id.PropertyId;
 import org.apache.jackrabbit.core.persistence.PMContext;
@@ -44,11 +42,13 @@ import java.util.Set;
  * <li>&lt;param name="{@link #setRegion(String) region}" value=""/>
  * <li>&lt;param name="{@link #setConsistencyCheck(String) consistencyCheck}" value="false"/>
  * <li>&lt;param name="{@link #setConsistencyFix(String) consistencyFix}" value="false"/>
+ * <li>&lt;param name="{@link #setCreateOnMissing(String) createOnMissing}" value="false"/>
  * </ul>
  */
 public class DynamoDBBundlePersistenceManager extends AbstractBundlePersistenceManager {
 
     private static final Logger log = LoggerFactory.getLogger(DynamoDBBundlePersistenceManager.class);
+    private static final String ID_ATTRIBUTE = "id";
 
     private String tableName;
     private ObjectMapper mapper;
@@ -57,6 +57,7 @@ public class DynamoDBBundlePersistenceManager extends AbstractBundlePersistenceM
     private boolean initialized;
     private boolean consistencyCheck;
     private boolean consistencyFix;
+    private boolean createOnMissing;
 
     /**
      * Set DynamoDB table name where the bundles need to be stored.
@@ -68,7 +69,7 @@ public class DynamoDBBundlePersistenceManager extends AbstractBundlePersistenceM
 
     /**
      * Set AWS Region name.
-     * @param regionName the name of the region as specified in {@link com.amazonaws.regions.Region}
+     * @param regionName the name of the region as specified in {@link com.amazonaws.regions.Region}.
      */
     public void setRegion(String regionName) {
         region = RegionUtils.getRegion(regionName);
@@ -88,12 +89,19 @@ public class DynamoDBBundlePersistenceManager extends AbstractBundlePersistenceM
     }
 
     /**
-     * Defines if the consistency check should attempt to fix issues that
-     * it finds.
+     * Defines if the consistency check should attempt to fix issues that it finds.
      * @param consistencyFix the consistency fix flag.
      */
     public void setConsistencyFix(String consistencyFix) {
         this.consistencyFix = Boolean.valueOf(consistencyFix);
+    }
+
+    /**
+     * Defines if a new table is created if not found in the database.
+     * @param createOnMissing the missing table creation flag.
+     */
+    public void setCreateOnMissing(String createOnMissing) {
+        this.createOnMissing = Boolean.valueOf(createOnMissing);
     }
 
     @Override
@@ -105,6 +113,12 @@ public class DynamoDBBundlePersistenceManager extends AbstractBundlePersistenceM
             throw new IllegalStateException(message);
         }
 
+        if (tableName == null) {
+            String message = "Table name is not set";
+            log.warn(message);
+            throw new IllegalStateException(message);
+        }
+
         super.init(context);
 
         mapper = new ObjectMapper();
@@ -112,35 +126,20 @@ public class DynamoDBBundlePersistenceManager extends AbstractBundlePersistenceM
 
         AmazonDynamoDB client = new AmazonDynamoDBClient();
         client.setRegion(region);
-        DynamoDB database = new DynamoDB(client);
 
-        if (tableName == null) {
-            log.warn("Table name is not set. Using default table name 'Bundles'");
-            tableName = "Bundles";
-        }
-        try {
-            DescribeTableResult describeTableResult = client.describeTable(tableName);
-            // @todo check that the "id" column is there and has the right format
-        } catch (ResourceNotFoundException e) {
-            String message = "Cannot find table " + tableName;
-            log.error(message, e);
-            throw e;
-        } catch (AmazonClientException e) {
-            String message = "Cannot fetch information for table " + tableName;
-            log.error(message, e);
-            throw e;
-        }
-        table = database.getTable(tableName);
+        table = DynamoDBUtils.getOrCreateTable(client, tableName, ID_ATTRIBUTE, createOnMissing);
+
         if (consistencyCheck) {
             log.info("Consistency check requested");
             checkConsistency(null, true, consistencyFix);
         }
+
         initialized = true;
     }
 
     @Override
     protected NodePropBundle loadBundle(NodeId nodeId) throws ItemStateException {
-        PrimaryKey primaryKey = new PrimaryKey("id", nodeId.toString());
+        PrimaryKey primaryKey = new PrimaryKey(ID_ATTRIBUTE, nodeId.toString());
         GetItemSpec getItemSpec = new GetItemSpec().withPrimaryKey(primaryKey);
         Item item;
         try {
@@ -170,7 +169,7 @@ public class DynamoDBBundlePersistenceManager extends AbstractBundlePersistenceM
 
     @Override
     protected void storeBundle(NodePropBundle bundle) throws ItemStateException {
-        PrimaryKey primaryKey = new PrimaryKey("id", bundle.getId().toString());
+        PrimaryKey primaryKey = new PrimaryKey(ID_ATTRIBUTE, bundle.getId().toString());
         String data;
         try {
             data = mapper.writeValueAsString(new NodePropBundleData(bundle));
@@ -192,7 +191,7 @@ public class DynamoDBBundlePersistenceManager extends AbstractBundlePersistenceM
 
     @Override
     protected void destroyBundle(NodePropBundle bundle) throws ItemStateException {
-        PrimaryKey primaryKey = new PrimaryKey("id", bundle.getId().toString());
+        PrimaryKey primaryKey = new PrimaryKey(ID_ATTRIBUTE, bundle.getId().toString());
         DeleteItemSpec deleteItemSpec = new DeleteItemSpec().withPrimaryKey(primaryKey);
         try {
             table.deleteItem(deleteItemSpec);
@@ -205,7 +204,7 @@ public class DynamoDBBundlePersistenceManager extends AbstractBundlePersistenceM
 
     @Override
     protected void destroy(NodeReferences refs) throws ItemStateException {
-        PrimaryKey primaryKey = new PrimaryKey("id", refs.getTargetId().toString());
+        PrimaryKey primaryKey = new PrimaryKey(ID_ATTRIBUTE, refs.getTargetId().toString());
         AttributeUpdate attributeUpdate = new AttributeUpdate("references").delete();
         try {
             table.updateItem(primaryKey, attributeUpdate);
@@ -222,7 +221,7 @@ public class DynamoDBBundlePersistenceManager extends AbstractBundlePersistenceM
         for (PropertyId propertyId : refs.getReferences()) {
             references.add(propertyId.toString());
         }
-        PrimaryKey primaryKey = new PrimaryKey("id", refs.getTargetId().toString());
+        PrimaryKey primaryKey = new PrimaryKey(ID_ATTRIBUTE, refs.getTargetId().toString());
         AttributeUpdate attributeUpdate = new AttributeUpdate("references").put(references);
         try {
             table.updateItem(primaryKey, attributeUpdate);
@@ -241,16 +240,16 @@ public class DynamoDBBundlePersistenceManager extends AbstractBundlePersistenceM
     @Override
     public List<NodeId> getAllNodeIds(NodeId after, int maxCount) throws ItemStateException, RepositoryException {
         List<NodeId> nodeIds = new ArrayList<>();
-        ScanSpec scanSpec = new ScanSpec().withAttributesToGet("id");
+        ScanSpec scanSpec = new ScanSpec().withAttributesToGet(ID_ATTRIBUTE);
         if (after != null) {
-            PrimaryKey primaryKey = new PrimaryKey("id", nodeIds.toString());
+            PrimaryKey primaryKey = new PrimaryKey(ID_ATTRIBUTE, nodeIds.toString());
             scanSpec.withExclusiveStartKey(primaryKey);
         }
         if (maxCount != 0) {
             scanSpec.withMaxPageSize(maxCount);
         }
         for (Item item : table.scan(scanSpec)) {
-            NodeId nodeId = NodeId.valueOf(item.getString("id"));
+            NodeId nodeId = NodeId.valueOf(item.getString(ID_ATTRIBUTE));
             nodeIds.add(nodeId);
         }
         return nodeIds;
@@ -258,7 +257,7 @@ public class DynamoDBBundlePersistenceManager extends AbstractBundlePersistenceM
 
     @Override
     public NodeReferences loadReferencesTo(NodeId targetId) throws ItemStateException {
-        PrimaryKey primaryKey = new PrimaryKey("id", targetId.toString());
+        PrimaryKey primaryKey = new PrimaryKey(ID_ATTRIBUTE, targetId.toString());
         GetItemSpec getItemSpec = new GetItemSpec().withPrimaryKey(primaryKey).withAttributesToGet("references");
         Item item;
         try {
@@ -285,7 +284,7 @@ public class DynamoDBBundlePersistenceManager extends AbstractBundlePersistenceM
 
     @Override
     public boolean existsReferencesTo(NodeId targetId) throws ItemStateException {
-        PrimaryKey primaryKey = new PrimaryKey("id", targetId.toString());
+        PrimaryKey primaryKey = new PrimaryKey(ID_ATTRIBUTE, targetId.toString());
         GetItemSpec getItemSpec = new GetItemSpec().withPrimaryKey(primaryKey).withAttributesToGet("references");
         Item item;
         try {
