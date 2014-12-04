@@ -246,7 +246,7 @@ public class DynamoDBBundlePersistenceManager extends AbstractBundlePersistenceM
         List<NodeId> nodeIds = new ArrayList<>();
         ScanSpec scanSpec = new ScanSpec().withAttributesToGet(ID_ATTRIBUTE);
         if (after != null) {
-            PrimaryKey primaryKey = new PrimaryKey(ID_ATTRIBUTE, nodeIds.toString());
+            PrimaryKey primaryKey = new PrimaryKey(ID_ATTRIBUTE, after.toString());
             scanSpec.withExclusiveStartKey(primaryKey);
         }
         if (maxCount != 0) {

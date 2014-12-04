@@ -104,6 +104,7 @@
             <param name="table" value="${wsp.name}-bundles"/>
             <param name="region" value="eu-west-1"/>
             <param name="createOnMissing" value="true"/>
+            <param name="consistencyCheck" value="true"/>
         </PersistenceManager>
         <SearchIndex class="org.apache.jackrabbit.core.query.lucene.SearchIndex">
             <param name="path" value="${wsp.home}/index" />
@@ -135,6 +136,7 @@
             <param name="table" value="version-bundles"/>
             <param name="region" value="eu-west-1"/>
             <param name="createOnMissing" value="true"/>
+            <param name="consistencyCheck" value="true"/>
         </PersistenceManager>
     </Versioning>
 </Repository>
