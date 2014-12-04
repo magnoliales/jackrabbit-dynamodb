@@ -188,7 +188,7 @@ public class DynamoDBBundlePersistenceManager extends AbstractBundlePersistenceM
             table.putItem(putItemSpec);
         } catch (AmazonClientException e) {
             String message = "Cannot store bundle " + bundle.getId().toString();
-            log.error(message, e);
+            log.warn(message, e);
             throw new ItemStateException(message, e);
         }
     }
