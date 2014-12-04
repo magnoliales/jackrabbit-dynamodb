@@ -37,7 +37,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * This is a persistence manager that stores the {@link NodePropBundle}s in a DynamoDB table.
+ * Persistence manager that stores the {@link NodePropBundle}s in a DynamoDB table.
  *
  * <p>
  * Configuration:<br>
@@ -49,9 +49,9 @@ import java.util.Set;
  * <li>&lt;param name="{@link #setCreateOnMissing(String) createOnMissing}" value="false"/>
  * </ul>
  */
-public class DynamoDBBundlePersistenceManager extends AbstractBundlePersistenceManager {
+public class DynamoDBPersistenceManager extends AbstractBundlePersistenceManager {
 
-    private static final Logger log = LoggerFactory.getLogger(DynamoDBBundlePersistenceManager.class);
+    private static final Logger log = LoggerFactory.getLogger(DynamoDBPersistenceManager.class);
     private static final String ID_ATTRIBUTE = "id";
 
     private String tableName;
@@ -118,7 +118,7 @@ public class DynamoDBBundlePersistenceManager extends AbstractBundlePersistenceM
         }
 
         if (tableName == null) {
-            String message = "Table name is not set";
+            String message = "Table name is missing";
             log.warn(message);
             throw new IllegalStateException(message);
         }
@@ -133,12 +133,12 @@ public class DynamoDBBundlePersistenceManager extends AbstractBundlePersistenceM
 
         table = DynamoDBUtils.getOrCreateTable(client, tableName, ID_ATTRIBUTE, createOnMissing);
 
+        initialized = true;
+
         if (consistencyCheck) {
             log.info("Consistency check requested");
             checkConsistency(null, true, consistencyFix);
         }
-
-        initialized = true;
     }
 
     @Override
@@ -305,5 +305,24 @@ public class DynamoDBBundlePersistenceManager extends AbstractBundlePersistenceM
         }
         Set<String> references = item.getStringSet("references");
         return references != null && references.size() > 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     * The check is skipped if the table is empty.
+     */
+    @Override
+    public void checkConsistency(String[] uuids, boolean recursive, boolean fix) {
+        try {
+            if (getAllNodeIds(null, 1).size() > 0) {
+                super.checkConsistency(uuids, recursive, fix);
+            } else {
+                log.info("Consistency check skipped as table " + tableName + " is empty");
+            }
+        } catch (ItemStateException | RepositoryException e) {
+            String message = "could not run consistency check on table " + tableName;
+            log.error(message, e);
+            throw new IllegalStateException(message, e);
+        }
     }
 }

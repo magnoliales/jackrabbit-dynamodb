@@ -32,11 +32,11 @@ import static org.apache.jackrabbit.core.persistence.util.NodePropBundle.ChildNo
 import static org.apache.jackrabbit.core.persistence.util.NodePropBundle.PropertyEntry;
 
 /**
- * Data transfer class that helps with serializing the
+ * Data transfer classes that help with serializing the
  * {@link org.apache.jackrabbit.core.persistence.util.NodePropBundle} into JSON and deserializing it back.
  *
- * The properties of this class and all nested classes are 'simple' values directly serializable to and deserializable
- * from JSON. The design of these classes follows a set of simple principles:
+ * The properties of this class and all nested classes are 'simple' values directly mapped to basic JSON types.
+ * The design of these classes follows a set of simple principles:
  * <ul>
  * <li>Converting constructor from domain object into data object
  * <li>Converting method from data object into domain object
@@ -45,8 +45,8 @@ import static org.apache.jackrabbit.core.persistence.util.NodePropBundle.Propert
  * <li>Getters annotated with <code>@JsonProperty</code> that allows Jackson to generate JSON from a data object
  * </ul>
  *
- * Please note special handling for empty strings. As DynamoDB doesn't support empty strings,
- * <code>false</code> value is written instead.
+ * Please note special handling of empty strings. As DynamoDB doesn't support empty strings,
+ * <code>false</code> value is written instead. Binary values are stored directly in the storage with base64 encoding.
  */
 class NodePropBundleData {
 

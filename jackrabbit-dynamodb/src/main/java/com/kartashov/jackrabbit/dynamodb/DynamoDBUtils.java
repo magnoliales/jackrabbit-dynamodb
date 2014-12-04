@@ -18,6 +18,11 @@ class DynamoDBUtils {
                                   boolean createOnMissing) {
         try {
             TableDescription tableDescription = client.describeTable(tableName).getTable();
+            if (!tableDescription.getTableStatus().equals(TableStatus.ACTIVE.toString())) {
+                String message = "Table " + tableName + " exists but not active. Cannot proceed.";
+                log.error(message);
+                throw new IllegalStateException(message);
+            }
             boolean hashKeyFound = false;
             for (KeySchemaElement keySchemaElement : tableDescription.getKeySchema()) {
                 if (keySchemaElement.getAttributeName().equals(attributeName) &&
