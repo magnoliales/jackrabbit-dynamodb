@@ -1,4 +1,4 @@
-package com.kartashov.jackrabbit.dynamodb;
+package com.magnoliales.jackrabbit.dynamodb;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.regions.Region;
@@ -51,7 +51,7 @@ import java.util.Set;
  */
 public class DynamoDBPersistenceManager extends AbstractBundlePersistenceManager {
 
-    private static final Logger log = LoggerFactory.getLogger(DynamoDBPersistenceManager.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DynamoDBPersistenceManager.class);
     private static final String ID_ATTRIBUTE = "id";
 
     private String tableName;
@@ -79,7 +79,7 @@ public class DynamoDBPersistenceManager extends AbstractBundlePersistenceManager
         region = RegionUtils.getRegion(regionName);
         if (region == null) {
             String message = "Cannot get region with name " + regionName;
-            log.error(message);
+            LOGGER.error(message);
             throw new IllegalArgumentException(message);
         }
     }
@@ -113,13 +113,13 @@ public class DynamoDBPersistenceManager extends AbstractBundlePersistenceManager
 
         if (initialized) {
             String message = "Persistence manager is already initialized";
-            log.error(message);
+            LOGGER.error(message);
             throw new IllegalStateException(message);
         }
 
         if (tableName == null) {
             String message = "Table name is missing";
-            log.warn(message);
+            LOGGER.warn(message);
             throw new IllegalStateException(message);
         }
 
@@ -136,7 +136,7 @@ public class DynamoDBPersistenceManager extends AbstractBundlePersistenceManager
         initialized = true;
 
         if (consistencyCheck) {
-            log.info("Consistency check for table " + tableName);
+            LOGGER.info("Consistency check for table " + tableName);
             checkConsistency(null, true, consistencyFix);
         }
     }
@@ -150,7 +150,7 @@ public class DynamoDBPersistenceManager extends AbstractBundlePersistenceManager
             item = table.getItem(getItemSpec);
         } catch (AmazonClientException e) {
             String message = "Cannot load bundle " + nodeId.toString();
-            log.error(message, e);
+            LOGGER.error(message, e);
             throw new ItemStateException(message, e);
         }
         if (item == null) {
@@ -159,14 +159,14 @@ public class DynamoDBPersistenceManager extends AbstractBundlePersistenceManager
         String data = item.getJSON("data");
         if (data == null) {
             String message = "Bundle data is missing " + nodeId.toString();
-            log.error(message);
+            LOGGER.error(message);
             throw new IllegalStateException(message);
         }
         try {
             return mapper.readValue(data, NodePropBundleData.class).toNodePropBundle(this, nodeId);
         } catch (IOException | URISyntaxException | ParseException e) {
             String message = "Cannot deserialize bundle data " + nodeId.toString();
-            log.error(message, e);
+            LOGGER.error(message, e);
             throw new ItemStateException(message, e);
         }
     }
@@ -179,7 +179,7 @@ public class DynamoDBPersistenceManager extends AbstractBundlePersistenceManager
             data = mapper.writeValueAsString(new NodePropBundleData(bundle));
         } catch (IOException | RepositoryException e) {
             String message = "Cannot serialize bundle data " + bundle.getId().toString();
-            log.error(message, e);
+            LOGGER.error(message, e);
             throw new ItemStateException(message, e);
         }
         Item item = new Item().withPrimaryKey(primaryKey).withJSON("data", data);
@@ -188,7 +188,7 @@ public class DynamoDBPersistenceManager extends AbstractBundlePersistenceManager
             table.putItem(putItemSpec);
         } catch (AmazonClientException e) {
             String message = "Cannot store bundle " + bundle.getId().toString();
-            log.warn(message, e);
+            LOGGER.warn(message, e);
             throw new ItemStateException(message, e);
         }
     }
@@ -201,7 +201,7 @@ public class DynamoDBPersistenceManager extends AbstractBundlePersistenceManager
             table.deleteItem(deleteItemSpec);
         } catch (AmazonClientException e) {
             String message = "Cannot delete bundle " + bundle.getId().toString();
-            log.error(message, e);
+            LOGGER.error(message, e);
             throw new ItemStateException(message, e);
         }
     }
@@ -214,7 +214,7 @@ public class DynamoDBPersistenceManager extends AbstractBundlePersistenceManager
             table.updateItem(primaryKey, attributeUpdate);
         } catch (AmazonClientException e) {
             String message = "Cannot remove references to " + refs.getTargetId().toString();
-            log.error(message, e);
+            LOGGER.error(message, e);
             throw new ItemStateException(message, e);
         }
     }
@@ -231,7 +231,7 @@ public class DynamoDBPersistenceManager extends AbstractBundlePersistenceManager
             table.updateItem(primaryKey, attributeUpdate);
         } catch (AmazonClientException e) {
             String message = "Cannot update references for " + refs.getTargetId().toString();
-            log.error(message, e);
+            LOGGER.error(message, e);
             throw new ItemStateException(message, e);
         }
     }
@@ -268,12 +268,12 @@ public class DynamoDBPersistenceManager extends AbstractBundlePersistenceManager
             item = table.getItem(getItemSpec);
         } catch (AmazonClientException e) {
             String message = "Cannot load references to " + targetId.toString();
-            log.error(message, e);
+            LOGGER.error(message, e);
             throw new ItemStateException(message, e);
         }
         if (item == null) {
             String message = "Cannot find node " + targetId.toString();
-            log.error(message);
+            LOGGER.error(message);
             throw new NoSuchItemStateException(message);
         }
         NodeReferences nodeReferences = new NodeReferences(targetId);
@@ -295,12 +295,12 @@ public class DynamoDBPersistenceManager extends AbstractBundlePersistenceManager
             item = table.getItem(getItemSpec);
         } catch (AmazonClientException e) {
             String message = "Cannot load references to " + targetId.toString();
-            log.error(message, e);
+            LOGGER.error(message, e);
             throw new ItemStateException(message, e);
         }
         if (item == null) {
             String message = "Cannot find node " + targetId.toString();
-            log.error(message);
+            LOGGER.error(message);
             throw new NoSuchItemStateException(message);
         }
         Set<String> references = item.getStringSet("references");
@@ -317,11 +317,11 @@ public class DynamoDBPersistenceManager extends AbstractBundlePersistenceManager
             if (getAllNodeIds(null, 1).size() > 0) {
                 super.checkConsistency(uuids, recursive, fix);
             } else {
-                log.info("Consistency check skipped as table " + tableName + " is empty");
+                LOGGER.info("Consistency check skipped as table " + tableName + " is empty");
             }
         } catch (ItemStateException | RepositoryException e) {
             String message = "could not run consistency check on table " + tableName;
-            log.error(message, e);
+            LOGGER.error(message, e);
             throw new IllegalStateException(message, e);
         }
     }

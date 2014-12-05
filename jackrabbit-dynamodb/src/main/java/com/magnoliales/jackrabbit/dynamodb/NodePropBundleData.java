@@ -1,4 +1,4 @@
-package com.kartashov.jackrabbit.dynamodb;
+package com.magnoliales.jackrabbit.dynamodb;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -50,13 +51,13 @@ import static org.apache.jackrabbit.core.persistence.util.NodePropBundle.Propert
  */
 class NodePropBundleData {
 
-    private static final DateFormat dateFormat;
-    private static final DecimalFormat decimalFormat;
+    private static final DateFormat DATE_FORMAT;
+    private static final DecimalFormat DECIMAL_FORMAT;
 
     static {
-        dateFormat = DateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.FULL, Locale.US);
-        decimalFormat = (DecimalFormat) NumberFormat.getInstance(Locale.US);
-        decimalFormat.setParseBigDecimal(true);
+        DATE_FORMAT = DateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.FULL, Locale.US);
+        DECIMAL_FORMAT = (DecimalFormat) NumberFormat.getInstance(Locale.US);
+        DECIMAL_FORMAT.setParseBigDecimal(true);
     }
 
     private String nodeType;
@@ -103,7 +104,7 @@ class NodePropBundleData {
     }
 
     public NodePropBundle toNodePropBundle(PersistenceManager pm, NodeId nodeId)
-            throws URISyntaxException, ItemStateException, ParseException {
+            throws URISyntaxException, ItemStateException, ParseException, UnsupportedEncodingException {
 
         NameFactory nameFactory = NameFactoryImpl.getInstance();
         NodePropBundle nodePropBundle = new NodePropBundle(pm.createNew(nodeId));
@@ -169,7 +170,7 @@ class NodePropBundleData {
 
     static class Property {
 
-        private static final Logger log = LoggerFactory.getLogger(Property.class);
+        private static final Logger LOGGER = LoggerFactory.getLogger(Property.class);
 
         private String name;
         private String type;
@@ -201,7 +202,7 @@ class NodePropBundleData {
                     case PropertyType.BINARY:
                         byte[] bytes = Base64.encodeBase64(IOUtils.toByteArray(internalValue.getStream()));
                         if (bytes != null && bytes.length > 0) {
-                            values.add(new String(bytes));
+                            values.add(new String(bytes, "UTF-8"));
                         } else {
                             values.add(Boolean.FALSE);
                         }
@@ -211,7 +212,7 @@ class NodePropBundleData {
                         break;
                     case PropertyType.DATE:
                         Calendar calendar = internalValue.getDate();
-                        values.add(dateFormat.format(calendar.getTime()));
+                        values.add(DATE_FORMAT.format(calendar.getTime()));
                         break;
                     case PropertyType.DECIMAL:
                         values.add(internalValue.getDecimal().toPlainString());
@@ -247,14 +248,14 @@ class NodePropBundleData {
                         values.add(internalValue.getURI().toString());
                         break;
                     default:
-                        log.error("Serializer is not implemented for type " + type);
+                        LOGGER.error("Serializer is not implemented for type " + type);
                         throw new AssertionError("Not implemented for " + type);
                 }
             }
         }
 
         public PropertyEntry toPropertyEntry(PersistenceManager pm, PropertyId propertyId)
-                throws URISyntaxException, ItemStateException, ParseException {
+                throws URISyntaxException, ItemStateException, ParseException, UnsupportedEncodingException {
 
             PropertyState propertyState = pm.createNew(propertyId);
             propertyState.setType(PropertyType.valueFromName(type));
@@ -268,10 +269,10 @@ class NodePropBundleData {
                         if (value instanceof Boolean && value.equals(Boolean.FALSE)) {
                             bytes = new byte[0];
                         } else if (value instanceof  String) {
-                            bytes = Base64.decodeBase64(((String) value).getBytes());
+                            bytes = Base64.decodeBase64(((String) value).getBytes("UTF-8"));
                         } else {
                             String message = "Cannot deserialize to binary " + value;
-                            log.error(message);
+                            LOGGER.error(message);
                             throw new ItemStateException(message);
                         }
                         internalValues.add(InternalValue.create(bytes));
@@ -281,11 +282,11 @@ class NodePropBundleData {
                         break;
                     case PropertyType.DATE:
                         Calendar calendar = Calendar.getInstance();
-                        calendar.setTime(dateFormat.parse((String) value));
+                        calendar.setTime(DATE_FORMAT.parse((String) value));
                         internalValues.add(InternalValue.create(calendar));
                         break;
                     case PropertyType.DECIMAL:
-                        BigDecimal decimal = (BigDecimal) decimalFormat.parse((String) value, new ParsePosition(0));
+                        BigDecimal decimal = (BigDecimal) DECIMAL_FORMAT.parse((String) value, new ParsePosition(0));
                         internalValues.add(InternalValue.create(decimal));
                         break;
                     case PropertyType.DOUBLE:
@@ -322,7 +323,7 @@ class NodePropBundleData {
                         internalValues.add(InternalValue.create(uri));
                         break;
                     default:
-                        log.error("Deserializer is not implemented for type " + type);
+                        LOGGER.error("Deserializer is not implemented for type " + type);
                         throw new AssertionError("Not implemented for " + type);
                 }
             }

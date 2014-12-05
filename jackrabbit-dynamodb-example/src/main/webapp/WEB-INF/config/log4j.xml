@@ -8,7 +8,7 @@
         </layout>
     </appender>
 
-    <logger name="com.kartashov">
+    <logger name="com.mangoliales">
         <level value="ALL"/>
     </logger>
 

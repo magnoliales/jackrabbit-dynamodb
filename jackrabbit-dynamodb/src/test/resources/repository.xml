@@ -96,7 +96,7 @@
     <Workspaces rootPath="${rep.home}/workspaces" defaultWorkspace="default"/>
     <Workspace name="default">
         <FileSystem class="org.apache.jackrabbit.core.fs.mem.MemoryFileSystem"/>
-        <PersistenceManager class="com.kartashov.jackrabbit.dynamodb.DynamoDBPersistenceManager">
+        <PersistenceManager class="com.magnoliales.jackrabbit.dynamodb.DynamoDBPersistenceManager">
             <param name="table" value="test-default-bundles"/>
             <param name="region" value="eu-west-1"/>
             <param name="createOnMissing" value="true"/>
@@ -110,7 +110,7 @@
     </Workspace>
     <Versioning rootPath="${rep.home}/version">
         <FileSystem class="org.apache.jackrabbit.core.fs.mem.MemoryFileSystem"/>
-        <PersistenceManager class="com.kartashov.jackrabbit.dynamodb.DynamoDBPersistenceManager">
+        <PersistenceManager class="com.magnoliales.jackrabbit.dynamodb.DynamoDBPersistenceManager">
             <param name="table" value="test-version-bundles"/>
             <param name="region" value="eu-west-1"/>
             <param name="createOnMissing" value="true"/>

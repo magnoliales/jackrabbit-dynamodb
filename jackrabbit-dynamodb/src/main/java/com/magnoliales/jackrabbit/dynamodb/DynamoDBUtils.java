@@ -1,4 +1,4 @@
-package com.kartashov.jackrabbit.dynamodb;
+package com.magnoliales.jackrabbit.dynamodb;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
@@ -10,9 +10,15 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 
-class DynamoDBUtils {
+final class DynamoDBUtils {
 
-    private static final Logger log = LoggerFactory.getLogger(DynamoDBUtils.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DynamoDBUtils.class);
+    private static final long THROUGHPUT = 25L;
+    private static final int MAX_ATTEMPTS = 12;
+    private static final int PAUSE = 5000;
+
+    private DynamoDBUtils() {
+    }
 
     static Table getOrCreateTable(AmazonDynamoDB client, String tableName, String attributeName,
                                   boolean createOnMissing) {
@@ -20,31 +26,31 @@ class DynamoDBUtils {
             TableDescription tableDescription = client.describeTable(tableName).getTable();
             if (!tableDescription.getTableStatus().equals(TableStatus.ACTIVE.toString())) {
                 String message = "Table " + tableName + " exists but not active. Cannot proceed.";
-                log.error(message);
+                LOGGER.error(message);
                 throw new IllegalStateException(message);
             }
             boolean hashKeyFound = false;
             for (KeySchemaElement keySchemaElement : tableDescription.getKeySchema()) {
-                if (keySchemaElement.getAttributeName().equals(attributeName) &&
-                        keySchemaElement.getKeyType().equals(KeyType.HASH.toString())) {
+                if (keySchemaElement.getAttributeName().equals(attributeName)
+                        && keySchemaElement.getKeyType().equals(KeyType.HASH.toString())) {
                     hashKeyFound = true;
                     break;
                 }
             }
             if (!hashKeyFound) {
                 String message = "A hash key '" + attributeName + "' is required for table " + tableName;
-                log.error(message);
+                LOGGER.error(message);
                 throw new IllegalStateException(message);
             }
         } catch (ResourceNotFoundException e) {
-            log.info("Table " + tableName + " does not exist");
+            LOGGER.info("Table " + tableName + " does not exist");
             if (!createOnMissing) {
                 String message = "Cannot proceed without a table. "
                         + "Either create a table manually or set createOnMissing flag";
-                log.error(message, e);
+                LOGGER.error(message, e);
                 throw new IllegalStateException(message, e);
             } else {
-                log.info("Creating table " + tableName);
+                LOGGER.info("Creating table " + tableName);
                 ArrayList<KeySchemaElement> keySchemaElements = new ArrayList<>();
                 ArrayList<AttributeDefinition> attributeDefinitions = new ArrayList<>();
                 keySchemaElements.add(new KeySchemaElement()
@@ -54,8 +60,8 @@ class DynamoDBUtils {
                         .withAttributeName(attributeName)
                         .withAttributeType(ScalarAttributeType.S));
                 ProvisionedThroughput provisionedThroughput = new ProvisionedThroughput()
-                        .withReadCapacityUnits(25L)
-                        .withWriteCapacityUnits(25L);
+                        .withReadCapacityUnits(THROUGHPUT)
+                        .withWriteCapacityUnits(THROUGHPUT);
                 CreateTableRequest createTableRequest = new CreateTableRequest()
                         .withTableName(tableName)
                         .withKeySchema(keySchemaElements)
@@ -66,21 +72,21 @@ class DynamoDBUtils {
                     waitForTableToBecomeAvailable(client, tableName);
                 } catch (AmazonClientException | InterruptedException e1) {
                     String message = "Cannot create table " + tableName;
-                    log.error(message, e1);
+                    LOGGER.error(message, e1);
                     throw e;
                 }
             }
         } catch (AmazonClientException e) {
             String message = "Cannot fetch information for table " + tableName;
-            log.error(message, e);
+            LOGGER.error(message, e);
             throw e;
         }
         return new DynamoDB(client).getTable(tableName);
     }
 
     static void waitForTableToBecomeAvailable(AmazonDynamoDB client, String tableName) throws InterruptedException {
-        for (int i = 0; i < 12; i++) {
-            Thread.sleep(1000 * 5);
+        for (int i = 0; i < MAX_ATTEMPTS; i++) {
+            Thread.sleep(PAUSE);
             TableDescription tableDescription = client.describeTable(tableName).getTable();
             if (tableDescription == null) {
                 continue;
