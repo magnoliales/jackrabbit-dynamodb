@@ -39,3 +39,4 @@ To Do
 -----
 
 - Move proper test suite from jackrabbit project
+- Add publishing profile for sonatype
