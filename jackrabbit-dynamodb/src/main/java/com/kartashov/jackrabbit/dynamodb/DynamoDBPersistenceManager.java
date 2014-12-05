@@ -136,7 +136,7 @@ public class DynamoDBPersistenceManager extends AbstractBundlePersistenceManager
         initialized = true;
 
         if (consistencyCheck) {
-            log.info("Consistency check for table " + tableName + " requested");
+            log.info("Consistency check for table " + tableName);
             checkConsistency(null, true, consistencyFix);
         }
     }
